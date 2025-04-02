@@ -58,10 +58,10 @@ public partial class SmartHomeDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ChiTietDo__MaDon__76969D2E");
 
-            entity.HasOne(d => d.MaSanPhamNavigation).WithMany(p => p.ChiTietDonHangs)
-                .HasForeignKey(d => d.MaSanPham)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ChiTietDo__MaSan__778AC167");
+            //entity.HasOne(d => d.MaSanPhamNavigation).WithMany(p => p.ChiTietDonHangs)
+            //    .HasForeignKey(d => d.MaSanPham)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__ChiTietDo__MaSan__778AC167");
         });
 
         modelBuilder.Entity<DanhGium>(entity =>
@@ -242,15 +242,15 @@ public partial class SmartHomeDbContext : DbContext
             entity.Property(e => e.TenSanPham).HasMaxLength(255);
             entity.Property(e => e.ThoiGianBaoTri).HasDefaultValue(12);
 
-            entity.HasOne(d => d.MaDanhMucNavigation).WithMany(p => p.SanPhams)
-                .HasForeignKey(d => d.MaDanhMuc)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SanPham__MaDanhM__60A75C0F");
+            //entity.HasOne(d => d.MaDanhMucNavigation).WithMany(p => p.SanPhams)
+            //    .HasForeignKey(d => d.MaDanhMuc)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__SanPham__MaDanhM__60A75C0F");
 
-            entity.HasOne(d => d.MaKhoNavigation).WithMany(p => p.SanPhams)
-                .HasForeignKey(d => d.MaKho)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SanPham__MaKho__628FA481");
+            //entity.HasOne(d => d.MaKhoNavigation).WithMany(p => p.SanPhams)
+            //    .HasForeignKey(d => d.MaKho)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__SanPham__MaKho__628FA481");
 
             //entity.HasOne(d => d.MaNhaCungCapNavigation).WithMany(p => p.SanPhams)
             //    .HasForeignKey(d => d.MaNhaCungCap)

@@ -17,5 +17,12 @@ namespace WebsiteSmartHome.Core.DTOs
         public int ThoiGianBaoTri { get; set; }
 
         public string? MoTa { get; set; }
+
+        public Guid MaDanhMuc { get; set; } // Khóa ngoại đến DanhMuc
+
+        public Guid MaNhaCungCap { get; set; } // Khóa ngoại đến NhaCungCap
+
+        public Guid MaKho { get; set; } // Khóa ngoại đến Kho
     }
+
 }

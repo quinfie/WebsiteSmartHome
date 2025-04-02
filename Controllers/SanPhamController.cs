@@ -56,47 +56,47 @@ namespace WebsiteSmartHome.Controllers
                 SoLuongTon = sanPham.SoLuongTon,
                 ThoiGianBaoHanh = sanPham.ThoiGianBaoHanh,
                 ThoiGianBaoTri = sanPham.ThoiGianBaoTri,
-                MoTa = sanPham.MoTa
+                MoTa = sanPham.MoTa,
+                MaDanhMuc = sanPham.MaDanhMuc,
+                MaNhaCungCap = sanPham.MaNhaCungCap,
+                MaKho = sanPham.MaKho
             };
         }
 
-        // <summary>
+        /// <summary>
         /// Tạo sản phẩm.
         /// </summary>
         /// <returns>Kết quả tạo sản phẩm thành công hay thất bại.</returns>
-        //[HttpPost]
-        //public async Task<ActionResult<BaseResponse<bool>>> CreateSanPham([FromBody] SanPhamDto dto)
-        //{
-        //    if (dto == null)
-        //        return BadRequest(new { message = "Dữ liệu không hợp lệ" });
+        [HttpPost]
+        public async Task<ActionResult<BaseResponse<bool>>> CreateSanPham([FromBody] SanPhamDto dto)
+        {
+            if (dto == null)
+                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
 
-        //    var result = await _sanPhamService.CreateSanPhamAsync(dto);
+            var result = await _sanPhamService.CreateSanPhamAsync(dto);
 
-        //    if (!result)
-        //        return NotFound(new { message = "Không thể tạo sản phẩm" });
+            if (!result)
+                return BadRequest(new { message = "Không thể tạo sản phẩm" });
 
-        //    return Ok(new BaseResponse<bool>(StatusCodeHelper.OK, "200", true, "Tạo sản phẩm thành công"));
-        //}
-
+            return Ok(new BaseResponse<bool>(StatusCodeHelper.OK, "200", true, "Tạo sản phẩm thành công"));
+        }
 
         /// <summary>
         /// Cập nhật sản phẩm.
         /// </summary>
         /// <returns>Kết quả cập nhật sản phẩm thành công hay thất bại.</returns>
-        //[HttpPut]
-        //public async Task<ActionResult<BaseResponse<bool>>> UpdateSanPham([FromBody] SanPhamDto dto)
-        //{
-        //    if (dto == null)
-        //        return BadRequest(new { message = "Dữ liệu không hợp lệ" });
+        [HttpPut]
+        public async Task<ActionResult<BaseResponse<bool>>> UpdateSanPham([FromBody] SanPhamDto dto)
+        {
+            if (dto == null)
+                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
 
-        //    var result = await _sanPhamService.UpdateSanPhamAsync(dto);
-        //    if (!result)
-        //        return NotFound(new { message = "Sản phẩm không tồn tại" });
+            var result = await _sanPhamService.UpdateSanPhamAsync(dto);
+            if (!result)
+                return NotFound(new { message = "Sản phẩm không tồn tại" });
 
-        //    return BaseResponse<bool>.OkResponse(true);
-        //}
-
-
+            return BaseResponse<bool>.OkResponse(true);
+        }
 
         /// <summary>
         /// Xóa sản phẩm theo ID.
