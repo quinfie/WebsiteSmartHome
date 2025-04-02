@@ -1,73 +1,112 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core.Store;
+using WebsiteSmartHome.Data;
+using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Services;
+using WebsiteSmartHome.UnitOfWork;
 
 namespace WebsiteSmartHome.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Quản lý các thao tác với danh mục.
+    /// </summary>
+    [Route("api/danhmuc")]
     [ApiController]
-    public class DanhMucController: ControllerBase
+    public class DanhMucController : ControllerBase
     {
         private readonly IDanhMucService _danhMucService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DanhMucController(IDanhMucService danhMucService)
+        public DanhMucController(IDanhMucService danhMucService, IUnitOfWork unitOfWork)
         {
             _danhMucService = danhMucService;
+            _unitOfWork = unitOfWork;
         }
 
+        /// <summary>
+        /// Lấy danh sách tất cả danh mục.
+        /// </summary>
+        /// <returns>Danh sách các danh mục.</returns>
         [HttpGet]
         public async Task<ActionResult<BaseResponse<List<DanhMucDto>>>> GetAll()
         {
-            List<DanhMucDto> danhMucs = await _danhMucService.GetAllDanhMucAsync();
+            var danhMucs = await _danhMucService.GetAllDanhMucAsync();
             return BaseResponse<List<DanhMucDto>>.OkResponse(danhMucs);
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<DanhMuc>> GetById(Guid id)
-        //{
-        //    var danhMuc = await _danhMucService.GetDanhMucByIdAsync(id);
-        //    if (danhMuc == null)
-        //        return NotFound(new { message = "Danh mục không tồn tại" });
+        /// <summary>
+        /// Lấy thông tin chi tiết của danh mục theo ID.
+        /// </summary>
+        /// <param name="id">ID của danh mục cần lấy thông tin.</param>
+        /// <returns>Thông tin danh mục nếu tìm thấy, null nếu không tìm thấy.</returns>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<DanhMucDto>> GetDanhMucByIdAsync(Guid id)
+        {
+            var danhMuc = await _unitOfWork.GetRepository<DanhMuc>().GetByIdAsync(id);
 
-        //    return BaseResponse<>.OkResponse(danhMuc);
-        //}
+            if (danhMuc == null)
+                return NotFound(new { message = "Danh mục không tồn tại" });
+
+            return new DanhMucDto
+            {
+                Id = danhMuc.Id,
+                TenDanhMuc = danhMuc.TenDanhMuc,
+                MoTa = danhMuc.MoTa
+            };
+        }
 
 
-        //[HttpPost]
-        //public async Task<ActionResult> Create([FromBody] DanhMuc danhMuc)
-        //{
-        //    if (danhMuc == null)
-        //        return BadRequest(new { message = "Dữ liệu không hợp lệ" });
+        // <summary>
+        /// Tạo danh mục.
+        /// </summary>
+        /// <returns>Kết quả tạo danh mục thành công hay thất bại.</returns>
+        [HttpPost]
+        public async Task<ActionResult<BaseResponse<bool>>> CreateDanhMuc([FromBody] DanhMucDto dto)
+        {
+            if (dto == null)
+                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
 
-        //    var result = await _danhMucService.CreateDanhMucAsync(danhMuc);
-        //    if (result)
-        //        return CreatedAtAction(nameof(GetById), new { id = danhMuc.Id }, danhMuc);
+            var result = await _danhMucService.CreateDanhMucAsync(dto);
 
-        //    return StatusCode(500, new { message = "Không thể tạo danh mục" });
-        //}
+            if (!result)
+                return NotFound(new { message = "Không thể tạo danh mục" });
 
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult> Update(Guid id, [FromBody] DanhMuc danhMuc)
-        //{
-        //    if (id != danhMuc.Id)
-        //        return BadRequest(new { message = "ID không khớp" });
+            return Ok(new BaseResponse<bool>(StatusCodeHelper.OK, "200", true, "Tạo danh mục thành công"));
+        }
 
-        //    var result = await _danhMucService.UpdateDanhMucAsync(id, danhMuc);
-        //    if (result)
-        //        return NoContent();
+        /// <summary>
+        /// Cập nhật danh mục.
+        /// </summary>
+        /// <returns>Kết quả cập nhật danh mục thành công hay thất bại.</returns>
+        [HttpPut]
+        public async Task<ActionResult<BaseResponse<bool>>> UpdateDanhMuc([FromBody] DanhMucDto dto)
+        {
+            if (dto == null)
+                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
 
-        //    return NotFound(new { message = "Danh mục không tồn tại" });
-        //}
+            var result = await _danhMucService.UpdateDanhMucAsync(dto);
+            if (!result)
+                return NotFound(new { message = "Danh mục không tồn tại" });
 
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> Delete(Guid id)
-        //{
-        //    var result = await _danhMucService.DeleteDanhMucAsync(id);
-        //    if (result)
-        //        return NoContent();
+            return BaseResponse<bool>.OkResponse(true);
+        }
 
-        //    return NotFound(new { message = "Danh mục không tồn tại" });
-        //}
+
+        /// <summary>
+        /// Xóa danh mục theo ID.
+        /// </summary>
+        /// <param name="id">ID của danh mục cần xóa.</param>
+        /// <returns>Kết quả xóa danh mục thành công hay thất bại.</returns>
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<BaseResponse<bool>>> DeleteDanhMuc(Guid id)
+        {
+            var result = await _danhMucService.DeleteDanhMucAsync(id);
+            if (!result)
+                return NotFound(new { message = "Danh mục không tồn tại" });
+
+            return BaseResponse<bool>.OkResponse(true, "Xóa danh mục thành công");
+        }
     }
 }
