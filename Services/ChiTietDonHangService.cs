@@ -1,6 +1,7 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebsiteSmartHome.Services
 {
@@ -80,5 +81,23 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.SaveAsync();
             return true;
         }
+        public async Task<List<ChiTietDonHangDto>> SearchChiTietDonHangByNameAsync(string name)
+        {
+            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .FindByCondition(ct => ct.SanPham.TenSanPham.Contains(name))  // Truy vấn thuộc tính TenSanPham của SanPham
+                .Select(ct => new ChiTietDonHangDto
+                {
+                    MaDonHang = ct.MaDonHang,
+                    MaSanPham = ct.MaSanPham,
+                    SoLuong = ct.SoLuong,
+                    DonGia = ct.DonGia
+                })
+                .ToListAsync();
+
+            return chiTietDonHangs;
+        }
+
+
+
     }
 }

@@ -2,6 +2,8 @@
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace WebsiteSmartHome.Services
 {
@@ -82,5 +84,19 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.SaveAsync();
             return true;
         }
+        public async Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId)
+        {
+            return await _unitOfWork.GetRepository<LichBaoTri>()
+                .FindByCondition(lb => lb.MaDonHang == orderId)
+                .Select(lb => new LichBaoTriDto
+                {
+                    Id = lb.Id,
+                    MaDonHang = lb.MaDonHang,
+                    MaSanPham = lb.MaSanPham,
+                    NgayBaoTriKeTiep = lb.NgayBaoTriKeTiep
+                })
+                .ToListAsync();
+        }
+
     }
 }

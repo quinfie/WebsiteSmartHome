@@ -37,32 +37,6 @@
   },
   {
     "ContainingType": "WebsiteSmartHome.Controllers.ChiTietDonHangController",
-    "Method": "GetById",
-    "RelativePath": "api/ChiTietDonHang/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "WebsiteSmartHome.Core.DTOs.ChiTietDonHangDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "WebsiteSmartHome.Controllers.ChiTietDonHangController",
     "Method": "Update",
     "RelativePath": "api/ChiTietDonHang/{id}",
     "HttpMethod": "PUT",
@@ -97,6 +71,58 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebsiteSmartHome.Controllers.ChiTietDonHangController",
+    "Method": "GetById",
+    "RelativePath": "api/ChiTietDonHang/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "WebsiteSmartHome.Core.Base.BaseResponse\u00601[[WebsiteSmartHome.Core.DTOs.ChiTietDonHangDto, WebsiteSmartHome, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "WebsiteSmartHome.Controllers.ChiTietDonHangController",
+    "Method": "SearchByName",
+    "RelativePath": "api/ChiTietDonHang/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[WebsiteSmartHome.Core.DTOs.ChiTietDonHangDto, WebsiteSmartHome, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "WebsiteSmartHome.Controllers.DanhGiaController",
@@ -136,32 +162,6 @@
   },
   {
     "ContainingType": "WebsiteSmartHome.Controllers.DanhGiaController",
-    "Method": "GetById",
-    "RelativePath": "api/DanhGia/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "WebsiteSmartHome.Core.DTOs.DanhGiaDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "WebsiteSmartHome.Controllers.DanhGiaController",
     "Method": "Update",
     "RelativePath": "api/DanhGia/{id}",
     "HttpMethod": "PUT",
@@ -196,6 +196,58 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebsiteSmartHome.Controllers.DanhGiaController",
+    "Method": "GetById",
+    "RelativePath": "api/DanhGia/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "WebsiteSmartHome.Core.Base.BaseResponse\u00601[[WebsiteSmartHome.Core.DTOs.DanhGiaDto, WebsiteSmartHome, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "WebsiteSmartHome.Controllers.DanhGiaController",
+    "Method": "SearchByContent",
+    "RelativePath": "api/DanhGia/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "noiDung",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "WebsiteSmartHome.Core.Base.BaseResponse\u00601[[System.Collections.Generic.List\u00601[[WebsiteSmartHome.Core.DTOs.DanhGiaDto, WebsiteSmartHome, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "WebsiteSmartHome.Controllers.DanhMucController",
@@ -317,6 +369,32 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "WebsiteSmartHome.Controllers.DonHangController",
+    "Method": "Search",
+    "RelativePath": "api/DonHang/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "trangThai",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "WebsiteSmartHome.Core.Base.BaseResponse\u00601[[System.Collections.Generic.List\u00601[[WebsiteSmartHome.Core.DTOs.DonHangDto, WebsiteSmartHome, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "WebsiteSmartHome.Controllers.LichBaoTriController",
     "Method": "GetAll",
     "RelativePath": "api/LichBaoTri",
@@ -354,32 +432,6 @@
   },
   {
     "ContainingType": "WebsiteSmartHome.Controllers.LichBaoTriController",
-    "Method": "GetById",
-    "RelativePath": "api/LichBaoTri/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "WebsiteSmartHome.Core.DTOs.LichBaoTriDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "WebsiteSmartHome.Controllers.LichBaoTriController",
     "Method": "Update",
     "RelativePath": "api/LichBaoTri/{id}",
     "HttpMethod": "PUT",
@@ -414,5 +466,57 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebsiteSmartHome.Controllers.LichBaoTriController",
+    "Method": "GetById",
+    "RelativePath": "api/LichBaoTri/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "WebsiteSmartHome.Core.Base.BaseResponse\u00601[[WebsiteSmartHome.Core.DTOs.LichBaoTriDto, WebsiteSmartHome, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "WebsiteSmartHome.Controllers.LichBaoTriController",
+    "Method": "SearchByOrder",
+    "RelativePath": "api/LichBaoTri/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDonHang",
+        "Type": "System.Guid",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "WebsiteSmartHome.Core.Base.BaseResponse\u00601[[System.Collections.Generic.List\u00601[[WebsiteSmartHome.Core.DTOs.LichBaoTriDto, WebsiteSmartHome, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Services;
 
@@ -20,16 +21,6 @@ namespace WebsiteSmartHome.Controllers
         {
             var chiTietDonHangs = await _chiTietDonHangService.GetAllChiTietDonHangAsync();
             return Ok(chiTietDonHangs);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ChiTietDonHangDto>> GetById(Guid id)
-        {
-            var chiTietDonHang = await _chiTietDonHangService.GetChiTietDonHangByIdAsync(id);
-            if (chiTietDonHang == null)
-                return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
-
-            return Ok(chiTietDonHang);
         }
 
         [HttpPost]
@@ -67,5 +58,24 @@ namespace WebsiteSmartHome.Controllers
 
             return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
         }
+        // Tìm chi tiết đơn hàng theo ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BaseResponse<ChiTietDonHangDto>>> GetById(Guid id)
+        {
+            var chiTiet = await _chiTietDonHangService.GetChiTietDonHangByIdAsync(id);
+            if (chiTiet == null)
+                return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
+
+            return BaseResponse<ChiTietDonHangDto>.OkResponse(chiTiet);
+        }
+
+        // Tìm kiếm chi tiết đơn hàng theo tên sản phẩm
+        [HttpGet("search")]
+        public async Task<ActionResult<List<ChiTietDonHangDto>>> SearchByName(string name)
+        {
+            var result = await _chiTietDonHangService.SearchChiTietDonHangByNameAsync(name);
+            return Ok(result);
+        }
+
     }
 }

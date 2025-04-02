@@ -1,46 +1,126 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\",
+  "WorkspaceRootPath": "D:\\WebsiteSmartHome\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\core\\baseresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:core\\baseresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\services\\danhgiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:services\\danhgiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\services\\danhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:services\\danhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\core\\dtos\\chitietdonhangdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:core\\dtos\\chitietdonhangdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\controllers\\danhmucscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:controllers\\danhmucscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\services\\chitietdonhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:services\\chitietdonhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\iservices\\idanhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:iservices\\idanhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\data\\chitietdonhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\chitietdonhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\data\\danhmuc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\danhmuc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\services\\lichbaotriservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:services\\lichbaotriservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\data\\smarthomedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\smarthomedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\data\\danhgium.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\danhgium.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\core\\dtos\\danhmucdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:core\\dtos\\danhmucdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\controllers\\lichbaotricontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:controllers\\lichbaotricontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\data\\lichbaotri.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\core\\dtos\\danhgiadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:core\\dtos\\danhgiadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\controllers\\chitietdonhangcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:controllers\\chitietdonhangcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\data\\sanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\sanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\repositories\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:repositories\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\repositories\\igenericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:repositories\\igenericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\controllers\\danhgiacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:controllers\\danhgiacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\iservices\\ilichbaotriservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:iservices\\ilichbaotriservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\iservices\\idanhgiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:iservices\\idanhgiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\iservices\\ichitietdonhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:iservices\\ichitietdonhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\services\\donhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:services\\donhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\controllers\\donhangcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:controllers\\donhangcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\iservices\\idonhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:iservices\\idonhangservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\data\\lichbaotri.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\lichbaotri.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|e:\\do_an_chuyen_nganh\\websitesmarthome\\websitesmarthome\\data\\danhgium.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\danhgium.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\core\\store\\rolehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:core\\store\\rolehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\services\\danhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:services\\danhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\core\\baseresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:core\\baseresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\controllers\\danhmucscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:controllers\\danhmucscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\iservices\\idanhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:iservices\\idanhmucservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\data\\danhmuc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\danhmuc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\data\\smarthomedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:data\\smarthomedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|d:\\websitesmarthome\\core\\dtos\\danhmucdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB8CF5C0-D8E5-4CFB-ACB7-AE9446757E65}|WebsiteSmartHome.csproj|solutionrelative:core\\dtos\\danhmucdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -49,164 +129,405 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 115,
-          "SelectedChildIndex": 8,
+          "DockedWidth": 111,
+          "SelectedChildIndex": 2,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "appsettings.Development.json",
+              "ToolTip": "D:\\WebsiteSmartHome\\appsettings.Development.json",
+              "RelativeToolTip": "appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-04-02T14:11:30.662Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ChiTietDonHangDto.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Core\\DTOs\\ChiTietDonHangDto.cs",
+              "RelativeDocumentMoniker": "Core\\DTOs\\ChiTietDonHangDto.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Core\\DTOs\\ChiTietDonHangDto.cs*",
+              "RelativeToolTip": "Core\\DTOs\\ChiTietDonHangDto.cs*",
+              "ViewState": "AgIAAAQAAAAAAAAAAAA+wAsAAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:29:27.511Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "BaseResponse.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Core\\BaseResponse.cs",
-              "RelativeDocumentMoniker": "Core\\BaseResponse.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Core\\BaseResponse.cs",
-              "RelativeToolTip": "Core\\BaseResponse.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAA4wBoAAAAJAAAAAAAAAA==",
+              "Title": "DanhGiaService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Services\\DanhGiaService.cs",
+              "RelativeDocumentMoniker": "Services\\DanhGiaService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Services\\DanhGiaService.cs*",
+              "RelativeToolTip": "Services\\DanhGiaService.cs*",
+              "ViewState": "AgIAAFIAAAAAAAAAAAAgwF0AAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T16:33:20.401Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "DanhMucDto.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Core\\DTOs\\DanhMucDto.cs",
-              "RelativeDocumentMoniker": "Core\\DTOs\\DanhMucDto.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Core\\DTOs\\DanhMucDto.cs",
-              "RelativeToolTip": "Core\\DTOs\\DanhMucDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA3AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T16:26:46.889Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "SmartHomeDbContext.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\SmartHomeDbContext.cs",
-              "RelativeDocumentMoniker": "Data\\SmartHomeDbContext.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\SmartHomeDbContext.cs",
-              "RelativeToolTip": "Data\\SmartHomeDbContext.cs",
-              "ViewState": "AgIAAB8AAAAAAAAAAAAYwCkAAAA2AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T16:24:31.128Z",
+              "WhenOpened": "2025-04-02T11:50:01.331Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "DanhMucsController.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Controllers\\DanhMucsController.cs",
-              "RelativeDocumentMoniker": "Controllers\\DanhMucsController.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Controllers\\DanhMucsController.cs",
-              "RelativeToolTip": "Controllers\\DanhMucsController.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABIAAAARAAAAAAAAAA==",
+              "Title": "ChiTietDonHangService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Services\\ChiTietDonHangService.cs",
+              "RelativeDocumentMoniker": "Services\\ChiTietDonHangService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Services\\ChiTietDonHangService.cs*",
+              "RelativeToolTip": "Services\\ChiTietDonHangService.cs*",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAYwBMAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T22:32:25.904Z",
+              "WhenOpened": "2025-04-02T11:49:44.865Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABEAAAAjAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "ChiTietDonHang.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Data\\ChiTietDonHang.cs",
+              "RelativeDocumentMoniker": "Data\\ChiTietDonHang.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Data\\ChiTietDonHang.cs*",
+              "RelativeToolTip": "Data\\ChiTietDonHang.cs*",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABcAAABBAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T22:30:30.908Z",
+              "WhenOpened": "2025-04-02T11:56:28.145Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "DanhMuc.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\DanhMuc.cs",
-              "RelativeDocumentMoniker": "Data\\DanhMuc.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\DanhMuc.cs",
-              "RelativeToolTip": "Data\\DanhMuc.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Title": "LichBaoTriService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Services\\LichBaoTriService.cs",
+              "RelativeDocumentMoniker": "Services\\LichBaoTriService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Services\\LichBaoTriService.cs*",
+              "RelativeToolTip": "Services\\LichBaoTriService.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T21:53:15.035Z",
+              "WhenOpened": "2025-04-02T11:50:15.567Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "LichBaoTriController.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Controllers\\LichBaoTriController.cs",
+              "RelativeDocumentMoniker": "Controllers\\LichBaoTriController.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Controllers\\LichBaoTriController.cs*",
+              "RelativeToolTip": "Controllers\\LichBaoTriController.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:28:57.244Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DanhGium.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Data\\DanhGium.cs",
+              "RelativeDocumentMoniker": "Data\\DanhGium.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Data\\DanhGium.cs",
+              "RelativeToolTip": "Data\\DanhGium.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAmwAkAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-29T21:52:34.56Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
+              "Title": "DanhGiaDto.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Core\\DTOs\\DanhGiaDto.cs",
+              "RelativeDocumentMoniker": "Core\\DTOs\\DanhGiaDto.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Core\\DTOs\\DanhGiaDto.cs",
+              "RelativeToolTip": "Core\\DTOs\\DanhGiaDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:29:26.247Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ChiTietDonHangController.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Controllers\\ChiTietDonHangController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ChiTietDonHangController.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Controllers\\ChiTietDonHangController.cs*",
+              "RelativeToolTip": "Controllers\\ChiTietDonHangController.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:45:53.081Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "SanPham.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Data\\SanPham.cs",
+              "RelativeDocumentMoniker": "Data\\SanPham.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Data\\SanPham.cs",
+              "RelativeToolTip": "Data\\SanPham.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:58:33.259Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "GenericRepository.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Repositories\\GenericRepository.cs",
+              "RelativeDocumentMoniker": "Repositories\\GenericRepository.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Repositories\\GenericRepository.cs*",
+              "RelativeToolTip": "Repositories\\GenericRepository.cs*",
+              "ViewState": "AgIAAMEAAAAAAAAAAAAIwMsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:55:04.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "IGenericRepository.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Repositories\\IGenericRepository.cs",
+              "RelativeDocumentMoniker": "Repositories\\IGenericRepository.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Repositories\\IGenericRepository.cs*",
+              "RelativeToolTip": "Repositories\\IGenericRepository.cs*",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAACwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:54:41.259Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "DanhGiaController.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Controllers\\DanhGiaController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DanhGiaController.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Controllers\\DanhGiaController.cs*",
+              "RelativeToolTip": "Controllers\\DanhGiaController.cs*",
+              "ViewState": "AgIAAA4AAAAAAAAAAAA5wBkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:44:47.226Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "ILichBaoTriService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\IServices\\ILichBaoTriService.cs",
+              "RelativeDocumentMoniker": "IServices\\ILichBaoTriService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\IServices\\ILichBaoTriService.cs*",
+              "RelativeToolTip": "IServices\\ILichBaoTriService.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:49:32.777Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "IDanhGiaService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\IServices\\IDanhGiaService.cs",
+              "RelativeDocumentMoniker": "IServices\\IDanhGiaService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\IServices\\IDanhGiaService.cs*",
+              "RelativeToolTip": "IServices\\IDanhGiaService.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:49:22.47Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "IChiTietDonHangService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\IServices\\IChiTietDonHangService.cs",
+              "RelativeDocumentMoniker": "IServices\\IChiTietDonHangService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\IServices\\IChiTietDonHangService.cs*",
+              "RelativeToolTip": "IServices\\IChiTietDonHangService.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:29:31.429Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "DonHangService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Services\\DonHangService.cs",
+              "RelativeDocumentMoniker": "Services\\DonHangService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Services\\DonHangService.cs",
+              "RelativeToolTip": "Services\\DonHangService.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAWwFEAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:36:25.635Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "IDonHangService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\IServices\\IDonHangService.cs",
+              "RelativeDocumentMoniker": "IServices\\IDonHangService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\IServices\\IDonHangService.cs",
+              "RelativeToolTip": "IServices\\IDonHangService.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwAkAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:36:06.095Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "DonHangController.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Controllers\\DonHangController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DonHangController.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Controllers\\DonHangController.cs",
+              "RelativeToolTip": "Controllers\\DonHangController.cs",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAnwFoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-02T11:35:27.979Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
               "Title": "LichBaoTri.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\LichBaoTri.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Data\\LichBaoTri.cs",
               "RelativeDocumentMoniker": "Data\\LichBaoTri.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\LichBaoTri.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Data\\LichBaoTri.cs",
               "RelativeToolTip": "Data\\LichBaoTri.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAQwBMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-29T21:53:03.336Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "DanhGium.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\DanhGium.cs",
-              "RelativeDocumentMoniker": "Data\\DanhGium.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Data\\DanhGium.cs",
-              "RelativeToolTip": "Data\\DanhGium.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAiAAAAAAAAAA==",
+              "DocumentIndex": 29,
+              "Title": "DanhMucDto.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Core\\DTOs\\DanhMucDto.cs",
+              "RelativeDocumentMoniker": "Core\\DTOs\\DanhMucDto.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Core\\DTOs\\DanhMucDto.cs",
+              "RelativeToolTip": "Core\\DTOs\\DanhMucDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T21:52:34.56Z",
+              "WhenOpened": "2025-03-30T16:26:46.889Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "SmartHomeDbContext.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Data\\SmartHomeDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\SmartHomeDbContext.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Data\\SmartHomeDbContext.cs",
+              "RelativeToolTip": "Data\\SmartHomeDbContext.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAYwCkAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T16:24:31.128Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "DanhMucsController.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Controllers\\DanhMucsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DanhMucsController.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Controllers\\DanhMucsController.cs",
+              "RelativeToolTip": "Controllers\\DanhMucsController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABIAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-29T22:32:25.904Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA8AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-29T22:30:30.908Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "BaseResponse.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Core\\BaseResponse.cs",
+              "RelativeDocumentMoniker": "Core\\BaseResponse.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Core\\BaseResponse.cs",
+              "RelativeToolTip": "Core\\BaseResponse.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAA4wBoAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T16:33:20.401Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "DanhMuc.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Data\\DanhMuc.cs",
+              "RelativeDocumentMoniker": "Data\\DanhMuc.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Data\\DanhMuc.cs",
+              "RelativeToolTip": "Data\\DanhMuc.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-29T21:53:15.035Z"
             }
           ]
         },
         {
-          "DockedWidth": 105,
-          "SelectedChildIndex": 2,
+          "DockedWidth": 109,
+          "SelectedChildIndex": 0,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "RoleHelper.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Core\\Store\\RoleHelper.cs",
+              "RelativeDocumentMoniker": "Core\\Store\\RoleHelper.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Core\\Store\\RoleHelper.cs",
+              "RelativeToolTip": "Core\\Store\\RoleHelper.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwAkAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T17:04:50.598Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 26,
               "Title": "IDanhMucService.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\IServices\\IDanhMucService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\IServices\\IDanhMucService.cs",
               "RelativeDocumentMoniker": "IServices\\IDanhMucService.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\IServices\\IDanhMucService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\IServices\\IDanhMucService.cs",
               "RelativeToolTip": "IServices\\IDanhMucService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T22:24:14.512Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-29T22:24:14.512Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 23,
               "Title": "DanhMucService.cs",
-              "DocumentMoniker": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Services\\DanhMucService.cs",
+              "DocumentMoniker": "D:\\WebsiteSmartHome\\Services\\DanhMucService.cs",
               "RelativeDocumentMoniker": "Services\\DanhMucService.cs",
-              "ToolTip": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\Services\\DanhMucService.cs",
+              "ToolTip": "D:\\WebsiteSmartHome\\Services\\DanhMucService.cs",
               "RelativeToolTip": "Services\\DanhMucService.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAYAAAAxAAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAQwB0AAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T22:23:28.687Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-29T22:23:28.687Z"
             }
           ]
         }

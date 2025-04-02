@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Services;
@@ -23,15 +24,6 @@ namespace WebsiteSmartHome.Controllers
             return Ok(danhGias);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<DanhGiaDto>> GetById(Guid id)
-        {
-            var danhGia = await _danhGiaService.GetDanhGiaByIdAsync(id);
-            if (danhGia == null)
-                return NotFound(new { message = "Danh gia không tồn tại" });
-
-            return Ok(danhGia);
-        }
 
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] DanhGiaDto danhGiaDto)
@@ -67,6 +59,24 @@ namespace WebsiteSmartHome.Controllers
                 return NoContent();
 
             return NotFound(new { message = "Danh gia không tồn tại" });
+        }
+        // Tìm đánh giá theo ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(Guid id)
+        {
+            var danhGia = await _danhGiaService.GetDanhGiaByIdAsync(id);
+            if (danhGia == null)
+                return NotFound(new { message = "Đánh giá không tồn tại" });
+
+            return BaseResponse<DanhGiaDto>.OkResponse(danhGia);
+        }
+
+        // Tìm kiếm đánh giá theo nội dung
+        [HttpGet("search")]
+        public async Task<ActionResult<BaseResponse<List<DanhGiaDto>>>> SearchByContent([FromQuery] string noiDung)
+        {
+            var danhGias = await _danhGiaService.SearchDanhGiaByContentAsync(noiDung);
+            return BaseResponse<List<DanhGiaDto>>.OkResponse(danhGias);
         }
     }
 }

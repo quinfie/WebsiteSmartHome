@@ -2,6 +2,8 @@
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace WebsiteSmartHome.Services
 {
@@ -86,5 +88,20 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.SaveAsync();
             return true;
         }
+        public async Task<List<DanhGiaDto>> SearchDanhGiaByContentAsync(string content)
+        {
+            return await _unitOfWork.GetRepository<DanhGium>()
+                .FindByCondition(dg => dg.NoiDung.Contains(content))
+                .Select(dg => new DanhGiaDto
+                {
+                    Id = dg.Id,
+                    MaDonHang = dg.MaDonHang,
+                    MaSanPham = dg.MaSanPham,
+                    SoSao = dg.SoSao,
+                    NoiDung = dg.NoiDung
+                })
+                .ToListAsync();
+        }
+
     }
 }

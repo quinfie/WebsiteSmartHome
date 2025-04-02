@@ -73,5 +73,18 @@ namespace WebsiteSmartHome.Controllers
 
             return NotFound(new { message = "Đơn hàng không tồn tại" });
         }
+        //Tìm kiếm đơn hàng
+        [HttpGet("search")]
+        public async Task<ActionResult<BaseResponse<List<DonHangDto>>>> Search([FromQuery] string trangThai)
+        {
+            if (string.IsNullOrEmpty(trangThai))
+                return BadRequest(new { message = "Vui lòng nhập từ khóa tìm kiếm" });
+
+            var donHangs = await _donHangService.SearchDonHangAsync(trangThai);
+            if (donHangs == null || !donHangs.Any())
+                return NotFound(new { message = "Không tìm thấy đơn hàng phù hợp" });
+
+            return BaseResponse<List<DonHangDto>>.OkResponse(donHangs);
+        }
     }
 }

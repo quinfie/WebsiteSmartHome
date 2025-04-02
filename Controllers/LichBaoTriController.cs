@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Services;
+using Microsoft.EntityFrameworkCore;  
+
 
 namespace WebsiteSmartHome.Controllers
 {
@@ -23,15 +26,6 @@ namespace WebsiteSmartHome.Controllers
             return Ok(lichBaoTris);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<LichBaoTriDto>> GetById(Guid id)
-        {
-            var lichBaoTri = await _lichBaoTriService.GetLichBaoTriByIdAsync(id);
-            if (lichBaoTri == null)
-                return NotFound(new { message = "Lịch bảo trì không tồn tại" });
-
-            return Ok(lichBaoTri);
-        }
 
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] LichBaoTriDto lichBaoTriDto)
@@ -67,6 +61,23 @@ namespace WebsiteSmartHome.Controllers
                 return NoContent();
 
             return NotFound(new { message = "Lịch bảo trì không tồn tại" });
+        }
+        // Tìm kiếm lịch bảo trì theo mã đơn hàng
+        [HttpGet("search")]
+        public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> SearchByOrder([FromQuery] Guid maDonHang)
+        {
+            var lichBaoTris = await _lichBaoTriService.SearchLichBaoTriByOrderAsync(maDonHang);
+            return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris);
+        }
+        // Tìm lịch bảo trì theo ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BaseResponse<LichBaoTriDto>>> GetById(Guid id)
+        {
+            var lichBaoTri = await _lichBaoTriService.GetLichBaoTriByIdAsync(id);
+            if (lichBaoTri == null)
+                return NotFound(new { message = "Lịch bảo trì không tồn tại" });
+
+            return BaseResponse<LichBaoTriDto>.OkResponse(lichBaoTri);
         }
     }
 }

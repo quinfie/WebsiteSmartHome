@@ -5,6 +5,8 @@ namespace WebsiteSmartHome.IServices
     public interface ILichBaoTriService
     {
         Task<List<LichBaoTriDto>> GetAllLichBaoTriAsync();
+        Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId);
+
         Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id);
         Task<bool> CreateLichBaoTriAsync(LichBaoTriDto lichBaoTriDto);
         Task<bool> UpdateLichBaoTriAsync(Guid id, LichBaoTriDto lichBaoTriDto);
