@@ -21,7 +21,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IDanhMucService, DanhMucService>();
 builder.Services.AddScoped<ISanPhamService, SanPhamService>();
-
+builder.Services.AddScoped<IKhoService, KhoService>();
 
 var app = builder.Build();
 
