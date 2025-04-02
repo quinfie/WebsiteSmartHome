@@ -1,4 +1,5 @@
-﻿using WebsiteSmartHome.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using WebsiteSmartHome.Data;
 using WebsiteSmartHome.Repositories;
 
 namespace WebsiteSmartHome.UnitOfWork
@@ -47,7 +48,16 @@ namespace WebsiteSmartHome.UnitOfWork
 
         public async Task SaveAsync()
         {
-            await _dbContext.SaveChangesAsync();
+            //await _dbContext.SaveChangesAsync();
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine("Error saving to database: " + ex.InnerException?.Message);
+                throw;
+            }
         }
 
         public IGenericRepository<T> GetRepository<T>() where T : class

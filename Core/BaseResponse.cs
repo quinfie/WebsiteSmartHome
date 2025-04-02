@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core.Store;
 using WebsiteSmartHome.Core.Utils;
 using WebsiteSmartHome.Data;
@@ -51,5 +52,11 @@ namespace WebsiteSmartHome.Core.Base
         {
             throw new NotImplementedException();
         }
+
+        internal static ActionResult<SanPham> OkResponse(SanPham sanPham)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
