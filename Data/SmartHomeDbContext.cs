@@ -196,7 +196,7 @@ public partial class SmartHomeDbContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.DiaChi).HasMaxLength(255);
             entity.Property(e => e.Email).HasMaxLength(255);
-            entity.Property(e => e.Sdt)
+            entity.Property(e => e.SDT)
                 .HasMaxLength(11)
                 .IsUnicode(false)
                 .HasColumnName("SDT");
@@ -252,10 +252,10 @@ public partial class SmartHomeDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__SanPham__MaKho__628FA481");
 
-            entity.HasOne(d => d.MaNhaCungCapNavigation).WithMany(p => p.SanPhams)
-                .HasForeignKey(d => d.MaNhaCungCap)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SanPham__MaNhaCu__619B8048");
+            //entity.HasOne(d => d.MaNhaCungCapNavigation).WithMany(p => p.SanPhams)
+            //    .HasForeignKey(d => d.MaNhaCungCap)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__SanPham__MaNhaCu__619B8048");
         });
 
         modelBuilder.Entity<TaiKhoan>(entity =>
