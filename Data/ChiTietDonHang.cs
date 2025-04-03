@@ -21,5 +21,6 @@ public partial class ChiTietDonHang
 
     public virtual SanPham MaSanPhamNavigation { get; set; } = null!;
 
+    public virtual SanPham SanPham { get; set; } = new SanPham();
     public virtual ICollection<YeuCauDichVu> YeuCauDichVus { get; set; } = new List<YeuCauDichVu>();
 }

@@ -19,6 +19,8 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IDanhMucService, DanhMucService>();
+builder.Services.AddScoped<IDonHangService, DonHangService>();
+
 
 var app = builder.Build();
 
