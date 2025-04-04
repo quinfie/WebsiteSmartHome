@@ -1,7 +1,19 @@
 # Build output folders
 bin/
-obj/Debug/
+obj/
+Debug/
 Release/
+
+# Visual Studio specific
+.vs/
+.vscode/
+
+# NuGet Packages
+*.nupkg
+project.lock.json
+project.assets.json
+packages/
+!packages/repositories.config
 
 # User-specific files
 *.user
@@ -9,12 +21,12 @@ Release/
 *.userosscache
 *.sln.docstates
 
-# Visual Studio & VSCode settings
-.vs/
-.vscode/
-
-# Other unnecessary files
+# Logs and cache
 *.log
 *.cache
 *.pdb
 *.db
+
+# Rider / JetBrains
+.idea/
+*.iml
