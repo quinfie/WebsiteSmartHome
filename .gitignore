@@ -1,7 +1,6 @@
 # Build output folders
 bin/
-obj/
-Debug/
+obj/Debug/
 Release/
 
 # User-specific files
