@@ -1,6 +1,0 @@
-@WebsiteSmartHome_HostAddress = http://localhost:5133
-
-GET {{WebsiteSmartHome_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
