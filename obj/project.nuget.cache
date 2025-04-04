@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "eKrfmebaS5Q=",
+  "dgSpecHash": "erNv3IgLM4A=",
   "success": true,
-  "projectFilePath": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\WebsiteSmartHome.csproj",
+  "projectFilePath": "E:\\WebsiteSmartHome\\WebsiteSmartHome.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Thanh Nguyen\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Thanh Nguyen\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

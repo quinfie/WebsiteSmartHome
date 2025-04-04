@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace WebsiteSmartHome.Core.Store
+namespace WebsiteSmartHome.Core.Utils
 {
     public enum TypeServiceHelper
     {
@@ -8,6 +8,11 @@ namespace WebsiteSmartHome.Core.Store
         BaoTri,
 
         [Description("Bảo hành")]
-        BaoHanh
+        BaoHanh,
+
+        [Description("Sữa chữa")]
+        SuaChua
+
+
     }
 }

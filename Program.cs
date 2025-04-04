@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebsiteSmartHome.Data;
+using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Repositories;
 using WebsiteSmartHome.Services;
 using WebsiteSmartHome.UnitOfWork;
@@ -19,6 +20,8 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IDanhMucService, DanhMucService>();
+builder.Services.AddScoped<IVaiTroService, VaiTroService>();
+builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
 
 var app = builder.Build();
 

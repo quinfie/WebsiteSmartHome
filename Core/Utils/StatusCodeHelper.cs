@@ -1,6 +1,4 @@
-﻿using WebsiteSmartHome.Core.Utils;
-
-namespace WebsiteSmartHome.Core.Store
+﻿namespace WebsiteSmartHome.Core.Utils
 {
     public enum StatusCodeHelper
     {

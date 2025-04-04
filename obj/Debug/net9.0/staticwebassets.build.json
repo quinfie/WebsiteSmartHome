@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "MXapIsPavUpPAoXY+UGi/f0wK0zScGQC0Oan1s1oDqQ=",
+  "Hash": "CMnf0IalQNXLzVPUiE1kjuN2doX/aCEsZoiKQs9kuZo=",
   "Source": "WebsiteSmartHome",
   "BasePath": "_content/WebsiteSmartHome",
   "Mode": "Default",
@@ -51,10 +51,10 @@
       "OriginalItemSpec": "C:\\Users\\Thanh Nguyen\\.nuget\\packages\\microsoft.aspnetcore.components.quickgrid\\9.0.0\\staticwebassets\\QuickGrid.razor.js"
     },
     {
-      "Identity": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\3gin1ph7ub-25o87uqmvr.gz",
+      "Identity": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\3gin1ph7ub-25o87uqmvr.gz",
       "SourceId": "Microsoft.AspNetCore.Components.QuickGrid",
       "SourceType": "Package",
-      "ContentRoot": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\",
+      "ContentRoot": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/Microsoft.AspNetCore.Components.QuickGrid",
       "RelativePath": "Microsoft.AspNetCore.Components.QuickGrid.25o87uqmvr.bundle.scp.css.gz",
       "AssetKind": "All",
@@ -72,10 +72,10 @@
       "OriginalItemSpec": "C:\\Users\\Thanh Nguyen\\.nuget\\packages\\microsoft.aspnetcore.components.quickgrid\\9.0.0\\staticwebassets\\Microsoft.AspNetCore.Components.QuickGrid.25o87uqmvr.bundle.scp.css"
     },
     {
-      "Identity": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
+      "Identity": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
       "SourceId": "WebsiteSmartHome",
       "SourceType": "Computed",
-      "ContentRoot": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\",
+      "ContentRoot": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/WebsiteSmartHome",
       "RelativePath": "WebsiteSmartHome#[.{fingerprint=l7w2gebx5i}]?.styles.css.gz",
       "AssetKind": "All",
@@ -83,20 +83,20 @@
       "AssetRole": "Alternative",
       "AssetMergeBehavior": "",
       "AssetMergeSource": "",
-      "RelatedAsset": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
+      "RelatedAsset": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
       "Fingerprint": "by2r53v5l3",
       "Integrity": "s4g+UtCzuLBQgaY8O1pF1nhr7harXujE48b9Uds39u4=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css"
+      "OriginalItemSpec": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css"
     },
     {
-      "Identity": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\unlu0xluo6-eu7w3d5g1a.gz",
+      "Identity": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\unlu0xluo6-eu7w3d5g1a.gz",
       "SourceId": "Microsoft.AspNetCore.Components.QuickGrid",
       "SourceType": "Package",
-      "ContentRoot": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\",
+      "ContentRoot": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/Microsoft.AspNetCore.Components.QuickGrid",
       "RelativePath": "QuickGrid.razor.js.gz",
       "AssetKind": "All",
@@ -114,10 +114,10 @@
       "OriginalItemSpec": "C:\\Users\\Thanh Nguyen\\.nuget\\packages\\microsoft.aspnetcore.components.quickgrid\\9.0.0\\staticwebassets\\QuickGrid.razor.js"
     },
     {
-      "Identity": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
+      "Identity": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
       "SourceId": "WebsiteSmartHome",
       "SourceType": "Computed",
-      "ContentRoot": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\",
+      "ContentRoot": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\",
       "BasePath": "_content/WebsiteSmartHome",
       "RelativePath": "WebsiteSmartHome#[.{fingerprint}]?.styles.css",
       "AssetKind": "All",
@@ -132,7 +132,7 @@
       "Integrity": "b/h1wkZH5QLqbi7AHY7xFdpEndWqwZrdqPm+A8mJZv4=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css"
+      "OriginalItemSpec": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css"
     }
   ],
   "Endpoints": [
@@ -183,7 +183,7 @@
     },
     {
       "Route": "_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.25o87uqmvr.bundle.scp.css.gz",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\3gin1ph7ub-25o87uqmvr.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\3gin1ph7ub-25o87uqmvr.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -265,7 +265,7 @@
     },
     {
       "Route": "_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.bundle.scp.css",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\3gin1ph7ub-25o87uqmvr.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\3gin1ph7ub-25o87uqmvr.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -361,7 +361,7 @@
     },
     {
       "Route": "_content/Microsoft.AspNetCore.Components.QuickGrid/QuickGrid.razor.js",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\unlu0xluo6-eu7w3d5g1a.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\unlu0xluo6-eu7w3d5g1a.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -420,7 +420,7 @@
     },
     {
       "Route": "_content/Microsoft.AspNetCore.Components.QuickGrid/QuickGrid.razor.js.gz",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\unlu0xluo6-eu7w3d5g1a.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\unlu0xluo6-eu7w3d5g1a.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -465,7 +465,7 @@
     },
     {
       "Route": "WebsiteSmartHome.l7w2gebx5i.styles.css",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -488,7 +488,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 29 Mar 2025 21:52:53 GMT"
+          "Value": "Fri, 04 Apr 2025 13:36:52 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -532,7 +532,7 @@
     },
     {
       "Route": "WebsiteSmartHome.l7w2gebx5i.styles.css",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -557,7 +557,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 29 Mar 2025 21:52:53 GMT"
+          "Value": "Fri, 04 Apr 2025 13:36:52 GMT"
         },
         {
           "Name": "Link",
@@ -581,7 +581,7 @@
     },
     {
       "Route": "WebsiteSmartHome.l7w2gebx5i.styles.css.gz",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -602,7 +602,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 29 Mar 2025 21:52:53 GMT"
+          "Value": "Fri, 04 Apr 2025 13:36:52 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -634,7 +634,7 @@
     },
     {
       "Route": "WebsiteSmartHome.styles.css",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -657,7 +657,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 29 Mar 2025 21:52:53 GMT"
+          "Value": "Fri, 04 Apr 2025 13:36:52 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -693,7 +693,7 @@
     },
     {
       "Route": "WebsiteSmartHome.styles.css",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\scopedcss\\bundle\\WebsiteSmartHome.styles.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -718,7 +718,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 29 Mar 2025 21:52:53 GMT"
+          "Value": "Fri, 04 Apr 2025 13:36:52 GMT"
         },
         {
           "Name": "Link",
@@ -734,7 +734,7 @@
     },
     {
       "Route": "WebsiteSmartHome.styles.css.gz",
-      "AssetFile": "E:\\Do_An_Chuyen_Nganh\\WebsiteSmartHome\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
+      "AssetFile": "E:\\WebsiteSmartHome\\obj\\Debug\\net9.0\\compressed\\9omeqkr20s-l7w2gebx5i.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -755,7 +755,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 29 Mar 2025 21:52:53 GMT"
+          "Value": "Fri, 04 Apr 2025 13:36:52 GMT"
         },
         {
           "Name": "Cache-Control",

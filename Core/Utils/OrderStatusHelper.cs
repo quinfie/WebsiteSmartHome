@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 
-namespace WebsiteSmartHome.Core.Store
+namespace WebsiteSmartHome.Core.Utils
 {
-    public enum StatusHelper
+    public enum OrderStatusHelper
     {
         [Description("Đang chờ xử lý")]
         Pending,

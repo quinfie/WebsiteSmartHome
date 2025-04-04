@@ -23,7 +23,7 @@ public partial class NguoiDung
 
     public virtual ICollection<PhanCongDichVu> PhanCongDichVus { get; set; } = new List<PhanCongDichVu>();
 
-    public virtual ICollection<TaiKhoan> TaiKhoans { get; set; } = new List<TaiKhoan>();
+    public virtual TaiKhoan? TaiKhoan { get; set; }
 
     public virtual ICollection<YeuCauDichVu> YeuCauDichVus { get; set; } = new List<YeuCauDichVu>();
 }
