@@ -5,17 +5,6 @@ using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Services;
 using Microsoft.EntityFrameworkCore;
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
 namespace WebsiteSmartHome.Controllers
 {
     [Route("api/[controller]")]
@@ -36,17 +25,6 @@ namespace WebsiteSmartHome.Controllers
             return Ok(lichBaoTris);
         }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] LichBaoTriDto lichBaoTriDto)
         {
@@ -63,19 +41,7 @@ namespace WebsiteSmartHome.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(Guid id, [FromBody] LichBaoTriDto lichBaoTriDto)
         {
-<<<<<<< HEAD
             if (id != Guid.Parse(lichBaoTriDto.Id))
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-            if (id != Guid.Parse(lichBaoTriDto.Id))
-=======
-            if (id != lichBaoTriDto.Id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-            if (id != lichBaoTriDto.Id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
                 return BadRequest(new { message = "ID không khớp" });
 
             var result = await _lichBaoTriService.UpdateLichBaoTriAsync(id, lichBaoTriDto);
@@ -94,38 +60,14 @@ namespace WebsiteSmartHome.Controllers
 
             return NotFound(new { message = "Lịch bảo trì không tồn tại" });
         }
-<<<<<<< HEAD
 
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-        // Tìm kiếm lịch bảo trì theo mã đơn hàng
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        // Tìm kiếm lịch bảo trì theo mã đơn hàng
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         [HttpGet("search")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> SearchByOrder([FromQuery] Guid maDonHang)
         {
             var lichBaoTris = await _lichBaoTriService.SearchLichBaoTriByOrderAsync(maDonHang);
             return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris);
         }
-<<<<<<< HEAD
 
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-        // Tìm lịch bảo trì theo ID
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        // Tìm lịch bảo trì theo ID
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         [HttpGet("{id}")]
         public async Task<ActionResult<BaseResponse<LichBaoTriDto>>> GetById(Guid id)
         {
@@ -137,14 +79,3 @@ namespace WebsiteSmartHome.Controllers
         }
     }
 }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main

@@ -2,17 +2,6 @@
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-using WebsiteSmartHome.Services;
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-using WebsiteSmartHome.Services;
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
 
 namespace WebsiteSmartHome.Controllers
 {
@@ -34,17 +23,6 @@ namespace WebsiteSmartHome.Controllers
             return Ok(danhGias);
         }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] DanhGiaDto danhGiaDto)
         {
@@ -59,19 +37,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("{id}")]
-<<<<<<< HEAD
         public async Task<ActionResult> Update(string id, [FromBody] DanhGiaDto danhGiaDto)
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-        public async Task<ActionResult> Update(string id, [FromBody] DanhGiaDto danhGiaDto)
-=======
-        public async Task<ActionResult> Update(Guid id, [FromBody] DanhGiaDto danhGiaDto)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        public async Task<ActionResult> Update(Guid id, [FromBody] DanhGiaDto danhGiaDto)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         {
             if (id != danhGiaDto.Id)
                 return BadRequest(new { message = "ID không khớp" });
@@ -84,19 +50,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpDelete("{id}")]
-<<<<<<< HEAD
         public async Task<ActionResult> Delete(string id)
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-        public async Task<ActionResult> Delete(string id)
-=======
-        public async Task<ActionResult> Delete(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        public async Task<ActionResult> Delete(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         {
             var result = await _danhGiaService.DeleteDanhGiaAsync(id);
             if (result)
@@ -104,28 +58,10 @@ namespace WebsiteSmartHome.Controllers
 
             return NotFound(new { message = "Danh gia không tồn tại" });
         }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> main
 
         // Tìm đánh giá theo ID
         [HttpGet("{id}")]
         public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(string id)
-<<<<<<< HEAD
-=======
-=======
-        // Tìm đánh giá theo ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        // Tìm đánh giá theo ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         {
             var danhGia = await _danhGiaService.GetDanhGiaByIdAsync(id);
             if (danhGia == null)

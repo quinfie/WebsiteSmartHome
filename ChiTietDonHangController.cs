@@ -10,31 +10,12 @@ namespace WebsiteSmartHome.Controllers
     public class ChiTietDonHangController : ControllerBase
     {
         private readonly IChiTietDonHangService _chiTietDonHangService;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> main
         private readonly ILogger<ChiTietDonHangController> _logger;
 
         public ChiTietDonHangController(IChiTietDonHangService chiTietDonHangService, ILogger<ChiTietDonHangController> logger)
         {
             _chiTietDonHangService = chiTietDonHangService;
             _logger = logger;
-<<<<<<< HEAD
-=======
-=======
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-
-        public ChiTietDonHangController(IChiTietDonHangService chiTietDonHangService)
-        {
-            _chiTietDonHangService = chiTietDonHangService;
-<<<<<<< HEAD
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         }
 
         [HttpGet]
@@ -47,23 +28,8 @@ namespace WebsiteSmartHome.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] ChiTietDonHangDto chiTietDonHangDto)
         {
-<<<<<<< HEAD
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-=======
-            if (chiTietDonHangDto == null)
-                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-            if (chiTietDonHangDto == null)
-                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
 
             var result = await _chiTietDonHangService.CreateChiTietDonHangAsync(chiTietDonHangDto);
             if (result)
@@ -71,11 +37,6 @@ namespace WebsiteSmartHome.Controllers
 
             return StatusCode(500, new { message = "Không thể tạo chi tiết đơn hàng" });
         }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> main
         [HttpPut("{maDonHang}/{maSanPham}")]
         public async Task<ActionResult> Update(string maDonHang, string maSanPham, [FromBody] ChiTietDonHangDto dto)
         {
@@ -98,96 +59,34 @@ namespace WebsiteSmartHome.Controllers
             }
 
             var result = await _chiTietDonHangService.UpdateChiTietDonHangAsync(maDonHangGuid, maSanPhamGuid, dto);
-<<<<<<< HEAD
-=======
-=======
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(Guid id, [FromBody] ChiTietDonHangDto chiTietDonHangDto)
-        {
-            if (id != chiTietDonHangDto.MaDonHang)
-                return BadRequest(new { message = "ID không khớp" });
-
-            var result = await _chiTietDonHangService.UpdateChiTietDonHangAsync(id, chiTietDonHangDto);
-<<<<<<< HEAD
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
             if (result)
                 return NoContent();
 
             return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
         }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> main
 
 
         [HttpDelete("{maDonHang}/{maSanPham}")]
         public async Task<ActionResult> Delete(Guid maDonHang, Guid maSanPham)
         {
             var result = await _chiTietDonHangService.DeleteChiTietDonHangAsync(maDonHang, maSanPham);
-<<<<<<< HEAD
-=======
-=======
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(Guid id)
-        {
-            var result = await _chiTietDonHangService.DeleteChiTietDonHangAsync(id);
-<<<<<<< HEAD
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
             if (result)
                 return NoContent();
 
             return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
         }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> main
 
         [HttpGet("{maDonHang}/{maSanPham}")]
         public async Task<ActionResult<BaseResponse<ChiTietDonHangDto>>> GetById(Guid maDonHang, Guid maSanPham)
         {
             var chiTiet = await _chiTietDonHangService.GetChiTietDonHangByIdAsync(maDonHang, maSanPham);
-<<<<<<< HEAD
-=======
-=======
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-        // Tìm chi tiết đơn hàng theo ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<ChiTietDonHangDto>>> GetById(Guid id)
-        {
-            var chiTiet = await _chiTietDonHangService.GetChiTietDonHangByIdAsync(id);
-<<<<<<< HEAD
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
             if (chiTiet == null)
                 return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
 
             return BaseResponse<ChiTietDonHangDto>.OkResponse(chiTiet);
         }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> main
         [HttpGet("search")]
         public async Task<ActionResult<BaseResponse<List<ChiTietDonHangDto>>>> SearchByName(string name)
         {
@@ -196,23 +95,4 @@ namespace WebsiteSmartHome.Controllers
         }
     }
 
-<<<<<<< HEAD
-=======
-=======
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-        // Tìm kiếm chi tiết đơn hàng theo tên sản phẩm
-        [HttpGet("search")]
-        public async Task<ActionResult<List<ChiTietDonHangDto>>> SearchByName(string name)
-        {
-            var result = await _chiTietDonHangService.SearchChiTietDonHangByNameAsync(name);
-            return Ok(result);
-        }
-
-    }
-<<<<<<< HEAD
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
 }

@@ -7,17 +7,6 @@ namespace WebsiteSmartHome.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-   
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-   
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
     public class DonHangController : ControllerBase
     {
         private readonly IDonHangService _donHangService;
@@ -31,37 +20,13 @@ namespace WebsiteSmartHome.Controllers
         [HttpGet]
         public async Task<ActionResult<BaseResponse<List<DonHangDto>>>> GetAll()
         {
-<<<<<<< HEAD
             var donHangs = await _donHangService.GetAllDonHangAsync();
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-            var donHangs = await _donHangService.GetAllDonHangAsync();
-=======
-            List<DonHangDto> donHangs = await _donHangService.GetAllDonHangAsync();
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-            List<DonHangDto> donHangs = await _donHangService.GetAllDonHangAsync();
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
             return BaseResponse<List<DonHangDto>>.OkResponse(donHangs);
         }
 
         // Lấy đơn hàng theo ID
         [HttpGet("{id}")]
-<<<<<<< HEAD
         public async Task<ActionResult<BaseResponse<DonHangDto>>> GetById(string id)
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-        public async Task<ActionResult<BaseResponse<DonHangDto>>> GetById(string id)
-=======
-        public async Task<ActionResult<BaseResponse<DonHangDto>>> GetById(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        public async Task<ActionResult<BaseResponse<DonHangDto>>> GetById(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         {
             var donHang = await _donHangService.GetDonHangByIdAsync(id);
             if (donHang == null)
@@ -86,19 +51,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Cập nhật đơn hàng
         [HttpPut("{id}")]
-<<<<<<< HEAD
         public async Task<ActionResult> Update(string id, [FromBody] DonHangDto donHangDto)
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-        public async Task<ActionResult> Update(string id, [FromBody] DonHangDto donHangDto)
-=======
-        public async Task<ActionResult> Update(Guid id, [FromBody] DonHangDto donHangDto)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        public async Task<ActionResult> Update(Guid id, [FromBody] DonHangDto donHangDto)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         {
             if (id != donHangDto.Id)
                 return BadRequest(new { message = "ID không khớp" });
@@ -112,19 +65,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Xóa đơn hàng
         [HttpDelete("{id}")]
-<<<<<<< HEAD
         public async Task<ActionResult> Delete(string id)
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-        public async Task<ActionResult> Delete(string id)
-=======
-        public async Task<ActionResult> Delete(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        public async Task<ActionResult> Delete(Guid id)
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         {
             var result = await _donHangService.DeleteDonHangAsync(id);
             if (result)
@@ -132,21 +73,8 @@ namespace WebsiteSmartHome.Controllers
 
             return NotFound(new { message = "Đơn hàng không tồn tại" });
         }
-<<<<<<< HEAD
 
         // Tìm kiếm đơn hàng theo trạng thái
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-        // Tìm kiếm đơn hàng theo trạng thái
-=======
-        //Tìm kiếm đơn hàng
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
-=======
-        //Tìm kiếm đơn hàng
->>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
->>>>>>> main
         [HttpGet("search")]
         public async Task<ActionResult<BaseResponse<List<DonHangDto>>>> Search([FromQuery] string trangThai)
         {

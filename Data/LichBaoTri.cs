@@ -14,6 +14,8 @@ public partial class LichBaoTri
     public DateTime NgayBaoTriKeTiep { get; set; }
 
     public bool? DaThongBao { get; set; }
-
+    // Điều hướng (navigation properties)
+    public virtual DonHang DonHang { get; set; } = null!;  // Điều hướng đến bảng DonHang
+    public virtual SanPham SanPham { get; set; } = null!;  // Điều hướng đến bảng SanPham
     public virtual ChiTietDonHang ChiTietDonHang { get; set; } = null!;
 }
