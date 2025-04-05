@@ -276,3 +276,14 @@ E:\Do_An_Chuyen_Nganh\WebsiteSmartHome\WebsiteSmartHome\obj\Debug\net9.0\Website
 E:\Do_An_Chuyen_Nganh\WebsiteSmartHome\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.genruntimeconfig.cache
 E:\Do_An_Chuyen_Nganh\WebsiteSmartHome\WebsiteSmartHome\obj\Debug\net9.0\ref\WebsiteSmartHome.dll
 E:\Do_An_Chuyen_Nganh\WebsiteSmartHome\WebsiteSmartHome\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.csproj.AssemblyReference.cache
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.GeneratedMSBuildEditorConfig.editorconfig
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.AssemblyInfoInputs.cache
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.AssemblyInfo.cs
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.csproj.CoreCompileInputs.cache
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.MvcApplicationPartsAssemblyInfo.cs
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.MvcApplicationPartsAssemblyInfo.cache
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.sourcelink.json
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.dll
+D:\WebsiteSmartHome\obj\Debug\net9.0\refint\WebsiteSmartHome.dll
+D:\WebsiteSmartHome\obj\Debug\net9.0\WebsiteSmartHome.pdb
