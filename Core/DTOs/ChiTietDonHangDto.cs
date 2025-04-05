@@ -5,6 +5,7 @@ namespace WebsiteSmartHome.Core.DTOs
     public class ChiTietDonHangDto
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         public string MaDonHang { get; set; } = null!;
         public string MaSanPham { get; set; } = null!;
         public int SoLuong { get; set; }
@@ -14,6 +15,8 @@ namespace WebsiteSmartHome.Core.DTOs
 
         public virtual SanPham? SanPham { get; set; }
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         public Guid MaDonHang { get; set; }
         public Guid MaSanPham { get; set; }
         public int SoLuong { get; set; }
@@ -21,6 +24,9 @@ namespace WebsiteSmartHome.Core.DTOs
         public decimal ThanhTien => SoLuong * DonGia;//Tinh tong tien cua tung san pham
         public virtual SanPham? SanPham { get; set; }  // Cho phép null
 
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
     }
 }

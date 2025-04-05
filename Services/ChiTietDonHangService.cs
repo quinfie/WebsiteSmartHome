@@ -20,8 +20,13 @@ namespace WebsiteSmartHome.Services
             return chiTietDonHangs.Select(c => new ChiTietDonHangDto
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 MaDonHang = c.MaDonHang.ToString(),
                 MaSanPham = c.MaSanPham.ToString(),
+=======
+                MaDonHang = c.MaDonHang,
+                MaSanPham = c.MaSanPham,
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
                 MaDonHang = c.MaDonHang,
                 MaSanPham = c.MaSanPham,
@@ -32,6 +37,7 @@ namespace WebsiteSmartHome.Services
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         public async Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid maDonHang, Guid maSanPham)
         {
             var chiTiet = await _unitOfWork.GetRepository<ChiTietDonHang>()
@@ -40,15 +46,21 @@ namespace WebsiteSmartHome.Services
 
             if (chiTiet == null)
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         public async Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid id)
         {
             var chiTietDonHang = await _unitOfWork.GetRepository<ChiTietDonHang>().GetByIdAsync(id);
             if (chiTietDonHang == null)
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 return null;
 
             return new ChiTietDonHangDto
             {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 MaDonHang = chiTiet.MaDonHang.ToString(),
                 MaSanPham = chiTiet.MaSanPham.ToString(),
@@ -139,6 +151,8 @@ namespace WebsiteSmartHome.Services
                     MaDonHang = ct.MaDonHang.ToString(),
                     MaSanPham = ct.MaSanPham.ToString(),
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 MaDonHang = chiTietDonHang.MaDonHang,
                 MaSanPham = chiTietDonHang.MaSanPham,
                 SoLuong = chiTietDonHang.SoLuong,
@@ -194,6 +208,9 @@ namespace WebsiteSmartHome.Services
                 {
                     MaDonHang = ct.MaDonHang,
                     MaSanPham = ct.MaSanPham,
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                     SoLuong = ct.SoLuong,
                     DonGia = ct.DonGia
@@ -203,6 +220,12 @@ namespace WebsiteSmartHome.Services
             return chiTietDonHangs;
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 
 

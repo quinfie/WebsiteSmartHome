@@ -1,6 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
+=======
+﻿using WebsiteSmartHome.Core.DTOs;
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 ﻿using WebsiteSmartHome.Core.DTOs;
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -10,6 +14,10 @@ using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -27,6 +35,7 @@ namespace WebsiteSmartHome.Services
         public async Task<List<DanhGiaDto>> GetAllDanhGiaAsync()
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             var danhGias = await _unitOfWork.GetRepository<DanhGia>().GetAllAsync();
             return danhGias.Select(d => new DanhGiaDto
             {
@@ -34,12 +43,17 @@ namespace WebsiteSmartHome.Services
                 MaDonHang = d.MaDonHang.ToString(),
                 MaSanPham = d.MaSanPham.ToString(),
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             var danhGias = await _unitOfWork.GetRepository<DanhGium>().GetAllAsync();
             return danhGias.Select(d => new DanhGiaDto
             {
                 Id = d.Id,
                 MaDonHang = d.MaDonHang,
                 MaSanPham = d.MaSanPham,
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 SoSao = d.SoSao,
                 NoiDung = d.NoiDung,
@@ -47,6 +61,7 @@ namespace WebsiteSmartHome.Services
             }).ToList();
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         public async Task<DanhGiaDto?> GetDanhGiaByIdAsync(string id)
@@ -63,6 +78,8 @@ namespace WebsiteSmartHome.Services
                 MaDonHang = danhGia.MaDonHang.ToString(),
                 MaSanPham = danhGia.MaSanPham.ToString(),
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         public async Task<DanhGiaDto?> GetDanhGiaByIdAsync(Guid id)
         {
             var danhGia = await _unitOfWork.GetRepository<DanhGium>().GetByIdAsync(id);
@@ -74,6 +91,9 @@ namespace WebsiteSmartHome.Services
                 Id = danhGia.Id,
                 MaDonHang = danhGia.MaDonHang,
                 MaSanPham = danhGia.MaSanPham,
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 SoSao = danhGia.SoSao,
                 NoiDung = danhGia.NoiDung,
@@ -81,6 +101,7 @@ namespace WebsiteSmartHome.Services
             };
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         public async Task<bool> CreateDanhGiaAsync(DanhGiaDto dto)
@@ -103,6 +124,8 @@ namespace WebsiteSmartHome.Services
 
             await _unitOfWork.GetRepository<DanhGia>().InsertAsync(danhGia);
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         public async Task<bool> CreateDanhGiaAsync(DanhGiaDto danhGiaDto)
         {
             var danhGia = new DanhGium
@@ -115,11 +138,15 @@ namespace WebsiteSmartHome.Services
             };
 
             await _unitOfWork.GetRepository<DanhGium>().InsertAsync(danhGia);
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             await _unitOfWork.SaveAsync();
             return true;
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         public async Task<bool> UpdateDanhGiaAsync(string id, DanhGiaDto danhGiaDto)
@@ -133,6 +160,11 @@ namespace WebsiteSmartHome.Services
         {
             var danhGia = await _unitOfWork.GetRepository<DanhGium>().GetByIdAsync(id);
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
+        public async Task<bool> UpdateDanhGiaAsync(Guid id, DanhGiaDto danhGiaDto)
+        {
+            var danhGia = await _unitOfWork.GetRepository<DanhGium>().GetByIdAsync(id);
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             if (danhGia == null)
                 return false;
 
@@ -141,7 +173,11 @@ namespace WebsiteSmartHome.Services
             danhGia.NgayDanhGia = danhGiaDto.NgayDanhGia;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             _unitOfWork.GetRepository<DanhGia>().Update(danhGia);
+=======
+            _unitOfWork.GetRepository<DanhGium>().Update(danhGia);
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
             _unitOfWork.GetRepository<DanhGium>().Update(danhGia);
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -149,6 +185,7 @@ namespace WebsiteSmartHome.Services
             return true;
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         public async Task<bool> DeleteDanhGiaAsync(string id)
@@ -159,6 +196,8 @@ namespace WebsiteSmartHome.Services
 
             await _unitOfWork.GetRepository<DanhGia>().DeleteAsync(id);
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         public async Task<bool> DeleteDanhGiaAsync(Guid id)
         {
             var danhGia = await _unitOfWork.GetRepository<DanhGium>().GetByIdAsync(id);
@@ -166,12 +205,16 @@ namespace WebsiteSmartHome.Services
                 return false;
 
             await _unitOfWork.GetRepository<DanhGium>().DeleteAsync(id);
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             await _unitOfWork.SaveAsync();
             return true;
         }
         public async Task<List<DanhGiaDto>> SearchDanhGiaByContentAsync(string content)
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
             var danhGias = await _unitOfWork.GetRepository<DanhGia>()
                 .FindByCondition(dg => dg.NoiDung.Contains(content))
@@ -181,6 +224,8 @@ namespace WebsiteSmartHome.Services
                     MaDonHang = dg.MaDonHang.ToString(),
                     MaSanPham = dg.MaSanPham.ToString(),
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             return await _unitOfWork.GetRepository<DanhGium>()
                 .FindByCondition(dg => dg.NoiDung.Contains(content))
                 .Select(dg => new DanhGiaDto
@@ -188,15 +233,23 @@ namespace WebsiteSmartHome.Services
                     Id = dg.Id,
                     MaDonHang = dg.MaDonHang,
                     MaSanPham = dg.MaSanPham,
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                     SoSao = dg.SoSao,
                     NoiDung = dg.NoiDung
                 })
                 .ToListAsync();
 <<<<<<< HEAD
+<<<<<<< HEAD
 
             return danhGias;
         }
+=======
+        }
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
         }
 

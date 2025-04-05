@@ -16,6 +16,10 @@ namespace WebsiteSmartHome.Services
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        // Lấy tất cả đơn hàng
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
         // Lấy tất cả đơn hàng
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -24,6 +28,7 @@ namespace WebsiteSmartHome.Services
             var donHangs = await _unitOfWork.GetRepository<DonHang>().GetAllAsync();
             return donHangs.Select(dh => new DonHangDto
             {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 Id = dh.Id.ToString(),
                 MaNguoiDung = dh.MaNguoiDung.ToString(),
@@ -42,6 +47,8 @@ namespace WebsiteSmartHome.Services
             var donHang = await _unitOfWork.GetRepository<DonHang>().FindByConditionWithIncludesAsync(
                 dh => dh.Id == guidId,
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 Id = dh.Id,
                 MaNguoiDung = dh.MaNguoiDung,
                 TongTien = dh.TongTien,
@@ -56,6 +63,9 @@ namespace WebsiteSmartHome.Services
         {
             var donHang = await _unitOfWork.GetRepository<DonHang>().FindByConditionWithIncludesAsync(
                 dh => dh.Id == id,
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 dh => dh.ChiTietDonHangs
             );
@@ -64,6 +74,7 @@ namespace WebsiteSmartHome.Services
 
             return new DonHangDto
             {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 Id = donHang.Id.ToString(),
                 MaNguoiDung = donHang.MaNguoiDung.ToString(),
@@ -75,6 +86,8 @@ namespace WebsiteSmartHome.Services
         }
 
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 Id = donHang.Id,
                 MaNguoiDung = donHang.MaNguoiDung,
                 TongTien = donHang.TongTien,
@@ -85,6 +98,9 @@ namespace WebsiteSmartHome.Services
         }
 
         // Tìm kiếm theo trạng thái đơn hàng
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         public async Task<List<DonHangDto>> SearchDonHangAsync(string trangThai)
         {
@@ -95,6 +111,7 @@ namespace WebsiteSmartHome.Services
             return donHangs.Select(dh => new DonHangDto
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 Id = dh.Id.ToString(),
                 MaNguoiDung = dh.MaNguoiDung.ToString(),
                 TongTien = dh.TongTien,
@@ -102,12 +119,17 @@ namespace WebsiteSmartHome.Services
                 NgayDat = dh.NgayDat,
                 MaKhuyenMai = dh.MaKhuyenMai?.ToString()
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 Id = dh.Id,
                 MaNguoiDung = dh.MaNguoiDung,
                 TongTien = dh.TongTien,
                 TrangThaiDonHang = dh.TrangThaiDonHang,
                 NgayDat = dh.NgayDat,
                 MaKhuyenMai = dh.MaKhuyenMai
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             }).ToList();
         }
@@ -115,6 +137,10 @@ namespace WebsiteSmartHome.Services
         public async Task<bool> CreateDonHangAsync(DonHangDto donHangDto)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            // Bắt đầu transaction
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
             // Bắt đầu transaction
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -125,6 +151,7 @@ namespace WebsiteSmartHome.Services
                 var donHang = new DonHang
                 {
                     Id = Guid.NewGuid(),
+<<<<<<< HEAD
 <<<<<<< HEAD
                     MaNguoiDung = Guid.Parse(donHangDto.MaNguoiDung),
                     TongTien = donHangDto.TongTien,
@@ -139,6 +166,8 @@ namespace WebsiteSmartHome.Services
                 await _unitOfWork.SaveAsync();
 
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                     MaNguoiDung = donHangDto.MaNguoiDung,
                     TongTien = donHangDto.TongTien, // Chỉ lấy tổng tiền từ DTO
                     TrangThaiDonHang = donHangDto.TrangThaiDonHang,
@@ -151,6 +180,9 @@ namespace WebsiteSmartHome.Services
                 await _unitOfWork.SaveAsync();
 
                 // Commit transaction
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 _unitOfWork.CommitTransaction();
                 return true;
@@ -158,6 +190,10 @@ namespace WebsiteSmartHome.Services
             catch
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+                // Rollback transaction nếu có lỗi
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
                 // Rollback transaction nếu có lỗi
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -166,6 +202,7 @@ namespace WebsiteSmartHome.Services
             }
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         public async Task<bool> UpdateDonHangAsync(string id, DonHangDto donHangDto)
         {
@@ -179,6 +216,8 @@ namespace WebsiteSmartHome.Services
                 ? null
                 : Guid.Parse(donHangDto.MaKhuyenMai);
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 
 
         // Cập nhật đơn hàng
@@ -189,6 +228,9 @@ namespace WebsiteSmartHome.Services
 
             donHang.TrangThaiDonHang = donHangDto.TrangThaiDonHang;
             donHang.MaKhuyenMai = donHangDto.MaKhuyenMai;
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 
             _unitOfWork.GetRepository<DonHang>().Update(donHang);
@@ -196,6 +238,7 @@ namespace WebsiteSmartHome.Services
             return true;
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         public async Task<bool> DeleteDonHangAsync(string id)
         {
@@ -207,6 +250,8 @@ namespace WebsiteSmartHome.Services
             var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
                 .GetEntitiesWithCondition(ct => ct.MaDonHang == guidId).ToListAsync();
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         // Xóa đơn hàng (Xóa cả `ChiTietDonHang`)
         public async Task<bool> DeleteDonHangAsync(Guid id)
         {
@@ -215,6 +260,9 @@ namespace WebsiteSmartHome.Services
 
             var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
                 .GetEntitiesWithCondition(ct => ct.MaDonHang == id).ToListAsync();
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 
             foreach (var chiTiet in chiTietDonHangs)
@@ -227,6 +275,11 @@ namespace WebsiteSmartHome.Services
             return true;
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 
 

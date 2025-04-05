@@ -1,14 +1,20 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using WebsiteSmartHome.IServices;
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 
 namespace WebsiteSmartHome.Services
@@ -25,6 +31,7 @@ namespace WebsiteSmartHome.Services
         public async Task<List<LichBaoTriDto>> GetAllLichBaoTriAsync()
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             var lichBaoTris = await _unitOfWork.GetRepository<LichBaoTri>()
                 .GetAllAsync();
             return lichBaoTris.Select(l => new LichBaoTriDto
@@ -33,18 +40,24 @@ namespace WebsiteSmartHome.Services
                 MaDonHang = l.MaDonHang.ToString(), // Chuyển Guid thành string
                 MaSanPham = l.MaSanPham.ToString(), // Chuyển Guid thành string
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             var lichBaoTris = await _unitOfWork.GetRepository<LichBaoTri>().GetAllAsync();
             return lichBaoTris.Select(l => new LichBaoTriDto
             {
                 Id = l.Id,
                 MaDonHang = l.MaDonHang,
                 MaSanPham = l.MaSanPham,
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 NgayBaoTriKeTiep = l.NgayBaoTriKeTiep,
                 DaThongBao = l.DaThongBao
             }).ToList();
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         public async Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId)
         {
@@ -72,15 +85,26 @@ namespace WebsiteSmartHome.Services
         {
             var lichBaoTri = await _unitOfWork.GetRepository<LichBaoTri>().GetByIdAsync(id);
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
+        public async Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id)
+        {
+            var lichBaoTri = await _unitOfWork.GetRepository<LichBaoTri>().GetByIdAsync(id);
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             if (lichBaoTri == null)
                 return null;
 
             return new LichBaoTriDto
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 Id = lichBaoTri.Id.ToString(),
                 MaDonHang = lichBaoTri.MaDonHang.ToString(),
                 MaSanPham = lichBaoTri.MaSanPham.ToString(),
+=======
+                Id = lichBaoTri.Id,
+                MaDonHang = lichBaoTri.MaDonHang,
+                MaSanPham = lichBaoTri.MaSanPham,
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
                 Id = lichBaoTri.Id,
                 MaDonHang = lichBaoTri.MaDonHang,
@@ -93,6 +117,7 @@ namespace WebsiteSmartHome.Services
 
         public async Task<bool> CreateLichBaoTriAsync(LichBaoTriDto lichBaoTriDto)
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
             if (lichBaoTriDto == null)
                 throw new ArgumentNullException(nameof(lichBaoTriDto), "Dữ liệu không hợp lệ");
@@ -110,10 +135,15 @@ namespace WebsiteSmartHome.Services
                 MaDonHang = Guid.Parse(lichBaoTriDto.MaDonHang), // Chuyển string thành Guid
                 MaSanPham = Guid.Parse(lichBaoTriDto.MaSanPham), // Chuyển string thành Guid
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             var lichBaoTri = new LichBaoTri
             {
                 MaDonHang = lichBaoTriDto.MaDonHang,
                 MaSanPham = lichBaoTriDto.MaSanPham,
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
                 NgayBaoTriKeTiep = lichBaoTriDto.NgayBaoTriKeTiep,
                 DaThongBao = lichBaoTriDto.DaThongBao
@@ -131,7 +161,10 @@ namespace WebsiteSmartHome.Services
                 return false;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             lichBaoTri.MaSanPham = Guid.Parse(lichBaoTriDto.MaSanPham); // Chuyển string thành Guid
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
             lichBaoTri.NgayBaoTriKeTiep = lichBaoTriDto.NgayBaoTriKeTiep;
@@ -153,7 +186,10 @@ namespace WebsiteSmartHome.Services
             return true;
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         public async Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId)
         {
             return await _unitOfWork.GetRepository<LichBaoTri>()
@@ -168,6 +204,9 @@ namespace WebsiteSmartHome.Services
                 .ToListAsync();
         }
 
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
     }
 }

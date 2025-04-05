@@ -24,11 +24,16 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Đăng ký các dịch vụ
 builder.Services.AddScoped<IDanhMucService, DanhMucService>();
 <<<<<<< HEAD
+<<<<<<< HEAD
 builder.Services.AddScoped<IDanhGiaService, DanhGiaService>();
 builder.Services.AddScoped<IDonHangService, DonHangService>();
 builder.Services.AddScoped<IChiTietDonHangService, ChiTietDonHangService>();
 =======
 builder.Services.AddScoped<IDonHangService, DonHangService>();
+=======
+builder.Services.AddScoped<IDonHangService, DonHangService>();
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 

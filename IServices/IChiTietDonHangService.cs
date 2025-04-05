@@ -8,6 +8,7 @@ namespace WebsiteSmartHome.Services
         Task<List<ChiTietDonHangDto>> SearchChiTietDonHangByNameAsync(string name);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
        
         Task<bool> CreateChiTietDonHangAsync(ChiTietDonHangDto chiTietDonHangDto);
         Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid maDonHang, Guid maSanPham);
@@ -15,10 +16,15 @@ namespace WebsiteSmartHome.Services
         Task<bool> DeleteChiTietDonHangAsync(Guid maDonHang, Guid maSanPham);
 
 =======
+=======
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
         Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid id);
         Task<bool> CreateChiTietDonHangAsync(ChiTietDonHangDto chiTietDonHangDto);
         Task<bool> UpdateChiTietDonHangAsync(Guid id, ChiTietDonHangDto chiTietDonHangDto);
         Task<bool> DeleteChiTietDonHangAsync(Guid id);
+<<<<<<< HEAD
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
+=======
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
     }
 }

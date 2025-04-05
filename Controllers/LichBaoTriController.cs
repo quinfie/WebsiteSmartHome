@@ -6,6 +6,10 @@ using WebsiteSmartHome.Services;
 using Microsoft.EntityFrameworkCore;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -30,6 +34,10 @@ namespace WebsiteSmartHome.Controllers
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -50,7 +58,11 @@ namespace WebsiteSmartHome.Controllers
         public async Task<ActionResult> Update(Guid id, [FromBody] LichBaoTriDto lichBaoTriDto)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (id != Guid.Parse(lichBaoTriDto.Id))
+=======
+            if (id != lichBaoTriDto.Id)
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
             if (id != lichBaoTriDto.Id)
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -73,7 +85,11 @@ namespace WebsiteSmartHome.Controllers
             return NotFound(new { message = "Lịch bảo trì không tồn tại" });
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+        // Tìm kiếm lịch bảo trì theo mã đơn hàng
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
         // Tìm kiếm lịch bảo trì theo mã đơn hàng
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -84,7 +100,11 @@ namespace WebsiteSmartHome.Controllers
             return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris);
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+        // Tìm lịch bảo trì theo ID
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
         // Tìm lịch bảo trì theo ID
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -100,6 +120,10 @@ namespace WebsiteSmartHome.Controllers
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0

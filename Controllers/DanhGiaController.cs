@@ -3,6 +3,10 @@ using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+using WebsiteSmartHome.Services;
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 using WebsiteSmartHome.Services;
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -28,6 +32,10 @@ namespace WebsiteSmartHome.Controllers
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
 
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -46,7 +54,11 @@ namespace WebsiteSmartHome.Controllers
 
         [HttpPut("{id}")]
 <<<<<<< HEAD
+<<<<<<< HEAD
         public async Task<ActionResult> Update(string id, [FromBody] DanhGiaDto danhGiaDto)
+=======
+        public async Task<ActionResult> Update(Guid id, [FromBody] DanhGiaDto danhGiaDto)
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
         public async Task<ActionResult> Update(Guid id, [FromBody] DanhGiaDto danhGiaDto)
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -63,7 +75,11 @@ namespace WebsiteSmartHome.Controllers
 
         [HttpDelete("{id}")]
 <<<<<<< HEAD
+<<<<<<< HEAD
         public async Task<ActionResult> Delete(string id)
+=======
+        public async Task<ActionResult> Delete(Guid id)
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
         public async Task<ActionResult> Delete(Guid id)
 >>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
@@ -75,10 +91,16 @@ namespace WebsiteSmartHome.Controllers
             return NotFound(new { message = "Danh gia không tồn tại" });
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         // Tìm đánh giá theo ID
         [HttpGet("{id}")]
         public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(string id)
+=======
+        // Tìm đánh giá theo ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(Guid id)
+>>>>>>> 116c7e5212bdfa5dd3303972b31c08714dcde9d0
 =======
         // Tìm đánh giá theo ID
         [HttpGet("{id}")]
