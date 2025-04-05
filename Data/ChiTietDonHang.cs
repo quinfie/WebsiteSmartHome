@@ -13,7 +13,7 @@ public partial class ChiTietDonHang
 
     public decimal DonGia { get; set; }
 
-    public virtual ICollection<DanhGium> DanhGia { get; set; } = new List<DanhGium>();
+    public virtual ICollection<DanhGia> DanhGia { get; set; } = new List<DanhGia>();
 
     public virtual ICollection<LichBaoTri> LichBaoTris { get; set; } = new List<LichBaoTri>();
 
@@ -21,5 +21,6 @@ public partial class ChiTietDonHang
 
     public virtual SanPham MaSanPhamNavigation { get; set; } = null!;
 
+    public virtual SanPham SanPham { get; set; } = new SanPham();
     public virtual ICollection<YeuCauDichVu> YeuCauDichVus { get; set; } = new List<YeuCauDichVu>();
 }

@@ -197,5 +197,10 @@ namespace WebsiteSmartHome.Repositories
             // Finally, project using the selector
             return query.Select(selector);
         }
+        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
+        {
+            return _context.Set<T>().Where(expression);
+        }
+
     }
 }
