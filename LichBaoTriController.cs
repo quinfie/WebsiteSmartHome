@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebsiteSmartHome.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/lich_bao_tri")]
     [ApiController]
     public class LichBaoTriController : ControllerBase
     {
