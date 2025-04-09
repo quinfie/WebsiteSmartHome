@@ -2,9 +2,8 @@
 
 namespace WebsiteSmartHome.Core.DTOs
 {
-    public class TaiKhoanDto
+    public class TaiKhoanCreateDto
     {
-        public required string MaNguoiDung { get; set; }
         public required string Email { get; set; }
         public required string TenTaiKhoan { get; set; }
         public required string MatKhau { get; set; }

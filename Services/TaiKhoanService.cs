@@ -13,35 +13,51 @@ namespace WebsiteSmartHome.Services
     public class TaiKhoanService : ITaiKhoanService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INguoiDungService _nguoiDungService;
+        private readonly IVaiTroService _vaiTroService;
 
-        public TaiKhoanService(IUnitOfWork unitOfWork)
+        public TaiKhoanService(IUnitOfWork unitOfWork, INguoiDungService nguoiDungService, IVaiTroService vaiTroService)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _nguoiDungService = nguoiDungService ?? throw new ArgumentNullException(nameof(nguoiDungService));
+            _vaiTroService = vaiTroService ?? throw new ArgumentNullException(nameof(vaiTroService));
+
         }
 
         public async Task<IEnumerable<TaiKhoanDto>> GetTaiKhoanAsync()
         {
             var taiKhoanList = await _unitOfWork.GetRepository<TaiKhoan>().GetAllAsync();
+            var vaiTroList = await _unitOfWork.GetRepository<VaiTro>().GetAllAsync();
+
+            // Hàm lấy tên vai trò từ GUID của MaVaiTro
+            string GetRoleName(Guid vaiTroId)
+            {
+                var vaiTro = vaiTroList.FirstOrDefault(v => v.Id == vaiTroId);
+                return vaiTro?.TenVaiTro ?? "Chưa xác định"; // Nếu không tìm thấy vai trò, trả về giá trị mặc định
+            }
+
+            // Ánh xạ tất cả các trường từ TaiKhoan vào TaiKhoanDto
             return taiKhoanList.Select(t => new TaiKhoanDto
             {
-                Id = t.Id.ToString(),
+                MaNguoiDung = t.MaNguoiDung.ToString(),
                 Email = t.Email,
                 TenTaiKhoan = t.TenTaiKhoan,
-                MaNguoiDung = t.MaNguoiDung.ToString(),
                 MatKhau = t.MatKhau,
                 TrangThai = t.TrangThai,
-                MaVaiTro = t.MaVaiTro.ToString()
+                TenVaiTro = GetRoleName(t.MaVaiTro)
             });
         }
+
 
         public async Task<TaiKhoanDto?> GetTaiKhoanByIdAsync(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
-                throw new BaseException.BadRequestException("invalid_data", "Mã người dùng không được để trống");
+                throw new BaseException.BadRequestException("invalid_data", "Mã tài khoản không được để trống");
             }
 
-            TaiKhoan? taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(id);
+            Guid.TryParse(id, out Guid guidId);
+            TaiKhoan? taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(guidId);
 
             if (taiKhoan == null)
             {
@@ -50,46 +66,78 @@ namespace WebsiteSmartHome.Services
 
             return new TaiKhoanDto
             {
-                Id = taiKhoan.Id.ToString(),
+                MaNguoiDung = taiKhoan.MaNguoiDung.ToString(),
                 Email = taiKhoan.Email,
                 TenTaiKhoan = taiKhoan.TenTaiKhoan,
                 TrangThai = taiKhoan.TrangThai,
-                MaVaiTro = taiKhoan.MaVaiTro.ToString()
+                MatKhau = taiKhoan.MatKhau
             };
         }
 
-        public async Task AddTaiKhoanAsync(TaiKhoanDto taiKhoanDto)
+        private async Task CheckTaiKhoanExistsAsync(TaiKhoanCreateDto taiKhoanDto, string maNguoiDung)
         {
-            // Validate tài khoản trước khi thêm
-            ValidateTaiKhoan(taiKhoanDto);
+            var repo = _unitOfWork.GetRepository<TaiKhoan>();
+
+            // Kiểm tra email hoặc tên tài khoản trùng
+            var exists = await repo.FindByConditionAsync(t =>
+                t.Email == taiKhoanDto.Email || t.TenTaiKhoan == taiKhoanDto.TenTaiKhoan);
+
+            if (exists != null)
+            {
+                if (exists.Email == taiKhoanDto.Email)
+                    throw new BaseException.BadRequestException("duplicate", "Email đã tồn tại");
+
+                if (exists.TenTaiKhoan == taiKhoanDto.TenTaiKhoan)
+                    throw new BaseException.BadRequestException("duplicate", "Tên tài khoản đã tồn tại");
+            }
+
+            // Nếu có truyền MaNguoiDung, kiểm tra đã tồn tại tài khoản chưa
+            if (!string.IsNullOrWhiteSpace(maNguoiDung))
+            {
+                var existingByNguoiDung = await repo.FindByConditionAsync(t => t.MaNguoiDung == Guid.Parse(maNguoiDung));
+                if (existingByNguoiDung != null)
+                {
+                    throw new BaseException.BadRequestException("duplicate", "Người dùng này đã có tài khoản");
+                }
+            }
+        }
+
+        public async Task AddTaiKhoanAsync(TaiKhoanCreateDto taiKhoanDto, string maNguoiDung)
+        {
+            // Kiểm tra dữ liệu đầu vào
+            if (taiKhoanDto == null)
+            {
+                throw new BaseException.ValidationException("invalid_data", "Dữ liệu tài khoản không hợp lệ");
+            }
+
+            // Kiểm tra dữ liệu hợp lệ
+            ValidationHelper.ValidateEmail(taiKhoanDto.Email);
+            ValidationHelper.ValidatePassword(taiKhoanDto.MatKhau);
+            ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai);
+            ValidationHelper.ValidateRole(taiKhoanDto.TenVaiTro.ToString());
 
             // Kiểm tra trùng email, trùng tên tài khoản, trùng mã người dùng
-            TaiKhoan? existingTaiKhoanByEmail = await _unitOfWork.GetRepository<TaiKhoan>().FindByConditionAsync(t => t.Email == taiKhoanDto.Email);
-            if (existingTaiKhoanByEmail != null)
+            await CheckTaiKhoanExistsAsync(taiKhoanDto, maNguoiDung);
+
+            // Tạo người dùng mới và trả về Mã Người Dùng
+            //Guid maNguoiDung = await _nguoiDungService.AddNguoiDungAsync(nguoiDungDto!);
+
+            Guid.TryParse(maNguoiDung, out Guid maNguoiDungGUID);
+
+            // Trả về mã vai trò dựa trên tên vai trò nhập vào
+            Guid? vaiTroId = await _vaiTroService.GetRoleIdByNameAsync(taiKhoanDto.TenVaiTro);
+            if (vaiTroId == null)
             {
-                throw new BaseException.BadRequestException("duplicate", "Email đã tồn tại");
+                throw new BaseException.NotFoundException("not_found", "Vai trò không tồn tại");
             }
 
-            TaiKhoan? existingTaiKhoanByTenTaiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().FindByConditionAsync(t => t.TenTaiKhoan == taiKhoanDto.TenTaiKhoan);
-            if (existingTaiKhoanByTenTaiKhoan != null)
-            {
-                throw new BaseException.BadRequestException("duplicate", "Tên tài khoản đã tồn tại");
-            }
-
-            VaiTro? vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(taiKhoanDto.MaVaiTro);
-
-            if (vaiTro == null)
-            {
-                throw new BaseException.BadRequestException("not_found", "Vai trò không tồn tại");
-            }
-
-            // Tạo tài khoản mới
-            var taiKhoan = new TaiKhoan
+            TaiKhoan taiKhoan = new TaiKhoan
             {
                 Email = taiKhoanDto.Email,
                 TenTaiKhoan = taiKhoanDto.TenTaiKhoan,
                 MatKhau = taiKhoanDto.MatKhau,
-                MaVaiTro = vaiTro.Id,
+                MaNguoiDung = maNguoiDungGUID,
+                MaVaiTro = vaiTroId.Value,
                 TrangThai = taiKhoanDto.TrangThai
             };
 
@@ -105,84 +153,95 @@ namespace WebsiteSmartHome.Services
             }
         }
 
-        private void ValidateTaiKhoan(TaiKhoanDto taiKhoanDto)
+        public async Task UpdateTaiKhoanAsync(string taiKhoanId, TaiKhoanUpdateDto taiKhoanDto)
         {
-            // Kiểm tra dữ liệu đầu vào
             if (taiKhoanDto == null)
             {
-                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu tài khoản không hợp lệ");
+                throw new BaseException.ValidationException("invalid_data", "Dữ liệu tài khoản không hợp lệ");
             }
 
-            if (string.IsNullOrWhiteSpace(taiKhoanDto.Email) || string.IsNullOrWhiteSpace(taiKhoanDto.TenTaiKhoan))
+            // Tìm tài khoản theo Id
+            TaiKhoan? taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>()
+                .FindByConditionAsync(x => x.Id.ToString() == taiKhoanId);
+
+            if (taiKhoan == null)
             {
-                throw new BaseException.BadRequestException("invalid_data", "Thông tin tài khoản không được để trống");
+                throw new BaseException.NotFoundException("not_found", "Tài khoản không tồn tại");
             }
 
-            // Kiểm tra định dạng email
-            if (!ValidationAccount.IsValidEmail(taiKhoanDto.Email))
+            // Cập nhật Email nếu khác
+            if (!string.IsNullOrWhiteSpace(taiKhoanDto.Email) && taiKhoan.Email != taiKhoanDto.Email)
             {
-                throw new BaseException.BadRequestException("invalid_data", "Email không hợp lệ");
+                ValidationHelper.ValidateEmail(taiKhoanDto.Email);
+                taiKhoan.Email = taiKhoanDto.Email;
             }
 
-            // Kiểm tra mật khẩu (ít nhất 8 ký tự)
-            if (string.IsNullOrWhiteSpace(taiKhoanDto.MatKhau) || !ValidationAccount.IsValidPassword(taiKhoanDto.MatKhau))
+            // Cập nhật Tên tài khoản nếu khác
+            if (!string.IsNullOrWhiteSpace(taiKhoanDto.TenTaiKhoan) && taiKhoan.TenTaiKhoan != taiKhoanDto.TenTaiKhoan)
             {
-                throw new BaseException.BadRequestException("invalid_data", "Mật khẩu phải có ít nhất 8 ký tự");
+                taiKhoan.TenTaiKhoan = taiKhoanDto.TenTaiKhoan;
             }
 
-            // Kiểm tra trạng thái hợp lệ
-            if (!Enum.IsDefined(typeof(AccountStatus), taiKhoanDto.TrangThai))
+            // Cập nhật Mật khẩu nếu có
+            if (!string.IsNullOrWhiteSpace(taiKhoanDto.MatKhau))
             {
-                throw new BaseException.BadRequestException("invalid_data", "Trạng thái không hợp lệ");
+                ValidationHelper.ValidatePassword(taiKhoanDto.MatKhau);
+                taiKhoan.MatKhau = taiKhoanDto.MatKhau;
+            }
+
+            // Cập nhật Trạng thái nếu khác
+            if (taiKhoan.TrangThai != taiKhoanDto.TrangThai)
+            {
+                ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai);
+                taiKhoan.TrangThai = taiKhoanDto.TrangThai;
+            }
+
+            // Cập nhật Vai trò nếu khác
+            if (!string.IsNullOrWhiteSpace(taiKhoanDto.TenVaiTro))
+            {
+                ValidationHelper.ValidateRole(taiKhoanDto.TenVaiTro.ToString());
+                Guid? vaiTroId = await _vaiTroService.GetRoleIdByNameAsync(taiKhoanDto.TenVaiTro);
+
+                if (vaiTroId == null)
+                {
+                    throw new BaseException.NotFoundException("not_found", "Vai trò không tồn tại");
+                }
+
+                if (taiKhoan.MaVaiTro != vaiTroId)
+                {
+                    taiKhoan.MaVaiTro = vaiTroId.Value;
+                }
+            }
+
+            try
+            {
+                _unitOfWork.GetRepository<TaiKhoan>().Update(taiKhoan);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (SqlException)
+            {
+                throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi cập nhật tài khoản");
             }
         }
 
-        //public async Task<bool> UpdateTaiKhoanAsync(Guid id, TaiKhoanDto taiKhoanDto)
-        //{
-        //    //if (id == Guid.Empty)
-        //    //{
-        //    //    throw new BaseException.BadRequestException("invalid_id", "ID không hợp lệ");
-        //    //}
+        public async Task DeleteTaiKhoanAsync(string taiKhoanId)
+        {
+            TaiKhoan? taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(taiKhoanId);
+            if (taiKhoan == null)
+            {
+                throw new BaseException.NotFoundException("not_found", "Tài khoản không tồn tại");
+            }
 
-        //    //if (taiKhoanDto == null || string.IsNullOrWhiteSpace(taiKhoanDto.Email) || string.IsNullOrWhiteSpace(taiKhoanDto.TenTaiKhoan))
-        //    //{
-        //    //    throw new BaseException.BadRequestException("invalid_data", "Thông tin tài khoản không được để trống");
-        //    //}
-
-        //    //var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(id);
-        //    //if (taiKhoan == null)
-        //    //{
-        //    //    throw new BaseException.NotFoundException("tai_khoan_not_found", "Tài khoản không tồn tại");
-        //    //}
-
-        //    //taiKhoan.Email = taiKhoanDto.Email;
-        //    //taiKhoan.TenTaiKhoan = taiKhoanDto.TenTaiKhoan;
-        //    //taiKhoan.TrangThai = taiKhoanDto.TrangThai;
-        //    //taiKhoan.MaVaiTro = taiKhoanDto.MaVaiTro;
-
-        //    //_unitOfWork.GetRepository<TaiKhoan>().Update(taiKhoan);
-        //    //await _unitOfWork.SaveAsync();
-        //    return true;
-        //}
-
-        //public async Task<bool> DeleteTaiKhoanAsync(Guid id)
-        //{
-        //    if (id == Guid.Empty)
-        //    {
-        //        throw new BaseException.BadRequestException("invalid_id", "ID không hợp lệ");
-        //    }
-
-        //    var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(id);
-        //    if (taiKhoan == null)
-        //    {
-        //        throw new BaseException.NotFoundException("tai_khoan_not_found", "Tài khoản không tồn tại");
-        //    }
-
-        //    _unitOfWork.GetRepository<TaiKhoan>().Delete(taiKhoan);
-        //    await _unitOfWork.SaveAsync();
-        //    return true;
-        //}
-
+            try
+            {
+                _unitOfWork.GetRepository<TaiKhoan>().Delete(taiKhoan);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (SqlException)
+            {
+                throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi xoá tài khoản");
+            }
+        }
         public async Task<IEnumerable<TaiKhoan>> SearchTaiKhoan(string? keyword, string? trangThai)
         {
             if (string.IsNullOrWhiteSpace(keyword) && string.IsNullOrWhiteSpace(trangThai))
@@ -208,5 +267,4 @@ namespace WebsiteSmartHome.Services
             return await query.ToListAsync();
         }
     }
-
 }

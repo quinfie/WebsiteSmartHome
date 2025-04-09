@@ -1,10 +1,12 @@
 using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core.Utils;
 using WebsiteSmartHome.Data;
 
 namespace WebsiteSmartHome.Services
 {
     public interface IVaiTroService
     {
+        Task<Guid?> GetRoleIdByNameAsync(string rolename);
         Task<IEnumerable<VaiTroDto>> GetVaiTroAsync();
         Task<VaiTroDto?> GetVaiTroByIdAsync(string id);
         Task AddVaiTroAsync(string tenVaiTro);

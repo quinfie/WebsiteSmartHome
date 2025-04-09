@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace WebsiteSmartHome.Data;
+﻿namespace WebsiteSmartHome.Data;
 
 public partial class NguoiDung
 {

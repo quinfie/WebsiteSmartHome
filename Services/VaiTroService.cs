@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core.Utils;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.UnitOfWork;
 
@@ -27,7 +29,8 @@ namespace WebsiteSmartHome.Services
 
         public async Task<VaiTroDto?> GetVaiTroByIdAsync(string id)
         {
-            VaiTro? vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(id);
+            Guid.TryParse(id, out Guid guidId);
+            VaiTro? vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(guidId);
             if (vaiTro == null)
             {
                 throw new BaseException.NotFoundException("not_found", "Vai trò không tồn tại");
@@ -102,6 +105,12 @@ namespace WebsiteSmartHome.Services
             }
 
             return result;
+        }
+
+        public async Task<Guid?> GetRoleIdByNameAsync(string rolename)
+        {
+            var vaiTro = await _unitOfWork.GetRepository<VaiTro>().Entities.FirstOrDefaultAsync(v => v.TenVaiTro == rolename);
+            return vaiTro?.Id;
         }
     }
 }

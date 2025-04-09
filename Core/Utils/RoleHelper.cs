@@ -1,17 +1,19 @@
-﻿namespace WebsiteSmartHome.Core.Utils
+﻿using System.ComponentModel;
+
+namespace WebsiteSmartHome.Core.Utils
 {
     public enum RoleHelper
     {
-        [CustomName("Customer")]
+        [Description("Khách hàng")]
         Customer,
 
-        [CustomName("Woker")]
-        Woker,
+        [Description("Nhân viên")]
+        Worker,
 
-        [CustomName("Admin")]
+        [Description("Quản trị viên")]
         Admin,
 
-        [CustomName("Manager")]
+        [Description("Quản lí")]
         Manager,
     }
 }
