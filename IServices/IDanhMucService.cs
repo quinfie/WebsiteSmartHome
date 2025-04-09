@@ -7,8 +7,8 @@ namespace WebsiteSmartHome.Services
     {
         Task<List<DanhMucDto>> GetAllDanhMucAsync();
         Task<DanhMuc?> GetDanhMucByIdAsync(Guid id);
-        //Task<bool> CreateDanhMucAsync(DanhMuc danhMuc);
-        //Task<bool> UpdateDanhMucAsync(Guid id, DanhMuc danhMuc);
-        //Task<bool> DeleteDanhMucAsync(Guid id);
+        Task<bool> CreateDanhMucAsync(DanhMucDto dto);
+        Task<bool> UpdateDanhMucAsync(DanhMucDto dto);
+        Task<bool> DeleteDanhMucAsync(Guid id);
     }
 }

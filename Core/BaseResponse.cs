@@ -51,5 +51,11 @@ namespace WebsiteSmartHome.Core.Base
         {
             throw new NotImplementedException();
         }
+
+        internal static ActionResult<SanPham> OkResponse(SanPham sanPham)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
