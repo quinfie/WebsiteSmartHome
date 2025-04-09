@@ -73,8 +73,6 @@ namespace WebsiteSmartHome.Repositories
             return new BasePaginatedList<T>(pagedItems, count, pageNumber, pageSize);
         }
 
-
-
         public void Insert(T obj)
         {
             _dbSet.Add(obj);
@@ -108,6 +106,11 @@ namespace WebsiteSmartHome.Repositories
         public Task UpdateAsync(T obj)
         {
             return Task.FromResult(_dbSet.Update(obj));
+        }
+
+        public async Task<IEnumerable<T>> FindByCondition(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
         }
 
         // New method: FindByConditionAsync
