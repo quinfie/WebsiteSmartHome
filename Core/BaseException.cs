@@ -1,4 +1,4 @@
-﻿using WebsiteSmartHome.Core.Utils;
+﻿using WebsiteSmartHome.Core.Store;
 
 namespace WebsiteSmartHome.Core
 {

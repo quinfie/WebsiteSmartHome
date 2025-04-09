@@ -1,4 +1,7 @@
-﻿namespace WebsiteSmartHome.Data;
+﻿using System;
+using System.Collections.Generic;
+
+namespace WebsiteSmartHome.Data;
 
 public partial class TaiKhoan
 {

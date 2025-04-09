@@ -15,11 +15,12 @@ namespace WebsiteSmartHome.Services
 
         public async Task<List<DanhMucDto>> GetAllDanhMucAsync()
         {
-            IList<DanhMuc> danhMucs = await _unitOfWork.GetRepository<DanhMuc>().GetAllAsync();
+            var danhMucs = await _unitOfWork.GetRepository<DanhMuc>().GetAllAsync();
             return danhMucs.Select(d => new DanhMucDto
             {
+                Id = d.Id,
                 TenDanhMuc = d.TenDanhMuc,
-                MoTa = d.MoTa!
+                MoTa = d.MoTa
             }).ToList();
         }
 

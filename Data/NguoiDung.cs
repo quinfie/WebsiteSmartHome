@@ -1,4 +1,7 @@
-﻿namespace WebsiteSmartHome.Data;
+﻿using System;
+using System.Collections.Generic;
+
+namespace WebsiteSmartHome.Data;
 
 public partial class NguoiDung
 {
@@ -20,7 +23,7 @@ public partial class NguoiDung
 
     public virtual ICollection<PhanCongDichVu> PhanCongDichVus { get; set; } = new List<PhanCongDichVu>();
 
-    public virtual TaiKhoan? TaiKhoan { get; set; }
+    public virtual ICollection<TaiKhoan> TaiKhoans { get; set; } = new List<TaiKhoan>();
 
     public virtual ICollection<YeuCauDichVu> YeuCauDichVus { get; set; } = new List<YeuCauDichVu>();
 }

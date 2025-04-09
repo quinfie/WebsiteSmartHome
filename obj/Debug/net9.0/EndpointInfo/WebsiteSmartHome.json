@@ -1,0 +1,94 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "WebsiteSmartHome",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/DanhMuc": {
+      "get": {
+        "tags": [
+          "DanhMuc"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsiteSmartHome.Core.Base.BaseResponse`1[System.Collections.Generic.List`1[WebsiteSmartHome.Core.DTOs.DanhMucDto]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsiteSmartHome.Core.Base.BaseResponse`1[System.Collections.Generic.List`1[WebsiteSmartHome.Core.DTOs.DanhMucDto]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsiteSmartHome.Core.Base.BaseResponse`1[System.Collections.Generic.List`1[WebsiteSmartHome.Core.DTOs.DanhMucDto]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WebsiteSmartHome.Core.Base.BaseResponse`1[System.Collections.Generic.List`1[WebsiteSmartHome.Core.DTOs.DanhMucDto]]": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebsiteSmartHome.Core.DTOs.DanhMucDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusCode": {
+            "$ref": "#/components/schemas/WebsiteSmartHome.Core.Store.StatusCodeHelper"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WebsiteSmartHome.Core.DTOs.DanhMucDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenDanhMuc": {
+            "type": "string",
+            "nullable": true
+          },
+          "moTa": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WebsiteSmartHome.Core.Store.StatusCodeHelper": {
+        "enum": [
+          200,
+          400,
+          401,
+          500
+        ],
+        "type": "integer",
+        "format": "int32"
+      }
+    }
+  }
+}

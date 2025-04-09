@@ -2,7 +2,8 @@
 {
     public class DanhMucDto
     {
-        public string TenDanhMuc { get; set; } = string.Empty;
-        public string MoTa { get; set; } = string.Empty;
+        public Guid Id { get; set; }
+        public string TenDanhMuc { get; set; } = null!;
+        public string? MoTa { get; set; }
     }
 }

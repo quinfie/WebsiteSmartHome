@@ -5,9 +5,9 @@ using WebsiteSmartHome.Services;
 
 namespace WebsiteSmartHome.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/danh_muc")]
-    public class DanhMucController : ControllerBase
+    public class DanhMucController: ControllerBase
     {
         private readonly IDanhMucService _danhMucService;
 

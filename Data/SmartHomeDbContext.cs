@@ -266,8 +266,6 @@ public partial class SmartHomeDbContext : DbContext
 
             entity.HasIndex(e => e.Email, "UQ_TaiKhoan_Email").IsUnique();
 
-            entity.HasIndex(e => e.MaNguoiDung, "UQ_TaiKhoan_MaNguoiDung").IsUnique();
-
             entity.HasIndex(e => e.TenTaiKhoan, "UQ_TaiKhoan_TenTaiKhoan").IsUnique();
 
             entity.HasIndex(e => e.Email, "UQ__TaiKhoan__A9D105348803A0F5").IsUnique();
@@ -280,8 +278,8 @@ public partial class SmartHomeDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("Chờ xác minh");
 
-            entity.HasOne(d => d.MaNguoiDungNavigation).WithOne(p => p.TaiKhoan)
-                .HasForeignKey<TaiKhoan>(d => d.MaNguoiDung)
+            entity.HasOne(d => d.MaNguoiDungNavigation).WithMany(p => p.TaiKhoans)
+                .HasForeignKey(d => d.MaNguoiDung)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__TaiKhoan__MaNguo__571DF1D5");
 
