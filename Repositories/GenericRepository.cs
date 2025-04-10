@@ -200,10 +200,5 @@ namespace WebsiteSmartHome.Repositories
             // Finally, project using the selector
             return query.Select(selector);
         }
-
-        public Task GetAllSanPhamAsync()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

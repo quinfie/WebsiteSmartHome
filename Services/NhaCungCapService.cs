@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+﻿using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.IServices;
@@ -12,87 +12,98 @@ namespace WebsiteSmartHome.Services
 
         public NhaCungCapService(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
-
-        public IUnitOfWork GetUnitOfWork()
-        {
-            return _unitOfWork;
-        }
-
 
         public async Task<List<NhaCungCapDto>> GetAllNhaCungCapAsync()
         {
-            var nhaCungCaps = await _unitOfWork.GetRepository<NhaCungCap>().GetAllAsync();
-            if (nhaCungCaps == null || !nhaCungCaps.Any()) return new List<NhaCungCapDto>();
-
-            return nhaCungCaps.Select(d => new NhaCungCapDto
+            var nccs = await _unitOfWork.GetRepository<NhaCungCap>().GetAllAsync();
+            return nccs.Select(ncc => new NhaCungCapDto
             {
-                Id = d.Id,
-                TenNhaCungCap = d.TenNhaCungCap,
-                SDT = d.SDT,
-                Email = d.Email,
-                DiaChi = d.DiaChi
+                Id = ncc.Id.ToString(),
+                TenNhaCungCap = ncc.TenNhaCungCap,
+                SDT = ncc.SDT,
+                Email = ncc.Email,
+                DiaChi = ncc.DiaChi
             }).ToList();
         }
 
-        public async Task<NhaCungCap?> GetNhaCungCapByIdAsync(Guid id)
+        public async Task<NhaCungCapDto> GetNhaCungCapByIdAsync(string id)
         {
-            return await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(id);
+            if (string.IsNullOrWhiteSpace(id))
+                throw new BaseException.BadRequestException("invalid_data", "Mã nhà cung cấp không được để trống");
+
+            Guid.TryParse(id, out Guid guidId);
+            var ncc = await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(guidId);
+
+            if (ncc == null)
+                throw new BaseException.NotFoundException("not_found", "Không tìm thấy nhà cung cấp.");
+
+            return new NhaCungCapDto
+            {
+                Id = ncc.Id.ToString(),
+                TenNhaCungCap = ncc.TenNhaCungCap,
+                SDT = ncc.SDT,
+                Email = ncc.Email,
+                DiaChi = ncc.DiaChi
+            };
         }
 
-        public async Task<bool> CreateNhaCungCapAsync(NhaCungCapDto dto)
+        public async Task<NhaCungCapCreateDto> CreateNhaCungCapAsync(NhaCungCapCreateDto dto)
         {
-            if (dto == null) return false;
+            if (dto == null)
+                throw new BaseException.ValidationException("invalid_data", "Dữ liệu không hợp lệ.");
 
-            var nhaCungCap = new NhaCungCap
+            var existed = await _unitOfWork.GetRepository<NhaCungCap>().FindByConditionAsync(x => x.TenNhaCungCap == dto.TenNhaCungCap);
+            if (existed != null)
+                throw new BaseException.ValidationException("duplicate", "Tên nhà cung cấp đã tồn tại.");
+
+            var ncc = new NhaCungCap
             {
-                Id = Guid.NewGuid(),
                 TenNhaCungCap = dto.TenNhaCungCap,
                 SDT = dto.SDT,
                 Email = dto.Email,
                 DiaChi = dto.DiaChi
             };
 
-            await _unitOfWork.GetRepository<NhaCungCap>().InsertAsync(nhaCungCap);
+            await _unitOfWork.GetRepository<NhaCungCap>().InsertAsync(ncc);
             await _unitOfWork.SaveAsync();
-            return true;
+            return dto;
         }
 
-        public async Task<bool> UpdateNhaCungCapAsync(NhaCungCapDto dto)
+        public async Task<NhaCungCapDto> UpdateNhaCungCapAsync(NhaCungCapDto dto)
         {
-            if (dto == null) return false;
-            var nhaCungCap = await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(dto.Id);
-            if (nhaCungCap == null) return false;
+            if (dto == null)
+                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ.");
 
-            nhaCungCap.TenNhaCungCap = dto.TenNhaCungCap;
-            nhaCungCap.SDT = dto.SDT;
-            nhaCungCap.Email = dto.Email;
-            nhaCungCap.DiaChi = dto.DiaChi;
+            Guid.TryParse(dto.Id, out Guid guidId);
+            var ncc = await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(guidId);
+            if (ncc == null)
+                throw new BaseException.NotFoundException("not_found", "Không tìm thấy nhà cung cấp.");
 
-            _unitOfWork.GetRepository<NhaCungCap>().Update(nhaCungCap);
+            ncc.TenNhaCungCap = dto.TenNhaCungCap;
+            ncc.SDT = dto.SDT;
+            ncc.Email = dto.Email;
+            ncc.DiaChi = dto.DiaChi;
+
+            _unitOfWork.GetRepository<NhaCungCap>().Update(ncc);
             await _unitOfWork.SaveAsync();
-            return true;
+
+            return dto;
         }
 
-        public async Task<bool> DeleteNhaCungCapAsync(Guid id)
+        public async Task DeleteNhaCungCapAsync(string id)
         {
-            var nhaCungCap = await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(id);
-            if (nhaCungCap == null) return false;
+            if (string.IsNullOrWhiteSpace(id))
+                throw new BaseException.BadRequestException("invalid_data", "Mã nhà cung cấp không được để trống");
 
-            await _unitOfWork.GetRepository<NhaCungCap>().DeleteAsync(id);
+            Guid.TryParse(id, out Guid guidId);
+            var ncc = await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(guidId);
+            if (ncc == null)
+                throw new BaseException.NotFoundException("not_found", "Không tìm thấy nhà cung cấp.");
+
+            await _unitOfWork.GetRepository<NhaCungCap>().DeleteAsync(guidId);
             await _unitOfWork.SaveAsync();
-            return true;
-        }
-
-        public Task<bool> CreateNhaCungCapAsync(DanhMucDto dto)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> UpdateNhaCungCapAsync(DanhMucDto dto)
-        {
-            throw new NotImplementedException();
         }
     }
 }

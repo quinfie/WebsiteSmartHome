@@ -1,4 +1,5 @@
-﻿using WebsiteSmartHome.Core.DTOs;
+﻿using WebsiteSmartHome.Core;
+using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
@@ -11,86 +12,93 @@ namespace WebsiteSmartHome.Services
 
         public KhoService(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
-
-        public IUnitOfWork GetUnitOfWork()
-        {
-            return _unitOfWork;
-        }
-
 
         public async Task<List<KhoDto>> GetAllKhoAsync()
         {
             var khos = await _unitOfWork.GetRepository<Kho>().GetAllAsync();
-            if (khos == null || !khos.Any()) return new List<KhoDto>();
-
-            return khos.Select(d => new KhoDto
+            return khos.Select(k => new KhoDto
             {
-                Id = d.Id,
-                TenKho = d.TenKho,
-                DiaChi = d.DiaChi
+                Id = k.Id.ToString(),
+                TenKho = k.TenKho,
+                DiaChi = k.DiaChi
             }).ToList();
         }
 
-        public async Task<Kho?> GetKhoByIdAsync(Guid id)
+        public async Task<KhoDto> GetKhoByIdAsync(string id)
         {
-            return await _unitOfWork.GetRepository<Kho>().GetByIdAsync(id);
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new BaseException.BadRequestException("invalid_data", "Mã kho không được để trống");
+            }
+
+            Guid.TryParse(id, out Guid guidId);
+            var kho = await _unitOfWork.GetRepository<Kho>().GetByIdAsync(guidId);
+            if (kho == null)
+                throw new BaseException.NotFoundException("not_found", "Không tìm thấy kho.");
+
+            return new KhoDto
+            {
+                Id = kho.Id.ToString(),
+                TenKho = kho.TenKho,
+                DiaChi = kho.DiaChi
+            };
         }
 
-        public async Task<bool> CreateKhoAsync(KhoDto dto)
+        public async Task<KhoCreateDto> CreateKhoAsync(KhoCreateDto dto)
         {
-            if (dto == null) return false;
+            if (dto == null)
+                throw new BaseException.ValidationException("invalid_data", "Dữ liệu không hợp lệ.");
 
-            var kho = new Kho
+            // Có thể kiểm tra trùng tên nếu cần
+            Kho? existed = await _unitOfWork.GetRepository<Kho>().FindByConditionAsync(k => k.TenKho == dto.TenKho);
+            if (existed == null)
+                throw new BaseException.ValidationException("duplicate", "Tên kho đã tồn tại.");
+
+            Kho kho = new Kho
             {
-                Id = Guid.NewGuid(),
                 TenKho = dto.TenKho,
-                DiaChi = dto.DiaChi
+                DiaChi = dto.DiaChi!
             };
 
             await _unitOfWork.GetRepository<Kho>().InsertAsync(kho);
             await _unitOfWork.SaveAsync();
-            return true;
+            return dto;
         }
 
-        public async Task<bool> UpdateKhoAsync(KhoDto dto)
+        public async Task<KhoDto> UpdateKhoAsync(KhoDto dto)
         {
-            if (dto == null) return false;
+            if (dto == null )
+                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ.");
+
             var kho = await _unitOfWork.GetRepository<Kho>().GetByIdAsync(dto.Id);
-            if (kho == null) return false;
+            if (kho == null)
+                throw new BaseException.NotFoundException("not_found", "Không tìm thấy kho cần cập nhật.");
 
             kho.TenKho = dto.TenKho;
             kho.DiaChi = dto.DiaChi;
 
             _unitOfWork.GetRepository<Kho>().Update(kho);
             await _unitOfWork.SaveAsync();
-            return true;
+
+            return dto;
         }
 
-        public async Task<bool> DeleteKhoAsync(Guid id)
+        public async Task DeleteKhoAsync(string id)
         {
-            var kho = await _unitOfWork.GetRepository<Kho>().GetByIdAsync(id);
-            if (kho == null) return false;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new BaseException.BadRequestException("invalid_data", "Mã kho không được để trống");
+            }
+
+            Guid.TryParse(id, out Guid guidId);
+            Kho? kho = await _unitOfWork.GetRepository<Kho>().GetByIdAsync(guidId);
+            if (kho == null)
+                throw new BaseException.NotFoundException("not_found", "Không tìm thấy kho cần xóa.");
 
             await _unitOfWork.GetRepository<Kho>().DeleteAsync(id);
             await _unitOfWork.SaveAsync();
-            return true;
-        }
-
-        Task<DanhMuc?> IKhoService.GetKhoByIdAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> CreateKhoAsync(DanhMucDto dto)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> UpdateKhoAsync(DanhMucDto dto)
-        {
-            throw new NotImplementedException();
         }
     }
 }

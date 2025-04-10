@@ -41,6 +41,5 @@ namespace WebsiteSmartHome.Repositories
             Expression<Func<T, bool>> expression,
             Expression<Func<T, TResult>> selector,
             params Expression<Func<T, object>>[] includes);
-        Task GetAllSanPhamAsync();
     }
 }

@@ -192,8 +192,8 @@ namespace WebsiteSmartHome.Services
             // Cập nhật Trạng thái nếu khác
             if (taiKhoan.TrangThai != taiKhoanDto.TrangThai)
             {
-                ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai);
-                taiKhoan.TrangThai = taiKhoanDto.TrangThai;
+                ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai!);
+                taiKhoan.TrangThai = taiKhoanDto.TrangThai!;
             }
 
             // Cập nhật Vai trò nếu khác

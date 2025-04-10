@@ -6,11 +6,9 @@ namespace WebsiteSmartHome.IServices
     public interface IKhoService
     {
         Task<List<KhoDto>> GetAllKhoAsync();
-        Task<DanhMuc?> GetKhoByIdAsync(Guid id);
-        Task<bool> CreateKhoAsync(DanhMucDto dto);
-        Task<bool> UpdateKhoAsync(DanhMucDto dto);
-        Task<bool> DeleteKhoAsync(Guid id);
-        Task<bool> UpdateKhoAsync(KhoDto dto);
-        Task<bool> CreateKhoAsync(KhoDto dto);
+        Task<KhoDto> GetKhoByIdAsync(string id);
+        Task<KhoCreateDto> CreateKhoAsync(KhoCreateDto dto);
+        Task<KhoDto> UpdateKhoAsync(KhoDto dto);
+        Task DeleteKhoAsync(string id);
     }
 }

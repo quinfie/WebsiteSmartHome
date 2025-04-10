@@ -1,14 +1,14 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
-using WebsiteSmartHome.Data;
 
 namespace WebsiteSmartHome.Services
 {
     public interface IDanhMucService
     {
-        Task<List<DanhMucDto>> GetAllDanhMucAsync();
-        Task<DanhMuc?> GetDanhMucByIdAsync(Guid id);
-        Task<bool> CreateDanhMucAsync(DanhMucDto dto);
+        Task<IEnumerable<DanhMucDto>> GetAllDanhMucAsync();
+        Task<DanhMucDto> GetDanhMucByIdAsync(string id);
+        Task<DanhMucCreateDto> AddDanhMucAsync(DanhMucCreateDto dto);
         Task<bool> UpdateDanhMucAsync(DanhMucDto dto);
-        Task<bool> DeleteDanhMucAsync(Guid id);
+        Task<bool> DeleteDanhMucAsync(string id);
+        Task<IEnumerable<DanhMucDto>> SearchDanhMucAsync(string keyword);
     }
 }

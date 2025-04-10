@@ -1,8 +1,7 @@
 ﻿namespace WebsiteSmartHome.Core.DTOs
 {
-    public class NhaCungCapDto
+    public class NhaCungCapCreateDto
     {
-        public string Id { get; set; } = string.Empty;
         public string TenNhaCungCap { get; set; } = string.Empty;
         public string SDT { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

@@ -5,7 +5,7 @@ namespace WebsiteSmartHome.Core.Utils
 {
     public class GetDesriptionHelper
     {
-        public static string GetEnumNameByDescription<TEnum>(string description) where TEnum : Enum
+        public static string? GetEnumNameByDescription<TEnum>(string description) where TEnum : Enum
         {
             foreach (var field in typeof(TEnum).GetFields())
             {

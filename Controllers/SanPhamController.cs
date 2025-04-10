@@ -4,7 +4,7 @@ using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.UnitOfWork;
-using WebsiteSmartHome.Core.Store;
+using WebsiteSmartHome.Core.Utils;
 
 namespace WebsiteSmartHome.Controllers
 {

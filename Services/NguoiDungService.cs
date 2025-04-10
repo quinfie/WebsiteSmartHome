@@ -171,6 +171,4 @@ namespace WebsiteSmartHome.Services
             });
         }
     }
-
-
 }

@@ -1,114 +1,62 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
-using WebsiteSmartHome.Core.Store;
-using WebsiteSmartHome.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
-using WebsiteSmartHome.Services;
 
 namespace WebsiteSmartHome.Controllers
 {
-    /// <summary>
-    /// Quản lý các thao tác với nhà cung cấp.
-    /// </summary>
-    [Route("api/nhaCungCap")]
     [ApiController]
+    [Route("api/nha_cung_cap")]
     public class NhaCungCapController : ControllerBase
     {
         private readonly INhaCungCapService _nhaCungCapService;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public NhaCungCapController(INhaCungCapService NhaCungCapService, IUnitOfWork unitOfWork)
+        public NhaCungCapController(INhaCungCapService nhaCungCapService)
         {
-            _nhaCungCapService = NhaCungCapService;
-            _unitOfWork = unitOfWork;
+            _nhaCungCapService = nhaCungCapService ?? throw new ArgumentNullException(nameof(_nhaCungCapService));
         }
 
-        /// <summary>
-        /// Lấy danh sách tất cả nhà cung cấp.
-        /// </summary>
-        /// <returns>Danh sách các nhà cung cấp.</returns>
         [HttpGet]
-        public async Task<ActionResult<BaseResponse<List<NhaCungCapDto>>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var nhaCungCaps = await _nhaCungCapService.GetAllNhaCungCapAsync();
-            return BaseResponse<List<NhaCungCapDto>>.OkResponse(nhaCungCaps);
+            var result = await _nhaCungCapService.GetAllNhaCungCapAsync();
+            return Ok(BaseResponse<IEnumerable<NhaCungCapDto>>.OkResponse(result));
         }
 
-        /// <summary>
-        /// Lấy thông tin chi tiết của nhà cung cấp theo ID.
-        /// </summary>
-        /// <param name="id">ID của nhà cung cấp cần lấy thông tin.</param>
-        /// <returns>Thông tin nhà cung cấp nếu tìm thấy, null nếu không tìm thấy.</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<NhaCungCapDto>> GetNhaCungCapByIdAsync(Guid id)
+        public async Task<IActionResult> GetById(string id)
         {
-            var nhaCungCap = await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(id);
-
-            if (nhaCungCap == null)
-                return NotFound(new { message = "Nhà Cung Cấp không tồn tại" });
-
-            return new NhaCungCapDto
-            {
-                Id = nhaCungCap.Id,
-                TenNhaCungCap = nhaCungCap.TenNhaCungCap,
-                SDT = nhaCungCap.SDT,
-                Email = nhaCungCap.Email,
-                DiaChi = nhaCungCap.DiaChi
-            };
+            var result = await _nhaCungCapService.GetNhaCungCapByIdAsync(id);
+            return Ok(BaseResponse<NhaCungCapDto>.OkResponse(result));
         }
 
-
-        // <summary>
-        /// Tạo nhà cung cấp.
-        /// </summary>
-        /// <returns>Kết quả tạo nhà cung cấp thành công hay thất bại.</returns>
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<bool>>> CreateNhaCungCap([FromBody] NhaCungCapDto dto)
+        public async Task<IActionResult> Create([FromBody] NhaCungCapCreateDto dto)
         {
-            if (dto == null)
-                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
-
             var result = await _nhaCungCapService.CreateNhaCungCapAsync(dto);
-
-            if (!result)
-                return NotFound(new { message = "Không thể tạo nhà cung cấp" });
-
-            return Ok(new BaseResponse<bool>(StatusCodeHelper.OK, "200", true, "Tạo nhà cung cấp thành công"));
+            return Ok(BaseResponse<NhaCungCapCreateDto>.OkResponse(result));
         }
 
-        /// <summary>
-        /// Cập nhật nhà cung cấp.
-        /// </summary>
-        /// <returns>Kết quả cập nhật nhà cung cấp thành công hay thất bại.</returns>
-        [HttpPut]
-        public async Task<ActionResult<BaseResponse<bool>>> UpdateNhaCungCap([FromBody] NhaCungCapDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] NhaCungCapDto dto)
         {
-            if (dto == null)
-                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
-
             var result = await _nhaCungCapService.UpdateNhaCungCapAsync(dto);
-            if (!result)
-                return NotFound(new { message = "Nhà cung cấp không tồn tại" });
-
-            return BaseResponse<bool>.OkResponse(true);
+            return Ok(BaseResponse<NhaCungCapDto>.OkResponse(result));
         }
 
-
-        /// <summary>
-        /// Xóa nhà cung cấp theo ID.
-        /// </summary>
-        /// <param name="id">ID của nhà cung cấp cần xóa.</param>
-        /// <returns>Kết quả xóa nhà cung cấp thành công hay thất bại.</returns>
         [HttpDelete("{id}")]
-        public async Task<ActionResult<BaseResponse<bool>>> DeleteNhaCungCap(Guid id)
+        public async Task<IActionResult> Delete(string id)
         {
-            var result = await _nhaCungCapService.DeleteNhaCungCapAsync(id);
-            if (!result)
-                return NotFound(new { message = "Nhà cung cấp không tồn tại" });
-
-            return BaseResponse<bool>.OkResponse(true, "Xóa nhà cung cấp thành công");
+            await _nhaCungCapService.DeleteNhaCungCapAsync(id);
+            return Ok(BaseResponse<string>.OkResponse("Xóa nhà cung cấp thành công"));
         }
+
+        //[HttpGet("search")]
+        //public async Task<IActionResult> Search([FromQuery] string keyword)
+        //{
+        //    var result = await _nhaCungCapService.SearchNhaCungCapAsync(keyword);
+        //    return Ok(BaseResponse<IEnumerable<NhaCungCapDto>>.OkResponse(result));
+        //}
     }
 }
