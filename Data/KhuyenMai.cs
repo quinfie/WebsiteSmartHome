@@ -9,11 +9,11 @@ public partial class KhuyenMai
 
     public string TenKhuyenMai { get; set; } = null!;
 
-    public decimal PhanTramGiam { get; set; }
+    public int PhanTramGiam { get; set; }
 
-    public DateTime NgayBatDau { get; set; }
+    public System.DateTime NgayBatDau { get; set; }
 
-    public DateTime NgayKetThuc { get; set; }
+    public System.DateTime NgayKetThuc { get; set; }
 
-    public virtual DonHang? DonHang { get; set; }
+    public virtual ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
 }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace WebsiteSmartHome.Data;
 
-namespace WebsiteSmartHome.Data;
-
-public partial class DanhGium
+public partial class DanhGia
 {
     public Guid Id { get; set; }
 
@@ -15,7 +12,7 @@ public partial class DanhGium
 
     public string? NoiDung { get; set; }
 
-    public DateTime? NgayDanhGia { get; set; }
+    public System.DateTime? NgayDanhGia { get; set; }
 
     public virtual ChiTietDonHang ChiTietDonHang { get; set; } = null!;
 }

@@ -13,38 +13,24 @@ namespace WebsiteSmartHome.Services
     public class TaiKhoanService : ITaiKhoanService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly INguoiDungService _nguoiDungService;
-        private readonly IVaiTroService _vaiTroService;
 
-        public TaiKhoanService(IUnitOfWork unitOfWork, INguoiDungService nguoiDungService, IVaiTroService vaiTroService)
+        public TaiKhoanService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-            _nguoiDungService = nguoiDungService ?? throw new ArgumentNullException(nameof(nguoiDungService));
-            _vaiTroService = vaiTroService ?? throw new ArgumentNullException(nameof(vaiTroService));
 
         }
 
         public async Task<IEnumerable<TaiKhoanDto>> GetTaiKhoanAsync()
         {
-            var taiKhoanList = await _unitOfWork.GetRepository<TaiKhoan>().GetAllAsync();
-            var vaiTroList = await _unitOfWork.GetRepository<VaiTro>().GetAllAsync();
+            IList<TaiKhoan> taiKhoanList = await _unitOfWork.GetRepository<TaiKhoan>().GetAllAsync();
 
-            // Hàm lấy tên vai trò từ GUID của MaVaiTro
-            string GetRoleName(Guid vaiTroId)
-            {
-                var vaiTro = vaiTroList.FirstOrDefault(v => v.Id == vaiTroId);
-                return vaiTro?.TenVaiTro ?? "Chưa xác định"; // Nếu không tìm thấy vai trò, trả về giá trị mặc định
-            }
-
-            // Ánh xạ tất cả các trường từ TaiKhoan vào TaiKhoanDto
             return taiKhoanList.Select(t => new TaiKhoanDto
             {
-                MaNguoiDung = t.MaNguoiDung.ToString(),
-                Email = t.Email,
                 TenTaiKhoan = t.TenTaiKhoan,
                 MatKhau = t.MatKhau,
+                Email = t.Email,
                 TrangThai = t.TrangThai,
-                TenVaiTro = GetRoleName(t.MaVaiTro)
+                NgayTao = t.NgayTao
             });
         }
 
@@ -66,15 +52,16 @@ namespace WebsiteSmartHome.Services
 
             return new TaiKhoanDto
             {
-                MaNguoiDung = taiKhoan.MaNguoiDung.ToString(),
-                Email = taiKhoan.Email,
+
                 TenTaiKhoan = taiKhoan.TenTaiKhoan,
                 TrangThai = taiKhoan.TrangThai,
-                MatKhau = taiKhoan.MatKhau
+                MatKhau = taiKhoan.MatKhau,
+                Email = taiKhoan.Email,
+                NgayTao = taiKhoan.NgayTao
             };
         }
 
-        private async Task CheckTaiKhoanExistsAsync(TaiKhoanCreateDto taiKhoanDto, string maNguoiDung)
+        private async Task CheckTaiKhoanExistsAsync(TaiKhoanCreateDto taiKhoanDto)
         {
             var repo = _unitOfWork.GetRepository<TaiKhoan>();
 
@@ -90,19 +77,9 @@ namespace WebsiteSmartHome.Services
                 if (exists.TenTaiKhoan == taiKhoanDto.TenTaiKhoan)
                     throw new BaseException.BadRequestException("duplicate", "Tên tài khoản đã tồn tại");
             }
-
-            // Nếu có truyền MaNguoiDung, kiểm tra đã tồn tại tài khoản chưa
-            if (!string.IsNullOrWhiteSpace(maNguoiDung))
-            {
-                var existingByNguoiDung = await repo.FindByConditionAsync(t => t.MaNguoiDung == Guid.Parse(maNguoiDung));
-                if (existingByNguoiDung != null)
-                {
-                    throw new BaseException.BadRequestException("duplicate", "Người dùng này đã có tài khoản");
-                }
-            }
         }
 
-        public async Task AddTaiKhoanAsync(TaiKhoanCreateDto taiKhoanDto, string maNguoiDung)
+        public async Task AddTaiKhoanAsync(TaiKhoanCreateDto taiKhoanDto)
         {
             // Kiểm tra dữ liệu đầu vào
             if (taiKhoanDto == null)
@@ -114,31 +91,17 @@ namespace WebsiteSmartHome.Services
             ValidationHelper.ValidateEmail(taiKhoanDto.Email);
             ValidationHelper.ValidatePassword(taiKhoanDto.MatKhau);
             ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai);
-            ValidationHelper.ValidateRole(taiKhoanDto.TenVaiTro.ToString());
 
-            // Kiểm tra trùng email, trùng tên tài khoản, trùng mã người dùng
-            await CheckTaiKhoanExistsAsync(taiKhoanDto, maNguoiDung);
-
-            // Tạo người dùng mới và trả về Mã Người Dùng
-            //Guid maNguoiDung = await _nguoiDungService.AddNguoiDungAsync(nguoiDungDto!);
-
-            Guid.TryParse(maNguoiDung, out Guid maNguoiDungGUID);
-
-            // Trả về mã vai trò dựa trên tên vai trò nhập vào
-            Guid? vaiTroId = await _vaiTroService.GetRoleIdByNameAsync(taiKhoanDto.TenVaiTro);
-            if (vaiTroId == null)
-            {
-                throw new BaseException.NotFoundException("not_found", "Vai trò không tồn tại");
-            }
+            // Kiểm tra trùng email, trùng tên tài khoản
+            await CheckTaiKhoanExistsAsync(taiKhoanDto);
 
             TaiKhoan taiKhoan = new TaiKhoan
             {
                 Email = taiKhoanDto.Email,
                 TenTaiKhoan = taiKhoanDto.TenTaiKhoan,
                 MatKhau = taiKhoanDto.MatKhau,
-                MaNguoiDung = maNguoiDungGUID,
-                MaVaiTro = vaiTroId.Value,
-                TrangThai = taiKhoanDto.TrangThai
+                TrangThai = taiKhoanDto.TrangThai,
+                NgayTao = taiKhoanDto.NgayTao
             };
 
             try
@@ -194,23 +157,6 @@ namespace WebsiteSmartHome.Services
             {
                 ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai!);
                 taiKhoan.TrangThai = taiKhoanDto.TrangThai!;
-            }
-
-            // Cập nhật Vai trò nếu khác
-            if (!string.IsNullOrWhiteSpace(taiKhoanDto.TenVaiTro))
-            {
-                ValidationHelper.ValidateRole(taiKhoanDto.TenVaiTro.ToString());
-                Guid? vaiTroId = await _vaiTroService.GetRoleIdByNameAsync(taiKhoanDto.TenVaiTro);
-
-                if (vaiTroId == null)
-                {
-                    throw new BaseException.NotFoundException("not_found", "Vai trò không tồn tại");
-                }
-
-                if (taiKhoan.MaVaiTro != vaiTroId)
-                {
-                    taiKhoan.MaVaiTro = vaiTroId.Value;
-                }
             }
 
             try

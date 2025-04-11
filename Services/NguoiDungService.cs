@@ -27,8 +27,8 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = x.TenNguoiDung,
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh,
-                Cccd = x.Cccd!,
-                Sdt = x.Sdt!,
+                Cccd = x.CCCD!,
+                Sdt = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
         }
@@ -54,21 +54,21 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = nd.TenNguoiDung,
                 GioiTinh = nd.GioiTinh!,
                 NgaySinh = nd.NgaySinh,
-                Cccd = nd.Cccd!,
-                Sdt = nd.Sdt!,
+                Cccd = nd.CCCD!,
+                Sdt = nd.SoDienThoai!,
                 DiaChi = nd.DiaChi
             };
         }
 
         private async Task CheckNguoiDungExistsAsync(NguoiDungCreateDto nguoiDungDto)
         {
-            var existingCCCD = await _unitOfWork.GetRepository<NguoiDung>().FindByConditionAsync(t => t.Cccd == nguoiDungDto.Cccd);
+            var existingCCCD = await _unitOfWork.GetRepository<NguoiDung>().FindByConditionAsync(t => t.CCCD == nguoiDungDto.Cccd);
             if (existingCCCD != null)
             {
                 throw new BaseException.BadRequestException("duplicate", "CCCD đã tồn tại");
             }
 
-            var existingSoDienThoai = await _unitOfWork.GetRepository<NguoiDung>().FindByConditionAsync(t => t.Sdt == nguoiDungDto.Sdt);
+            var existingSoDienThoai = await _unitOfWork.GetRepository<NguoiDung>().FindByConditionAsync(t => t.SoDienThoai == nguoiDungDto.Sdt);
             if (existingSoDienThoai != null)
             {
                 throw new BaseException.BadRequestException("duplicate", "Số điện thoại đã tồn tại");
@@ -96,8 +96,8 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = dto.TenNguoiDung,
                 GioiTinh = dto.GioiTinh,
                 NgaySinh = dto.NgaySinh,
-                Cccd = dto.Cccd,
-                Sdt = dto.Sdt,
+                CCCD = dto.Cccd,
+                SoDienThoai = dto.Sdt,
                 DiaChi = dto.DiaChi
             };
 
@@ -154,8 +154,8 @@ namespace WebsiteSmartHome.Services
 
             query = query.Where(x =>
                 x.TenNguoiDung.Contains(keyword) ||
-                (x.Sdt != null && x.Sdt.Contains(keyword)) ||
-                (x.Cccd != null && x.Cccd.Contains(keyword)));
+                (x.SoDienThoai != null && x.SoDienThoai.Contains(keyword)) ||
+                (x.CCCD != null && x.CCCD.Contains(keyword)));
 
             var result = await query.ToListAsync();
 
@@ -165,8 +165,8 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = x.TenNguoiDung,
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh!,
-                Cccd = x.Cccd!,
-                Sdt = x.Sdt!,
+                Cccd = x.CCCD!,
+                Sdt = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
         }

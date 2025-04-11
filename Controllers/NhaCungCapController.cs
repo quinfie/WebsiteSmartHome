@@ -2,7 +2,6 @@
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
-using WebsiteSmartHome.UnitOfWork;
 
 namespace WebsiteSmartHome.Controllers
 {

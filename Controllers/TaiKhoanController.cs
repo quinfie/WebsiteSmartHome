@@ -33,10 +33,10 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddTaiKhoan([FromBody] TaiKhoanCreateDto taiKhoanDto, string maNguoiDung)
+        public async Task<IActionResult> AddTaiKhoan([FromBody] TaiKhoanCreateDto taiKhoanDto)
         {
 
-            await _taiKhoanService.AddTaiKhoanAsync(taiKhoanDto, maNguoiDung);
+            await _taiKhoanService.AddTaiKhoanAsync(taiKhoanDto);
             return Ok(BaseResponse<string>.OkResponse("Tài khoản đã được thêm thành công"));
         }
 

@@ -20,7 +20,7 @@ namespace WebsiteSmartHome.Services
             var list = await _unitOfWork.GetRepository<DanhMuc>().GetAllAsync();
             return list.Select(x => new DanhMucDto
             {
-                //Id = x.Id.ToString(),
+                Id = x.Id.ToString(),
                 TenDanhMuc = x.TenDanhMuc,
                 MoTa = x.MoTa!
             });

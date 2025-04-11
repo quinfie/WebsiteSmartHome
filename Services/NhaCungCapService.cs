@@ -22,9 +22,9 @@ namespace WebsiteSmartHome.Services
             {
                 Id = ncc.Id.ToString(),
                 TenNhaCungCap = ncc.TenNhaCungCap,
-                SDT = ncc.SDT,
-                Email = ncc.Email,
-                DiaChi = ncc.DiaChi
+                SDT = ncc.SoDienThoai!,
+                Email = ncc.Email!,
+                DiaChi = ncc.DiaChi!
             }).ToList();
         }
 
@@ -43,9 +43,9 @@ namespace WebsiteSmartHome.Services
             {
                 Id = ncc.Id.ToString(),
                 TenNhaCungCap = ncc.TenNhaCungCap,
-                SDT = ncc.SDT,
-                Email = ncc.Email,
-                DiaChi = ncc.DiaChi
+                SDT = ncc.SoDienThoai!,
+                Email = ncc.Email!,
+                DiaChi = ncc.DiaChi!
             };
         }
 
@@ -61,7 +61,7 @@ namespace WebsiteSmartHome.Services
             var ncc = new NhaCungCap
             {
                 TenNhaCungCap = dto.TenNhaCungCap,
-                SDT = dto.SDT,
+                SoDienThoai = dto.SDT,
                 Email = dto.Email,
                 DiaChi = dto.DiaChi
             };
@@ -82,7 +82,7 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.NotFoundException("not_found", "Không tìm thấy nhà cung cấp.");
 
             ncc.TenNhaCungCap = dto.TenNhaCungCap;
-            ncc.SDT = dto.SDT;
+            ncc.SoDienThoai = dto.SDT;
             ncc.Email = dto.Email;
             ncc.DiaChi = dto.DiaChi;
 

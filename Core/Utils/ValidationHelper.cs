@@ -33,7 +33,6 @@ namespace WebsiteSmartHome.Core.Utils
             }
         }
 
-
         // Kiểm tra vai trò hợp lệ
         public static void ValidateRole(string role)
         {
@@ -43,7 +42,6 @@ namespace WebsiteSmartHome.Core.Utils
                 throw new BaseException.ValidationException("invalid_role", $"Vai trò '{role}' không hợp lệ");
             }
         }
-
 
         // Kiểm tra địa chỉ
         public static void ValidateDiaChi(string diaChi)
@@ -91,11 +89,10 @@ namespace WebsiteSmartHome.Core.Utils
             }
         }
 
-
         // Kiểm tra ngày sinh hợp lệ
-        public static void ValidateNgaySinh(DateOnly? ngaySinh)
+        public static void ValidateNgaySinh(DateTime? ngaySinh)
         {
-            if (ngaySinh.HasValue && ngaySinh.Value > DateOnly.FromDateTime(DateTime.Today))
+            if (ngaySinh.HasValue && ngaySinh.Value > DateTime.Today)
             {
                 throw new BaseException.ValidationException("invalid_dob", "Ngày sinh không được lớn hơn ngày hiện tại");
             }
@@ -112,5 +109,7 @@ namespace WebsiteSmartHome.Core.Utils
         {
             return password.Length >= 8;
         }
+
+
     }
 }

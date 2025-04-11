@@ -1,46 +1,35 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WebsiteSmartHome.Data;
 
 public partial class SanPham
 {
-    [Key]
     public Guid Id { get; set; }
 
-    [Required]
     public string TenSanPham { get; set; } = null!;
 
-    [Required]
     public decimal Gia { get; set; }
 
-    public int? SoLuongTon { get; set; }
+    public int SoLuongTon { get; set; }
 
-    [Required]
+    public System.DateTime NgaySanXuat { get; set; }
+
     public int ThoiGianBaoHanh { get; set; }
-
-    [Required]
-    public int ThoiGianBaoTri { get; set; }
 
     public string? MoTa { get; set; }
 
-    [Required]
     public Guid MaDanhMuc { get; set; }
 
-    [Required]
     public Guid MaNhaCungCap { get; set; }
 
-    [Required]
     public Guid MaKho { get; set; }
 
-    // Định nghĩa khóa ngoại rõ ràng
-    [ForeignKey("MaDanhMuc")]
-    public virtual DanhMuc DanhMuc { get; set; } = null!;
+    public virtual ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
 
-    [ForeignKey("MaNhaCungCap")]
-    public virtual NhaCungCap NhaCungCap { get; set; } = null!;
+    public virtual DanhMuc MaDanhMucNavigation { get; set; } = null!;
 
-    [ForeignKey("MaKho")]
-    public virtual Kho Kho { get; set; } = null!;
+    public virtual Kho MaKhoNavigation { get; set; } = null!;
 
+    public virtual NhaCungCap MaNhaCungCapNavigation { get; set; } = null!;
 }

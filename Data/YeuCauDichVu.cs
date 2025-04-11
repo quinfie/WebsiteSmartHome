@@ -17,7 +17,7 @@ public partial class YeuCauDichVu
 
     public decimal? ChiPhiPhatSinh { get; set; }
 
-    public DateTime? NgayHen { get; set; }
+    public System.DateTime? NgayHen { get; set; }
 
     public string? MoTa { get; set; }
 
@@ -26,6 +26,4 @@ public partial class YeuCauDichVu
     public virtual ChiTietDonHang ChiTietDonHang { get; set; } = null!;
 
     public virtual NguoiDung MaNguoiTaoNavigation { get; set; } = null!;
-
-    public virtual ICollection<PhanCongDichVu> PhanCongDichVus { get; set; } = new List<PhanCongDichVu>();
 }

@@ -11,7 +11,7 @@ public partial class PhanCongDichVu
 
     public Guid MaKyThuatVien { get; set; }
 
-    public DateTime? NgayPhanCong { get; set; }
+    public System.DateTime? NgayPhanCong { get; set; }
 
     public string TrangThaiPhanCong { get; set; } = null!;
 

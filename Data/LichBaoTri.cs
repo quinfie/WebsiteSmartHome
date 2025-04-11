@@ -11,7 +11,7 @@ public partial class LichBaoTri
 
     public Guid MaSanPham { get; set; }
 
-    public DateTime NgayBaoTriKeTiep { get; set; }
+    public System.DateTime NgayBaoTri { get; set; }
 
     public bool? DaThongBao { get; set; }
 

@@ -1,14 +1,11 @@
-﻿using WebsiteSmartHome.Core.Utils;
-
-namespace WebsiteSmartHome.Core.DTOs
+﻿namespace WebsiteSmartHome.Core.DTOs
 {
     public class TaiKhoanDto
     {
-        public required string MaNguoiDung { get; set; }
         public required string Email { get; set; }
         public required string TenTaiKhoan { get; set; }
         public required string MatKhau { get; set; }
-        public string TenVaiTro { get; set; } = string.Empty;
+        public DateTime? NgayTao { get; set; } = DateTime.Now;
         public string TrangThai { get; set; } = string.Empty;
     }
 }
