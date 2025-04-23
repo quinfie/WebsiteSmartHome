@@ -2,21 +2,26 @@
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Services;
 
 namespace WebsiteSmartHome.Controllers
 {
-    [ApiController]
+    // Định tuyến mặc định cho controller này: api/don_hang
     [Route("api/don_hang")]
+    [ApiController]
     public class DonHangController : ControllerBase
     {
+        // Service xử lý logic cho đơn hàng
         private readonly IDonHangService _donHangService;
 
+        // Inject service qua constructor
         public DonHangController(IDonHangService donHangService)
         {
             _donHangService = donHangService;
         }
 
+        // GET: api/don_hang
         // Lấy tất cả đơn hàng
         [HttpGet]
         public async Task<ActionResult<BaseResponse<List<DonHangDto>>>> GetAll()
@@ -25,46 +30,39 @@ namespace WebsiteSmartHome.Controllers
             return BaseResponse<List<DonHangDto>>.OkResponse(donHangs, "Lấy danh sách đơn hàng thành công");
         }
 
-        // Lấy đơn hàng theo ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<DonHangDto>>> GetById(string id)
-        {
-            var donHang = await _donHangService.GetDonHangByIdAsync(id);
-            if (donHang == null)
-                throw new BaseException.BadRequestException("not_found", "Đơn hàng không tồn tại");
-
-            return BaseResponse<DonHangDto>.OkResponse(donHang, "Lấy đơn hàng thành công");
-        }
-
-        // Thêm đơn hàng mới
+        // POST: api/don_hang
+        // Tạo đơn hàng mới
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<DonHangDto>>> Create([FromBody] DonHangDto donHangDto)
+        public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateDonHangDto createDto)
         {
-            if (donHangDto == null)
+            // Kiểm tra dữ liệu đầu vào
+            if (createDto == null)
                 throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ");
 
-            var result = await _donHangService.CreateDonHangAsync(donHangDto);
+            var result = await _donHangService.CreateDonHangAsync(createDto);
             if (result)
-                return BaseResponse<DonHangDto>.Created(donHangDto, "Tạo đơn hàng thành công");
+                return BaseResponse<bool>.Created(true, "Tạo đơn hàng và chi tiết đơn hàng thành công");
 
+            // Nếu không thành công thì ném lỗi
             throw new BaseException.BadRequestException("create_failed", "Không thể tạo đơn hàng");
         }
 
-        // Cập nhật đơn hàng
-        [HttpPut("{id}")]
-        public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] DonHangDto donHangDto)
-        {
-            if (id != donHangDto.MaNguoiDung)
-                throw new BaseException.BadRequestException("id_mismatch", "ID không khớp");
 
-            var result = await _donHangService.UpdateDonHangAsync(id, donHangDto);
+        // PUT: api/don_hang/{id}
+        // Cập nhật đơn hàng theo ID
+        [HttpPut("{id}")]
+        public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] UpdateDonHangDto updateDto)
+        {
+            var result = await _donHangService.UpdateDonHangAsync(id, updateDto);
+
             if (result)
                 return BaseResponse<bool>.OkResponse(true, "Cập nhật đơn hàng thành công");
 
             throw new BaseException.BadRequestException("not_found", "Đơn hàng không tồn tại");
         }
 
-        // Xóa đơn hàng
+        // DELETE: api/don_hang/{id}
+        // Xóa đơn hàng theo ID
         [HttpDelete("{id}")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
@@ -75,15 +73,16 @@ namespace WebsiteSmartHome.Controllers
             throw new BaseException.BadRequestException("not_found", "Đơn hàng không tồn tại");
         }
 
-        // Tìm kiếm đơn hàng theo trạng thái
-        [HttpGet("search")]
-        public async Task<ActionResult<BaseResponse<List<DonHangDto>>>> Search([FromQuery] string trangThai)
+        // GET: api/don_hang/{id}
+        // Lấy đơn hàng theo ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BaseResponse<DonHangDto>>> GetById(string id)
         {
-            if (string.IsNullOrWhiteSpace(trangThai))
-                throw new BaseException.BadRequestException("invalid_query", "Vui lòng nhập từ khóa tìm kiếm");
+            var donHang = await _donHangService.GetDonHangByIdAsync(id);
+            if (donHang == null)
+                throw new BaseException.BadRequestException("not_found", "Đơn hàng không tồn tại");
 
-            var donHangs = await _donHangService.SearchDonHangAsync(trangThai);
-            return BaseResponse<List<DonHangDto>>.OkResponse(donHangs, "Tìm kiếm đơn hàng thành công");
+            return BaseResponse<DonHangDto>.OkResponse(donHang, "Lấy đơn hàng thành công");
         }
     }
 }
