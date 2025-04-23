@@ -27,31 +27,31 @@ namespace WebsiteSmartHome.Controllers
 
         // Tạo đánh giá mới
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> Create([FromBody] DanhGiaDto danhGiaDto)
+        public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateDanhGiaDto createDto)
         {
-            if (danhGiaDto == null)
+            if (createDto == null)
                 throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ");
 
-            var result = await _danhGiaService.CreateDanhGiaAsync(danhGiaDto);
+            var result = await _danhGiaService.CreateDanhGiaAsync(createDto);
             if (result)
-                return BaseResponse<DanhGiaDto>.Created(danhGiaDto, "Tạo đánh giá thành công");
+                return BaseResponse<bool>.Created(true, "Tạo đánh giá thành công");
 
             throw new BaseException.BadRequestException("create_failed", "Không thể tạo đánh giá");
         }
 
-        // Cập nhật đánh giá theo ID
-        [HttpPut("{id}")]
-        public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] DanhGiaDto danhGiaDto)
-        {
-            if (id != danhGiaDto.Id)
-                throw new BaseException.BadRequestException("id_mismatch", "ID không khớp");
 
-            var result = await _danhGiaService.UpdateDanhGiaAsync(id, danhGiaDto);
+        // Cập nhật đánh giá theo madonhang masanpham
+        [HttpPut("{maDonHang}/{maSanPham}")]
+        public async Task<ActionResult<BaseResponse<bool>>> Update(string maDonHang, string maSanPham, [FromBody] UpdateDanhGiaDto dto)
+        {
+            var result = await _danhGiaService.UpdateDanhGiaAsync(maDonHang, maSanPham, dto);
+
             if (result)
                 return BaseResponse<bool>.OkResponse(true, "Cập nhật đánh giá thành công");
 
             throw new BaseException.BadRequestException("not_found", "Đánh giá không tồn tại");
         }
+
 
         // Xóa đánh giá theo ID
         [HttpDelete("{id}")]
