@@ -5,6 +5,9 @@
         [CustomName("Success")]
         OK = 200,
 
+        [CustomName("Created")]
+        CREATED = 201,
+
         [CustomName("Bad Request")]
         BadRequest = 400,
 

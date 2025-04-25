@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace WebsiteSmartHome.Models;
 
 [Table("ChiTietDonHang")]
+[Index("MaDonHang", "MaSanPham", Name = "UQ_ChiTietDonHang_MaDonHang_MaSanPham", IsUnique = true)]
 public partial class ChiTietDonHang
 {
     [Key]
@@ -20,6 +21,9 @@ public partial class ChiTietDonHang
 
     [Column(TypeName = "decimal(18, 2)")]
     public decimal DonGia { get; set; }
+
+    [InverseProperty("ChiTietDonHang")]
+    public virtual ICollection<DanhGium> DanhGia { get; set; } = new List<DanhGium>();
 
     [InverseProperty("MaChiTietDonHangNavigation")]
     public virtual ICollection<LichBaoTri> LichBaoTris { get; set; } = new List<LichBaoTri>();

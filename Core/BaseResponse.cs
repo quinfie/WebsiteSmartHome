@@ -56,5 +56,10 @@ namespace WebsiteSmartHome.Core.Base
             throw new NotImplementedException();
         }
 
+        public static BaseResponse<T> Created(T? data, string? message)
+        {
+            return new BaseResponse<T>(StatusCodeHelper.CREATED, StatusCodeHelper.CREATED.Name(), data, message);
+        }
+
     }
 }

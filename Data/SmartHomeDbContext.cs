@@ -39,39 +39,63 @@ public partial class SmartHomeDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Ánh xạ ChiTietDonHang
         modelBuilder.Entity<ChiTietDonHang>(entity =>
         {
-            entity.HasKey(e => new { e.MaDonHang, e.MaSanPham }).HasName("PK__ChiTietD__DD39F0EF105D7C60");
-
             entity.ToTable("ChiTietDonHang");
 
-            entity.Property(e => e.DonGia).HasColumnType("decimal(18, 2)");
+            // Khóa chính
+            entity.HasKey(e => e.Id)
+                  .HasName("PK_ChiTietDonHang");
 
-            entity.HasOne(d => d.MaDonHangNavigation).WithMany(p => p.ChiTietDonHangs)
-                .HasForeignKey(d => d.MaDonHang)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ChiTietDonHang_DonHang");
+            entity.HasAlternateKey(e => new { e.MaDonHang, e.MaSanPham })
+            .HasName("AK_ChiTietDonHang_MaDonHang_MaSanPham");
+            // Các cột
+            entity.Property(e => e.MaDonHang).IsRequired();
+            entity.Property(e => e.MaSanPham).IsRequired();
+            entity.Property(e => e.SoLuong).IsRequired();
+            entity.Property(e => e.DonGia)
+                  .HasColumnType("decimal(18,2)")
+                  .IsRequired();
 
-            entity.HasOne(d => d.MaSanPhamNavigation).WithMany(p => p.ChiTietDonHangs)
-                .HasForeignKey(d => d.MaSanPham)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ChiTietDonHang_SanPham");
+            // Quan hệ đến DonHang
+            entity.HasOne(e => e.MaDonHangNavigation)           // navigation property
+                  .WithMany(dh => dh.ChiTietDonHangs)           // DonHang.ChiTietDonHangs
+                  .HasForeignKey(e => e.MaDonHang)              // FK cột MaDonHang
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK_ChiTietDonHang_DonHang");
+
+            // Quan hệ đến SanPham
+            entity.HasOne(e => e.MaSanPhamNavigation)          // navigation property
+                  .WithMany(sp => sp.ChiTietDonHangs)           // SanPham.ChiTietDonHangs
+                  .HasForeignKey(e => e.MaSanPham)              // FK cột MaSanPham
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK_ChiTietDonHang_SanPham");
         });
 
         modelBuilder.Entity<DanhGia>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DanhGia__3214EC07295D2518");
+            entity.ToTable("DanhGia");
+            entity.HasKey(e => e.Id).HasName("PK__DanhGia__3214EC07224FF011");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("(newid())");
+
             entity.Property(e => e.NgayDanhGia)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.NoiDung).HasMaxLength(500);
 
-            entity.HasOne(d => d.ChiTietDonHang).WithMany(p => p.DanhGia)
-                .HasForeignKey(d => new { d.MaDonHang, d.MaSanPham })
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DanhGia_ChiTietDH");
+            entity.Property(e => e.NoiDung)
+                .HasMaxLength(500);
+
+            // Thiết lập quan hệ nhiều - một (Many-to-One) với ChiTietDonHang
+            entity.HasOne(d => d.ChiTietDonHang)
+                .WithMany(p => p.DanhGias) // ChiTietDonHang có nhiều DanhGia
+                .HasForeignKey(d => new { d.MaDonHang, d.MaSanPham }) // Khóa ngoại composite
+                .HasPrincipalKey(p => new { p.MaDonHang, p.MaSanPham }) // Khóa chính composite
+                .OnDelete(DeleteBehavior.ClientSetNull) // Thiết lập hành vi khi xóa
+                .HasConstraintName("FK_DanhGia_ChiTietDonHang"); // Đặt tên cho constraint
+
         });
 
         modelBuilder.Entity<DanhMuc>(entity =>
@@ -138,21 +162,46 @@ public partial class SmartHomeDbContext : DbContext
             entity.Property(e => e.TenKhuyenMai).HasMaxLength(100);
         });
 
+        base.OnModelCreating(modelBuilder);
+        OnModelCreatingPartial(modelBuilder);
+        // --- 2. Định nghĩa LichBaoTri: FK -> ChiTietDonHang.Id ---
         modelBuilder.Entity<LichBaoTri>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LichBaoT__3214EC075722B92C");
-
             entity.ToTable("LichBaoTri");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.DaThongBao).HasDefaultValue(false);
-            entity.Property(e => e.NgayBaoTri).HasColumnType("datetime");
+            // Khóa chính
+            entity.HasKey(e => e.Id)
+                  .HasName("PK_LichBaoTri");
 
-            entity.HasOne(d => d.ChiTietDonHang).WithMany(p => p.LichBaoTris)
-                .HasForeignKey(d => new { d.MaDonHang, d.MaSanPham })
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_LichBaoTri_ChiTietDH");
+            entity.Property(e => e.Id)
+                  .HasDefaultValueSql("NEWID()");
+
+            // Ánh xạ cột MaChiTietDonHang
+            entity.Property(e => e.MaChiTietDonHang)
+                  .HasColumnName("MaChiTietDonHang")
+                  .IsRequired();
+
+            entity.Property(e => e.NgayBaoTri)
+                  .HasColumnName("NgayBaoTri")
+                  .HasColumnType("datetime")
+                  .IsRequired();
+
+            entity.Property(e => e.LoaiBaoTri)
+                  .HasMaxLength(50)
+                  .IsRequired();
+
+            entity.Property(e => e.TrangThai)
+                  .HasMaxLength(50)
+                  .IsRequired();
+
+            // FK về ChiTietDonHang.Id
+            entity.HasOne(e => e.ChiTietDonHang)
+                  .WithMany(ct => ct.LichBaoTris)
+                  .HasForeignKey(e => e.MaChiTietDonHang)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK_LichBaoTri_ChiTietDonHang");
         });
+
 
         modelBuilder.Entity<NguoiDung>(entity =>
         {
@@ -285,10 +334,13 @@ public partial class SmartHomeDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_YCDV_NguoiTao");
 
-            entity.HasOne(d => d.ChiTietDonHang).WithMany(p => p.YeuCauDichVus)
-                .HasForeignKey(d => new { d.MaDonHang, d.MaSanPham })
+            // FK → ChiTietDonHang.Id
+            entity.HasOne(d => d.ChiTietDonHang)
+                .WithMany(c => c.YeuCauDichVus)
+                .HasForeignKey(d => d.MaChiTietDonHang)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_YCDV_ChiTietDH");
+                .HasConstraintName("FK_YeuCauDichVu_ChiTietDonHang");
+
         });
 
         OnModelCreatingPartial(modelBuilder);

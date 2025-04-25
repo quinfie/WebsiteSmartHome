@@ -114,6 +114,11 @@ namespace WebsiteSmartHome.Core
             {
             }
         }
+        //lỗi trùng lặp 
+        public static Exception BadRequest(string message)
+        {
+            return new Exception($"Bad Request: {message}");
+        }
 
     }
 }

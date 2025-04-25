@@ -1,81 +1,89 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Services;
 
-namespace WebsiteSmartHome.Controllers
+[Route("api/chi_tiet_don_hang")]
+[ApiController]
+public class ChiTietDonHangController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ChiTietDonHangController : ControllerBase
+    private readonly IChiTietDonHangService _chiTietDonHangService;
+    private readonly ILogger<ChiTietDonHangController> _logger;
+
+    public ChiTietDonHangController(IChiTietDonHangService chiTietDonHangService, ILogger<ChiTietDonHangController> logger)
     {
-        private readonly IChiTietDonHangService _chiTietDonHangService;
+        _chiTietDonHangService = chiTietDonHangService;
+        _logger = logger;
+    }
 
-        public ChiTietDonHangController(IChiTietDonHangService chiTietDonHangService)
-        {
-            _chiTietDonHangService = chiTietDonHangService;
-        }
+    // Lấy toàn bộ danh sách chi tiết đơn hàng
+    [HttpGet]
+    public async Task<ActionResult<BaseResponse<List<ChiTietDonHangDto>>>> GetAll()
+    {
+        var chiTietDonHangs = await _chiTietDonHangService.GetAllChiTietDonHangAsync();
+        return BaseResponse<List<ChiTietDonHangDto>>.OkResponse(chiTietDonHangs, "Lấy danh sách chi tiết đơn hàng thành công");
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<List<ChiTietDonHangDto>>> GetAll()
-        {
-            var chiTietDonHangs = await _chiTietDonHangService.GetAllChiTietDonHangAsync();
-            return Ok(chiTietDonHangs);
-        }
+    // Tạo mới một chi tiết đơn hàng
+    [HttpPost]
+    public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateChiTietDonHangDto dto)
+    {
+        if (!ModelState.IsValid)
+            throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ.");
 
-        [HttpPost]
-        public async Task<ActionResult> Create([FromBody] ChiTietDonHangDto chiTietDonHangDto)
-        {
-            if (chiTietDonHangDto == null)
-                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
+        var result = await _chiTietDonHangService.CreateChiTietDonHangAsync(dto);
 
-            var result = await _chiTietDonHangService.CreateChiTietDonHangAsync(chiTietDonHangDto);
-            if (result)
-                return CreatedAtAction(nameof(GetById), new { id = chiTietDonHangDto.MaDonHang }, chiTietDonHangDto);
+        if (result)
+            return BaseResponse<bool>.OkResponse(true, "Tạo chi tiết đơn hàng thành công");
 
-            return StatusCode(500, new { message = "Không thể tạo chi tiết đơn hàng" });
-        }
+        throw new BaseException.BadRequestException("create_failed", "Không thể tạo chi tiết đơn hàng");
+    }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(Guid id, [FromBody] ChiTietDonHangDto chiTietDonHangDto)
-        {
-            if (id != chiTietDonHangDto.MaDonHang)
-                return BadRequest(new { message = "ID không khớp" });
+    // Cập nhật thông tin một chi tiết đơn hàng theo mã đơn hàng và mã sản phẩm
+    [HttpPut("{maDonHang}/{maSanPham}")]
+    public async Task<ActionResult<BaseResponse<bool>>> Update(Guid maDonHang, Guid maSanPham, [FromBody] UpdateChiTietDonHangDto dto)
+    {
+        if (!ModelState.IsValid)
+            throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ.");
 
-            var result = await _chiTietDonHangService.UpdateChiTietDonHangAsync(id, chiTietDonHangDto);
-            if (result)
-                return NoContent();
+        var result = await _chiTietDonHangService.UpdateChiTietDonHangAsync(maDonHang, maSanPham, dto);
 
-            return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
-        }
+        if (result)
+            return BaseResponse<bool>.OkResponse(true, "Cập nhật chi tiết đơn hàng thành công");
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(Guid id)
-        {
-            var result = await _chiTietDonHangService.DeleteChiTietDonHangAsync(id);
-            if (result)
-                return NoContent();
+        throw new BaseException.BadRequestException("not_found", "Chi tiết đơn hàng không tồn tại");
+    }
 
-            return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
-        }
-        // Tìm chi tiết đơn hàng theo ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<ChiTietDonHangDto>>> GetById(Guid id)
-        {
-            var chiTiet = await _chiTietDonHangService.GetChiTietDonHangByIdAsync(id);
-            if (chiTiet == null)
-                return NotFound(new { message = "Chi tiết đơn hàng không tồn tại" });
+    // Xóa chi tiết đơn hàng theo mã đơn hàng và mã sản phẩm
+    [HttpDelete("{maDonHang}/{maSanPham}")]
+    public async Task<ActionResult<BaseResponse<bool>>> Delete(Guid maDonHang, Guid maSanPham)
+    {
+        var result = await _chiTietDonHangService.DeleteChiTietDonHangAsync(maDonHang, maSanPham);
 
-            return BaseResponse<ChiTietDonHangDto>.OkResponse(chiTiet);
-        }
+        if (result)
+            return BaseResponse<bool>.OkResponse(true, "Xóa chi tiết đơn hàng thành công");
 
-        // Tìm kiếm chi tiết đơn hàng theo tên sản phẩm
-        [HttpGet("search")]
-        public async Task<ActionResult<List<ChiTietDonHangDto>>> SearchByName(string name)
-        {
-            var result = await _chiTietDonHangService.SearchChiTietDonHangByNameAsync(name);
-            return Ok(result);
-        }
+        throw new BaseException.BadRequestException("not_found", "Chi tiết đơn hàng không tồn tại");
+    }
 
+    // Lấy chi tiết đơn hàng theo mã đơn hàng và mã sản phẩm
+    [HttpGet("{maDonHang}/{maSanPham}")]
+    public async Task<ActionResult<BaseResponse<ChiTietDonHangDto>>> GetById(Guid maDonHang, Guid maSanPham)
+    {
+        var chiTiet = await _chiTietDonHangService.GetChiTietDonHangByIdAsync(maDonHang, maSanPham);
+
+        if (chiTiet == null)
+            throw new BaseException.BadRequestException("not_found", "Chi tiết đơn hàng không tồn tại");
+
+        return BaseResponse<ChiTietDonHangDto>.OkResponse(chiTiet, "Lấy chi tiết đơn hàng thành công");
+    }
+
+    // Tìm kiếm chi tiết đơn hàng theo tên (hoặc từ khóa)
+    [HttpGet("search")]
+    public async Task<ActionResult<BaseResponse<List<ChiTietDonHangDto>>>> SearchByName(string name)
+    {
+        var result = await _chiTietDonHangService.SearchChiTietDonHangByNameAsync(name);
+        return BaseResponse<List<ChiTietDonHangDto>>.OkResponse(result, "Tìm kiếm chi tiết đơn hàng thành công");
     }
 }

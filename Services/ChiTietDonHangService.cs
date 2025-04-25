@@ -5,90 +5,140 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebsiteSmartHome.Services
 {
+    // Service triển khai các chức năng liên quan đến Chi Tiết Đơn Hàng
     public class ChiTietDonHangService : IChiTietDonHangService
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        // Inject UnitOfWork để thao tác dữ liệu
         public ChiTietDonHangService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
+        // Lấy toàn bộ danh sách chi tiết đơn hàng
         public async Task<List<ChiTietDonHangDto>> GetAllChiTietDonHangAsync()
         {
             var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>().GetAllAsync();
+
+            // Chuyển đổi sang DTO trước khi trả về
             return chiTietDonHangs.Select(c => new ChiTietDonHangDto
             {
-                MaDonHang = c.MaDonHang,
-                MaSanPham = c.MaSanPham,
+                MaDonHang = c.MaDonHang.ToString(),
+                MaSanPham = c.MaSanPham.ToString(),
                 SoLuong = c.SoLuong,
                 DonGia = c.DonGia
             }).ToList();
         }
 
-        public async Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid id)
+        // Lấy chi tiết đơn hàng theo ID (kết hợp của MaDonHang và MaSanPham)
+        public async Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid maDonHang, Guid maSanPham)
         {
-            var chiTietDonHang = await _unitOfWork.GetRepository<ChiTietDonHang>().GetByIdAsync(id);
-            if (chiTietDonHang == null)
+            var chiTiet = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .FindByCondition(x => x.MaDonHang == maDonHang && x.MaSanPham == maSanPham)
+                .FirstOrDefaultAsync();
+
+            if (chiTiet == null)
                 return null;
 
             return new ChiTietDonHangDto
             {
-                MaDonHang = chiTietDonHang.MaDonHang,
-                MaSanPham = chiTietDonHang.MaSanPham,
-                SoLuong = chiTietDonHang.SoLuong,
-                DonGia = chiTietDonHang.DonGia
+                MaDonHang = chiTiet.MaDonHang.ToString(),
+                MaSanPham = chiTiet.MaSanPham.ToString(),
+                SoLuong = chiTiet.SoLuong,
+                DonGia = chiTiet.DonGia
             };
         }
 
-        public async Task<bool> CreateChiTietDonHangAsync(ChiTietDonHangDto chiTietDonHangDto)
+        // Tạo mới chi tiết đơn hàng
+        public async Task<bool> CreateChiTietDonHangAsync(CreateChiTietDonHangDto dto)
         {
-            var chiTietDonHang = new ChiTietDonHang
+            // Kiểm tra và parse các ID hợp lệ
+            if (!Guid.TryParse(dto.MaDonHang, out var maDonHangGuid) ||
+                !Guid.TryParse(dto.MaSanPham, out var maSanPhamGuid))
             {
-                MaDonHang = chiTietDonHangDto.MaDonHang,
-                MaSanPham = chiTietDonHangDto.MaSanPham,
-                SoLuong = chiTietDonHangDto.SoLuong,
-                DonGia = chiTietDonHangDto.DonGia
+                return false;
+            }
+
+            var chiTiet = new ChiTietDonHang
+            {
+                MaDonHang = maDonHangGuid,
+                MaSanPham = maSanPhamGuid,
+                SoLuong = dto.SoLuong,
+                DonGia = dto.DonGia
             };
 
-            await _unitOfWork.GetRepository<ChiTietDonHang>().InsertAsync(chiTietDonHang);
-            await _unitOfWork.SaveAsync();
-            return true;
+            try
+            {
+                // Thêm vào database
+                await _unitOfWork.GetRepository<ChiTietDonHang>().InsertAsync(chiTiet);
+                await _unitOfWork.SaveAsync();
+                return true;
+            }
+            catch
+            {
+                // Bắt lỗi nếu có
+                return false;
+            }
         }
 
-        public async Task<bool> UpdateChiTietDonHangAsync(Guid id, ChiTietDonHangDto chiTietDonHangDto)
+        // Cập nhật chi tiết đơn hàng theo khóa chính kép
+        public async Task<bool> UpdateChiTietDonHangAsync(Guid maDonHang, Guid maSanPham, UpdateChiTietDonHangDto dto)
         {
-            var chiTietDonHang = await _unitOfWork.GetRepository<ChiTietDonHang>().GetByIdAsync(id);
-            if (chiTietDonHang == null)
+            var chiTiet = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .FindByCondition(x => x.MaDonHang == maDonHang && x.MaSanPham == maSanPham)
+                .FirstOrDefaultAsync();
+
+            if (chiTiet == null)
                 return false;
 
-            chiTietDonHang.MaSanPham = chiTietDonHangDto.MaSanPham;
-            chiTietDonHang.SoLuong = chiTietDonHangDto.SoLuong;
-            chiTietDonHang.DonGia = chiTietDonHangDto.DonGia;
+            // Cập nhật dữ liệu
+            chiTiet.SoLuong = dto.SoLuong;
+            chiTiet.DonGia = dto.DonGia;
 
-            _unitOfWork.GetRepository<ChiTietDonHang>().Update(chiTietDonHang);
-            await _unitOfWork.SaveAsync();
-            return true;
+            try
+            {
+                _unitOfWork.GetRepository<ChiTietDonHang>().Update(chiTiet);
+                await _unitOfWork.SaveAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public async Task<bool> DeleteChiTietDonHangAsync(Guid id)
+        // Xóa chi tiết đơn hàng
+        public async Task<bool> DeleteChiTietDonHangAsync(Guid maDonHang, Guid maSanPham)
         {
-            var chiTietDonHang = await _unitOfWork.GetRepository<ChiTietDonHang>().GetByIdAsync(id);
-            if (chiTietDonHang == null)
+            var chiTiet = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .FindByCondition(x => x.MaDonHang == maDonHang && x.MaSanPham == maSanPham)
+                .FirstOrDefaultAsync();
+
+            if (chiTiet == null)
                 return false;
 
-            await _unitOfWork.GetRepository<ChiTietDonHang>().DeleteAsync(id);
-            await _unitOfWork.SaveAsync();
-            return true;
+            try
+            {
+                _unitOfWork.GetRepository<ChiTietDonHang>().Delete(chiTiet);
+                await _unitOfWork.SaveAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
+
+        // Tìm kiếm chi tiết đơn hàng theo tên sản phẩm
         public async Task<List<ChiTietDonHangDto>> SearchChiTietDonHangByNameAsync(string name)
         {
             var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
-                .GetEntitiesWithCondition(ct => ct.SanPham.TenSanPham.Contains(name))  // Truy vấn thuộc tính TenSanPham của SanPham
+                .FindByCondition(ct => ct.MaSanPhamNavigation.TenSanPham.ToLower().Contains(name.ToLower()))
                 .Select(ct => new ChiTietDonHangDto
                 {
-                    MaDonHang = ct.MaDonHang,
-                    MaSanPham = ct.MaSanPham,
+                    MaDonHang = ct.MaDonHang.ToString(),
+                    MaSanPham = ct.MaSanPham.ToString(),
                     SoLuong = ct.SoLuong,
                     DonGia = ct.DonGia
                 })
@@ -96,8 +146,5 @@ namespace WebsiteSmartHome.Services
 
             return chiTietDonHangs;
         }
-
-
-
     }
 }

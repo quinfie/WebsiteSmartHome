@@ -113,10 +113,10 @@ namespace WebsiteSmartHome.Repositories
             return Task.FromResult(_dbSet.Update(obj));
         }
 
-        public async Task<IEnumerable<T>> FindByCondition(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.Where(predicate).ToListAsync();
-        }
+        //public async Task<IEnumerable<T>> FindByCondition(Expression<Func<T, bool>> predicate)
+        //{
+        //    return await _dbSet.Where(predicate).ToListAsync();
+        //}
 
         // New method: FindByConditionAsync
         public async Task<T?> FindByConditionAsync(Expression<Func<T, bool>> expression)
@@ -205,5 +205,10 @@ namespace WebsiteSmartHome.Repositories
             // Finally, project using the selector
             return query.Select(selector);
         }
+        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
+        {
+            return _context.Set<T>().Where(expression);
+        }
+
     }
 }
