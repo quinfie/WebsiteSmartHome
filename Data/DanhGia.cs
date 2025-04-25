@@ -1,4 +1,7 @@
-﻿namespace WebsiteSmartHome.Data;
+﻿using System;
+using System.Collections.Generic;
+
+namespace WebsiteSmartHome.Data;
 
 public partial class DanhGia
 {
@@ -12,7 +15,7 @@ public partial class DanhGia
 
     public string? NoiDung { get; set; }
 
-    public System.DateTime? NgayDanhGia { get; set; }
+    public DateTime? NgayDanhGia { get; set; }
 
     public virtual ChiTietDonHang ChiTietDonHang { get; set; } = null!;
 }
