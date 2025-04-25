@@ -20,28 +20,28 @@ namespace WebsiteSmartHome.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _nhaCungCapService.GetAllNhaCungCapAsync();
-            return Ok(BaseResponse<IEnumerable<NhaCungCapDto>>.OkResponse(result));
+            return Ok(BaseResponse<IEnumerable<NhaCungCapDto>>.OkResponse(result, "Lấy thông tin các nhà cung cấp thành công"));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             var result = await _nhaCungCapService.GetNhaCungCapByIdAsync(id);
-            return Ok(BaseResponse<NhaCungCapDto>.OkResponse(result));
+            return Ok(BaseResponse<NhaCungCapDto>.OkResponse(result, "Lấy thông tin nhà cung cấp thành công"));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] NhaCungCapCreateDto dto)
         {
             var result = await _nhaCungCapService.CreateNhaCungCapAsync(dto);
-            return Ok(BaseResponse<NhaCungCapCreateDto>.OkResponse(result));
+            return Ok(BaseResponse<NhaCungCapCreateDto>.OkResponse(result, "Thêm nhà cung cấp thành công"));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] NhaCungCapDto dto)
+        public async Task<IActionResult> Update(string id, [FromBody] NhaCungCapCreateDto dto)
         {
-            var result = await _nhaCungCapService.UpdateNhaCungCapAsync(dto);
-            return Ok(BaseResponse<NhaCungCapDto>.OkResponse(result));
+            var result = await _nhaCungCapService.UpdateNhaCungCapAsync(id, dto);
+            return Ok(BaseResponse<NhaCungCapCreateDto>.OkResponse(result, "Cập nhật thông tin nhà cung cấp thành công"));
         }
 
         [HttpDelete("{id}")]
@@ -51,11 +51,11 @@ namespace WebsiteSmartHome.Controllers
             return Ok(BaseResponse<string>.OkResponse("Xóa nhà cung cấp thành công"));
         }
 
-        //[HttpGet("search")]
-        //public async Task<IActionResult> Search([FromQuery] string keyword)
-        //{
-        //    var result = await _nhaCungCapService.SearchNhaCungCapAsync(keyword);
-        //    return Ok(BaseResponse<IEnumerable<NhaCungCapDto>>.OkResponse(result));
-        //}
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string keyword)
+        {
+            var result = await _nhaCungCapService.SearchNhaCungCapAsync(keyword);
+            return Ok(BaseResponse<BaseResponse<NhaCungCapDto>>.OkResponse("Tìm kiếm nhà cung cấp thành công"));
+        }
     }
 }

@@ -49,7 +49,6 @@ namespace WebsiteSmartHome.Services
             };
         }
 
-
         public async Task<SanPhamResponseDto?> GetSanPhamByIdAsync(string id)
         {
             if (!Guid.TryParse(id, out var guid))
@@ -100,7 +99,7 @@ namespace WebsiteSmartHome.Services
                 Gia = dto.DonGia,
                 SoLuongTon = dto.SoLuongTon,
                 ThoiGianBaoHanh = dto.ThoiGianBaoHanh,
-                NgaySanXuat = dto.NgaySanXuat,
+                NgaySanXuat = System.DateTime.Now,
                 MoTa = dto.MoTa,
                 MaDanhMuc = danhMucId,
                 MaNhaCungCap = nhaCungCapId,
@@ -113,14 +112,14 @@ namespace WebsiteSmartHome.Services
             return MapToResponseDto(sanPham);
         }
 
-        public async Task<SanPhamResponseDto?> UpdateSanPhamAsync(SanPhamUpdateDto dto)
+        public async Task<SanPhamResponseDto?> UpdateSanPhamAsync(string id, SanPhamUpdateDto dto)
         {
-            var id = ParseGuidOrThrow(dto.Id, "invalid_id", "Mã sản phẩm không hợp lệ");
+            Guid guidId = ParseGuidOrThrow(id, "invalid_id", "Mã sản phẩm không hợp lệ");
             var danhMucId = ParseGuidOrThrow(dto.MaDanhMuc, "invalid_category", "Mã danh mục không hợp lệ");
             var nhaCungCapId = ParseGuidOrThrow(dto.MaNhaCungCap, "invalid_supplier", "Mã nhà cung cấp không hợp lệ");
             var khoId = ParseGuidOrThrow(dto.MaKho, "invalid_warehouse", "Mã kho không hợp lệ");
 
-            var sanPham = await GetEntityOrThrowAsync<SanPham>(id, "not_found", "Không tìm thấy sản phẩm");
+            var sanPham = await GetEntityOrThrowAsync<SanPham>(guidId, "not_found", "Không tìm thấy sản phẩm");
             await GetEntityOrThrowAsync<DanhMuc>(danhMucId, "category_not_found", "Danh mục không tồn tại");
             await GetEntityOrThrowAsync<NhaCungCap>(nhaCungCapId, "supplier_not_found", "Nhà cung cấp không tồn tại");
             await GetEntityOrThrowAsync<Kho>(khoId, "warehouse_not_found", "Kho không tồn tại");
@@ -144,15 +143,20 @@ namespace WebsiteSmartHome.Services
             return MapToResponseDto(sanPham);
         }
 
-        public async Task<SanPhamResponseDto?> DeleteSanPhamAsync(string id)
+        public async Task<bool> DeleteSanPhamAsync(string id)
         {
-            var guid = ParseGuidOrThrow(id, "invalid_id", "Mã sản phẩm không hợp lệ");
-            var sanPham = await GetEntityOrThrowAsync<SanPham>(guid, "not_found", "Không tìm thấy sản phẩm");
 
-            await _unitOfWork.GetRepository<SanPham>().DeleteAsync(sanPham);
-            await _unitOfWork.SaveAsync();
+            if (!Guid.TryParse(id, out var guid))
+                throw new BaseException.BadRequestException("invalid_id", "Mã sản phẩm không hợp lệ");
 
-            return MapToResponseDto(sanPham);
+            SanPham? sanPham = await _unitOfWork.GetRepository<SanPham>().GetByIdAsync(guid);
+
+            if (sanPham == null)
+                throw new BaseException.NotFoundException("not_found", "Không tìm thấy sản phẩm");
+
+            _unitOfWork.GetRepository<SanPham>().Delete(sanPham);
+            _unitOfWork.Save();
+            return true;
         }
 
         public async Task<PagedResult<SanPhamResponseDto>> SearchSanPhamAsync(

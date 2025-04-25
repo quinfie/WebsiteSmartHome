@@ -9,8 +9,8 @@ namespace WebsiteSmartHome.IServices
         Task<PagedResult<SanPhamDto>> GetAllAsync(int page, int pageSize);
         Task<SanPhamResponseDto?> GetSanPhamByIdAsync(string id);
         Task<SanPhamResponseDto?> CreateSanPhamAsync(SanPhamCreateDto dto, string maDanhMuc, string maNhaCungCap, string maKho);
-        Task<SanPhamResponseDto?> UpdateSanPhamAsync(SanPhamUpdateDto dto);
-        Task<SanPhamResponseDto?> DeleteSanPhamAsync(string id);
+        Task<SanPhamResponseDto?> UpdateSanPhamAsync(string id, SanPhamUpdateDto dto);
+        Task<bool> DeleteSanPhamAsync(string id);
         Task<PagedResult<SanPhamResponseDto>> SearchSanPhamAsync(
             string? keyword,
             string? maDanhMuc,

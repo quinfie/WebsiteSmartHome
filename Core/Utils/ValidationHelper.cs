@@ -70,7 +70,7 @@ namespace WebsiteSmartHome.Core.Utils
         {
             if (!string.IsNullOrWhiteSpace(cccd))
             {
-                if (cccd.Length != 10 || !cccd.All(char.IsDigit))
+                if (cccd.Length != 12 || !cccd.All(char.IsDigit))
                 {
                     throw new BaseException.ValidationException("invalid_cccd", "CCCD phải gồm đúng 10 chữ số");
                 }

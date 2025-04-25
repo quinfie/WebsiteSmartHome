@@ -27,6 +27,11 @@ builder.Services.AddScoped<INguoiDungService, NguoiDungService>();
 builder.Services.AddScoped<IKhoService, KhoService>();
 builder.Services.AddScoped<INhaCungCapService, NhaCungCapService>();
 builder.Services.AddScoped<ISanPhamService, SanPhamService>();
+//builder.Services.AddScoped<INguoiPhanCongService, NguoiPhanCongService>();
+builder.Services.AddScoped<ILichBaoTriService, LichBaoTriService>();
+builder.Services.AddScoped<IDanhGiaService, DanhGiaService>();
+builder.Services.AddScoped<IDonHangService, DonHangService>();
+builder.Services.AddScoped<IChiTietDonHangService, ChiTietDonHangService>();
 
 builder.Services.AddCors(options =>
 {
@@ -48,10 +53,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
-
-app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthorization();
 

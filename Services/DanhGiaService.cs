@@ -18,7 +18,7 @@ namespace WebsiteSmartHome.Services
 
         public async Task<List<DanhGiaDto>> GetAllDanhGiaAsync()
         {
-            var danhGias = await _unitOfWork.GetRepository<DanhGium>().GetAllAsync();
+            var danhGias = await _unitOfWork.GetRepository<DanhGia>().GetAllAsync();
             return danhGias.Select(d => new DanhGiaDto
             {
                 Id = d.Id,
@@ -32,7 +32,7 @@ namespace WebsiteSmartHome.Services
 
         public async Task<DanhGiaDto?> GetDanhGiaByIdAsync(Guid id)
         {
-            var danhGia = await _unitOfWork.GetRepository<DanhGium>().GetByIdAsync(id);
+            var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(id);
             if (danhGia == null)
                 return null;
 
@@ -49,7 +49,7 @@ namespace WebsiteSmartHome.Services
 
         public async Task<bool> CreateDanhGiaAsync(DanhGiaDto danhGiaDto)
         {
-            var danhGia = new DanhGium
+            var danhGia = new DanhGia
             {
                 MaDonHang = danhGiaDto.MaDonHang,
                 MaSanPham = danhGiaDto.MaSanPham,
@@ -58,14 +58,14 @@ namespace WebsiteSmartHome.Services
                 NgayDanhGia = danhGiaDto.NgayDanhGia
             };
 
-            await _unitOfWork.GetRepository<DanhGium>().InsertAsync(danhGia);
+            await _unitOfWork.GetRepository<DanhGia>().InsertAsync(danhGia);
             await _unitOfWork.SaveAsync();
             return true;
         }
 
         public async Task<bool> UpdateDanhGiaAsync(Guid id, DanhGiaDto danhGiaDto)
         {
-            var danhGia = await _unitOfWork.GetRepository<DanhGium>().GetByIdAsync(id);
+            var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(id);
             if (danhGia == null)
                 return false;
 
@@ -73,25 +73,25 @@ namespace WebsiteSmartHome.Services
             danhGia.NoiDung = danhGiaDto.NoiDung;
             danhGia.NgayDanhGia = danhGiaDto.NgayDanhGia;
 
-            _unitOfWork.GetRepository<DanhGium>().Update(danhGia);
+            _unitOfWork.GetRepository<DanhGia>().Update(danhGia);
             await _unitOfWork.SaveAsync();
             return true;
         }
 
         public async Task<bool> DeleteDanhGiaAsync(Guid id)
         {
-            var danhGia = await _unitOfWork.GetRepository<DanhGium>().GetByIdAsync(id);
+            var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(id);
             if (danhGia == null)
                 return false;
 
-            await _unitOfWork.GetRepository<DanhGium>().DeleteAsync(id);
+            await _unitOfWork.GetRepository<DanhGia>().DeleteAsync(id);
             await _unitOfWork.SaveAsync();
             return true;
         }
         public async Task<List<DanhGiaDto>> SearchDanhGiaByContentAsync(string content)
         {
-            return await _unitOfWork.GetRepository<DanhGium>()
-                .FindByCondition(dg => dg.NoiDung.Contains(content))
+            return await _unitOfWork.GetRepository<DanhGia>()
+                .GetEntitiesWithCondition(dg => dg.NoiDung!.Contains(content))
                 .Select(dg => new DanhGiaDto
                 {
                     Id = dg.Id,

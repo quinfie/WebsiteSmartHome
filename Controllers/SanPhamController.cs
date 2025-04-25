@@ -42,10 +42,10 @@ namespace WebsiteSmartHome.Controllers
             return Ok(BaseResponse<SanPhamResponseDto>.OkResponse(result, "Tạo sản phẩm thành công"));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateSanPham([FromBody] SanPhamUpdateDto sanPhamDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSanPham(string id, [FromBody] SanPhamUpdateDto sanPhamDto)
         {
-            var result = await _sanPhamService.UpdateSanPhamAsync(sanPhamDto);
+            var result = await _sanPhamService.UpdateSanPhamAsync(id, sanPhamDto);
             return Ok(BaseResponse<SanPhamResponseDto>.OkResponse(result, "Cập nhật sản phẩm thành công"));
         }
 
@@ -53,7 +53,7 @@ namespace WebsiteSmartHome.Controllers
         public async Task<IActionResult> DeleteSanPham(string id)
         {
             var result = await _sanPhamService.DeleteSanPhamAsync(id);
-            return Ok(BaseResponse<SanPhamResponseDto>.OkResponse(result, "Xóa sản phẩm thành công"));
+            return Ok(BaseResponse<string>.OkResponse("Xóa sản phẩm thành công"));
         }
 
         [HttpGet("search")]

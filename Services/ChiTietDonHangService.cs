@@ -84,7 +84,7 @@ namespace WebsiteSmartHome.Services
         public async Task<List<ChiTietDonHangDto>> SearchChiTietDonHangByNameAsync(string name)
         {
             var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
-                .FindByCondition(ct => ct.SanPham.TenSanPham.Contains(name))  // Truy vấn thuộc tính TenSanPham của SanPham
+                .GetEntitiesWithCondition(ct => ct.SanPham.TenSanPham.Contains(name))  // Truy vấn thuộc tính TenSanPham của SanPham
                 .Select(ct => new ChiTietDonHangDto
                 {
                     MaDonHang = ct.MaDonHang,

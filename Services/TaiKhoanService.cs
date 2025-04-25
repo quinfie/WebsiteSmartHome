@@ -6,6 +6,7 @@ using WebsiteSmartHome.Core.DTOs;
 using Microsoft.Data.SqlClient;
 using WebsiteSmartHome.Core.Utils;
 using WebsiteSmartHome.IServices;
+using System.ComponentModel;
 
 
 namespace WebsiteSmartHome.Services
@@ -26,6 +27,7 @@ namespace WebsiteSmartHome.Services
 
             return taiKhoanList.Select(t => new TaiKhoanDto
             {
+                Id = t.Id.ToString(),
                 TenTaiKhoan = t.TenTaiKhoan,
                 MatKhau = t.MatKhau,
                 Email = t.Email,
@@ -52,7 +54,7 @@ namespace WebsiteSmartHome.Services
 
             return new TaiKhoanDto
             {
-
+                Id = taiKhoan.Id.ToString(),
                 TenTaiKhoan = taiKhoan.TenTaiKhoan,
                 TrangThai = taiKhoan.TrangThai,
                 MatKhau = taiKhoan.MatKhau,
@@ -139,12 +141,6 @@ namespace WebsiteSmartHome.Services
                 taiKhoan.Email = taiKhoanDto.Email;
             }
 
-            // Cập nhật Tên tài khoản nếu khác
-            if (!string.IsNullOrWhiteSpace(taiKhoanDto.TenTaiKhoan) && taiKhoan.TenTaiKhoan != taiKhoanDto.TenTaiKhoan)
-            {
-                taiKhoan.TenTaiKhoan = taiKhoanDto.TenTaiKhoan;
-            }
-
             // Cập nhật Mật khẩu nếu có
             if (!string.IsNullOrWhiteSpace(taiKhoanDto.MatKhau))
             {
@@ -172,7 +168,12 @@ namespace WebsiteSmartHome.Services
 
         public async Task DeleteTaiKhoanAsync(string taiKhoanId)
         {
-            TaiKhoan? taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(taiKhoanId);
+            if (!Guid.TryParse(taiKhoanId, out var guid))
+            {
+                throw new BaseException.BadRequestException("invalid_id", "ID tài khoản không hợp lệ");
+            }
+
+            TaiKhoan? taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(guid);
             if (taiKhoan == null)
             {
                 throw new BaseException.NotFoundException("not_found", "Tài khoản không tồn tại");
@@ -188,7 +189,8 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi xoá tài khoản");
             }
         }
-        public async Task<IEnumerable<TaiKhoan>> SearchTaiKhoan(string? keyword, string? trangThai)
+
+        public async Task<IEnumerable<TaiKhoanDto>> SearchTaiKhoan(string? keyword, string? trangThai)
         {
             if (string.IsNullOrWhiteSpace(keyword) && string.IsNullOrWhiteSpace(trangThai))
             {
@@ -198,19 +200,51 @@ namespace WebsiteSmartHome.Services
             var repository = _unitOfWork.GetRepository<TaiKhoan>();
             IQueryable<TaiKhoan> query = repository.Entities;
 
-            // Kiểm tra từ khóa tìm kiếm cho các trường TenTaiKhoan và Email
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 query = query.Where(t => t.TenTaiKhoan.Contains(keyword) || t.Email.Contains(keyword));
             }
 
-            // Kiểm tra trạng thái nếu có
             if (!string.IsNullOrWhiteSpace(trangThai))
             {
-                query = query.Where(t => t.TrangThai.Equals(trangThai, StringComparison.OrdinalIgnoreCase));
+                // So sánh không phân biệt hoa thường bằng cách chuyển về lower case
+                trangThai = GetDesriptionHelper.GetDescription(trangThai, typeof(AccountStatus));
+                query = query.Where(t => t.TrangThai.ToLower() == trangThai.ToLower());
             }
 
-            return await query.ToListAsync();
+            var results = await query.ToListAsync();
+
+            return results.Select(t =>
+            {
+                string moTaTrangThai;
+
+                if (Enum.TryParse<AccountStatus>(t.TrangThai, out var statusEnum))
+                {
+                    moTaTrangThai = GetEnumDescription(statusEnum);
+                }
+                else
+                {
+                    moTaTrangThai = t.TrangThai; // fallback nếu DB lưu sai hoặc enum đổi tên
+                }
+
+                return new TaiKhoanDto
+                {
+                    Id = t.Id.ToString(),
+                    Email = t.Email,
+                    TenTaiKhoan = t.TenTaiKhoan,
+                    MatKhau = t.MatKhau,
+                    NgayTao = t.NgayTao,
+                    TrangThai = moTaTrangThai
+                };
+            });
         }
+        private static string GetEnumDescription(Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attribute = field?.GetCustomAttributes(typeof(DescriptionAttribute), false)
+                                 .FirstOrDefault() as DescriptionAttribute;
+            return attribute?.Description ?? value.ToString();
+        }
+
     }
 }

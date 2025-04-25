@@ -16,6 +16,11 @@ namespace WebsiteSmartHome.Repositories
         }
         public IQueryable<T> Entities => _context.Set<T>();
 
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
+
         public void Delete(object entity)
         {
             _dbSet.Remove((T)entity);
@@ -200,10 +205,5 @@ namespace WebsiteSmartHome.Repositories
             // Finally, project using the selector
             return query.Select(selector);
         }
-        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
-        {
-            return _context.Set<T>().Where(expression);
-        }
-
     }
 }
