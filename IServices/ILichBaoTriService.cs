@@ -8,7 +8,7 @@ namespace WebsiteSmartHome.IServices
         Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId);
 
         Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id);
-        Task<bool> CreateLichBaoTriAsync(LichBaoTriDto lichBaoTriDto);
+        Task<bool> CreateLichBaoTriAsync(CreateLichBaoTriDto lichBaoTriDto);//DTO RIENG
         Task<bool> UpdateLichBaoTriAsync(Guid id, LichBaoTriDto lichBaoTriDto);
         Task<bool> DeleteLichBaoTriAsync(Guid id);
     }

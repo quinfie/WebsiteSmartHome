@@ -7,15 +7,15 @@ public partial class LichBaoTri
 {
     public Guid Id { get; set; }
 
-    public Guid MaDonHang { get; set; }
+    public int MaChiTietDonHang { get; set; }
 
-    public Guid MaSanPham { get; set; }
+    public DateTime NgayBaoTri { get; set; }
 
-    public System.DateTime NgayBaoTri { get; set; }
+    public string LoaiBaoTri { get; set; } = null!;
 
-    public bool? DaThongBao { get; set; }
-    // Điều hướng (navigation properties)
-    public virtual DonHang DonHang { get; set; } = null!;  // Điều hướng đến bảng DonHang
-    public virtual SanPham SanPham { get; set; } = null!;  // Điều hướng đến bảng SanPham
+    public string TrangThai { get; set; } = null!;
+
+    // Điều hướng
     public virtual ChiTietDonHang ChiTietDonHang { get; set; } = null!;
 }
+

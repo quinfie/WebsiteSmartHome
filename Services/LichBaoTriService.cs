@@ -1,129 +1,122 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
-using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using WebsiteSmartHome.IServices;
 
 namespace WebsiteSmartHome.Services
 {
     public class LichBaoTriService : ILichBaoTriService
     {
-        //    private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        //    public LichBaoTriService(IUnitOfWork unitOfWork)
-        //    {
-        //        _unitOfWork = unitOfWork;
-        //    }
-
-        //    public async Task<List<LichBaoTriDto>> GetAllLichBaoTriAsync()
-        //    {
-        //        var lichBaoTris = await _unitOfWork.GetRepository<LichBaoTri>().GetAllAsync();
-        //        return lichBaoTris.Select(l => new LichBaoTriDto
-        //        {
-        //            Id = l.Id,
-        //            MaDonHang = l.MaDonHang,
-        //            MaSanPham = l.MaSanPham,
-        //            NgayBaoTriKeTiep = l.NgayBaoTriKeTiep,
-        //            DaThongBao = l.DaThongBao
-        //        }).ToList();
-        //    }
-
-        //    public async Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id)
-        //    {
-        //        var lichBaoTri = await _unitOfWork.GetRepository<LichBaoTri>().GetByIdAsync(id);
-        //        if (lichBaoTri == null)
-        //            return null;
-
-        //        return new LichBaoTriDto
-        //        {
-        //            Id = lichBaoTri.Id,
-        //            MaDonHang = lichBaoTri.MaDonHang,
-        //            MaSanPham = lichBaoTri.MaSanPham,
-        //            NgayBaoTriKeTiep = lichBaoTri.NgayBaoTriKeTiep,
-        //            DaThongBao = lichBaoTri.DaThongBao
-        //        };
-        //    }
-
-        //    public async Task<bool> CreateLichBaoTriAsync(LichBaoTriDto lichBaoTriDto)
-        //    {
-        //        var lichBaoTri = new LichBaoTri
-        //        {
-        //            MaDonHang = lichBaoTriDto.MaDonHang,
-        //            MaSanPham = lichBaoTriDto.MaSanPham,
-        //            NgayBaoTriKeTiep = lichBaoTriDto.NgayBaoTriKeTiep,
-        //            DaThongBao = lichBaoTriDto.DaThongBao
-        //        };
-
-        //        await _unitOfWork.GetRepository<LichBaoTri>().InsertAsync(lichBaoTri);
-        //        await _unitOfWork.SaveAsync();
-        //        return true;
-        //    }
-
-        //    public async Task<bool> UpdateLichBaoTriAsync(Guid id, LichBaoTriDto lichBaoTriDto)
-        //    {
-        //        var lichBaoTri = await _unitOfWork.GetRepository<LichBaoTri>().GetByIdAsync(id);
-        //        if (lichBaoTri == null)
-        //            return false;
-
-        //        lichBaoTri.NgayBaoTriKeTiep = lichBaoTriDto.NgayBaoTriKeTiep;
-        //        lichBaoTri.DaThongBao = lichBaoTriDto.DaThongBao;
-
-        //        _unitOfWork.GetRepository<LichBaoTri>().Update(lichBaoTri);
-        //        await _unitOfWork.SaveAsync();
-        //        return true;
-        //    }
-
-        //    public async Task<bool> DeleteLichBaoTriAsync(Guid id)
-        //    {
-        //        var lichBaoTri = await _unitOfWork.GetRepository<LichBaoTri>().GetByIdAsync(id);
-        //        if (lichBaoTri == null)
-        //            return false;
-
-        //        await _unitOfWork.GetRepository<LichBaoTri>().DeleteAsync(id);
-        //        await _unitOfWork.SaveAsync();
-        //        return true;
-        //    }
-        //    public async Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId)
-        //    {
-        //        return await _unitOfWork.GetRepository<LichBaoTri>()
-        //            .FindByCondition(lb => lb.MaDonHang == orderId)
-        //            .Select(lb => new LichBaoTriDto
-        //            {
-        //                Id = lb.Id,
-        //                MaDonHang = lb.MaDonHang,
-        //                MaSanPham = lb.MaSanPham,
-        //                NgayBaoTriKeTiep = lb.NgayBaoTriKeTiep
-        //            })
-        //            .ToListAsync();
-        //    }
-        public Task<bool> CreateLichBaoTriAsync(LichBaoTriDto lichBaoTriDto)
+        public LichBaoTriService(IUnitOfWork unitOfWork)
         {
-            throw new NotImplementedException();
+            _unitOfWork = unitOfWork;
         }
 
-        public Task<bool> DeleteLichBaoTriAsync(Guid id)
+        // 1. Lấy tất cả
+        public async Task<List<LichBaoTriDto>> GetAllLichBaoTriAsync()
         {
-            throw new NotImplementedException();
+            var list = await _unitOfWork.GetRepository<LichBaoTri>()
+                                        .GetAllAsync();
+
+            return list.Select(e => new LichBaoTriDto
+            {
+                Id = e.Id.ToString(),
+                MaChiTietDonHang = e.MaChiTietDonHang,
+                NgayBaoTri = e.NgayBaoTri,
+                LoaiBaoTri = e.LoaiBaoTri,
+                TrangThai = e.TrangThai
+            }).ToList();
         }
 
-        public Task<List<LichBaoTriDto>> GetAllLichBaoTriAsync()
+        // 2. Tìm theo MaChiTietDonHang (theo interface gọi là SearchLichBaoTriByOrderAsync)
+        public async Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId)
         {
-            throw new NotImplementedException();
+            // Lấy các LichBaoTri mà ChiTietDonHang.MaDonHang == orderId
+            var items = await _unitOfWork.GetRepository<LichBaoTri>()
+                .GetEntitiesWithCondition(
+                    lb => lb.ChiTietDonHang.MaDonHang == orderId,
+                    lb => lb.ChiTietDonHang  // include ChiTietDonHang để truy vấn MaDonHang
+                )
+                .ToListAsync();
+
+            return items.Select(e => new LichBaoTriDto
+            {
+                Id = e.Id.ToString(),
+                MaChiTietDonHang = e.MaChiTietDonHang,
+                NgayBaoTri = e.NgayBaoTri,
+                LoaiBaoTri = e.LoaiBaoTri,
+                TrangThai = e.TrangThai
+            }).ToList();
         }
 
-        public Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id)
+        // 3. Lấy theo Id
+        public async Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var e = await _unitOfWork.GetRepository<LichBaoTri>()
+                                     .GetByIdAsync(id);
+            if (e == null) return null;
+
+            return new LichBaoTriDto
+            {
+                Id = e.Id.ToString(),
+                MaChiTietDonHang = e.MaChiTietDonHang,
+                NgayBaoTri = e.NgayBaoTri,
+                LoaiBaoTri = e.LoaiBaoTri,
+                TrangThai = e.TrangThai
+            };
         }
 
-        public Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId)
+        // 4. Tạo mới
+        public async Task<bool> CreateLichBaoTriAsync(CreateLichBaoTriDto dto)
         {
-            throw new NotImplementedException();
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
+
+            var e = new LichBaoTri
+            {
+                Id = Guid.NewGuid(),
+                MaChiTietDonHang = dto.MaChiTietDonHang,
+                NgayBaoTri = dto.NgayBaoTri,
+                LoaiBaoTri = dto.LoaiBaoTri,
+                TrangThai = dto.TrangThai
+            };
+
+            await _unitOfWork.GetRepository<LichBaoTri>().InsertAsync(e);
+            await _unitOfWork.SaveAsync();
+            return true;
         }
 
-        public Task<bool> UpdateLichBaoTriAsync(Guid id, LichBaoTriDto lichBaoTriDto)
+        // 5. Cập nhật (theo interface, nhận LichBaoTriDto)
+        public async Task<bool> UpdateLichBaoTriAsync(Guid id, LichBaoTriDto dto)
         {
-            throw new NotImplementedException();
+            var e = await _unitOfWork.GetRepository<LichBaoTri>()
+                                     .GetByIdAsync(id);
+            if (e == null) return false;
+
+            // Cập nhật tất cả các trường phù hợp
+            e.MaChiTietDonHang = dto.MaChiTietDonHang;
+            e.NgayBaoTri = dto.NgayBaoTri;
+            e.LoaiBaoTri = dto.LoaiBaoTri;
+            e.TrangThai = dto.TrangThai;
+
+            _unitOfWork.GetRepository<LichBaoTri>().Update(e);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
+
+        // 6. Xóa theo Id
+        public async Task<bool> DeleteLichBaoTriAsync(Guid id)
+        {
+            var e = await _unitOfWork.GetRepository<LichBaoTri>()
+                                     .GetByIdAsync(id);
+            if (e == null) return false;
+
+            await _unitOfWork.GetRepository<LichBaoTri>().DeleteAsync(id);
+            await _unitOfWork.SaveAsync();
+            return true;
         }
     }
 }
