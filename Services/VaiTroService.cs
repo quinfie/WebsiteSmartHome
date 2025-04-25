@@ -74,14 +74,17 @@ namespace WebsiteSmartHome.Services
 
         public async Task<bool> DeleteVaiTroAsync(string id)
         {
-            VaiTro? vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(id);
+            if (!Guid.TryParse(id, out var guid))
+                throw new BaseException.BadRequestException("invalid_id", "Mã sản phẩm không hợp lệ");
+
+            VaiTro? vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(guid);
             if (vaiTro == null)
             {
                 throw new BaseException.NotFoundException("not_found", "Vai trò không tồn tại");
             }
 
             _unitOfWork.GetRepository<VaiTro>().Delete(vaiTro);
-            await _unitOfWork.SaveAsync();
+            _unitOfWork.Save();
             return true;
         }
 

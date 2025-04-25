@@ -31,3 +31,4 @@ packages/
 .idea/
 *.iml
 appsettings.json
+appsettings.Development.json

@@ -9,8 +9,9 @@ namespace WebsiteSmartHome.IServices
         Task<List<NhaCungCapDto>> GetAllNhaCungCapAsync();
         Task<NhaCungCapDto> GetNhaCungCapByIdAsync(string id);
         Task<NhaCungCapCreateDto> CreateNhaCungCapAsync(NhaCungCapCreateDto dto);
-        Task<NhaCungCapDto> UpdateNhaCungCapAsync(NhaCungCapDto dto);
+        Task<NhaCungCapCreateDto> UpdateNhaCungCapAsync(string id, NhaCungCapCreateDto dto);
         Task DeleteNhaCungCapAsync(string id);
+        Task<List<NhaCungCapDto>> SearchNhaCungCapAsync(string keyword);
     }
 
 }

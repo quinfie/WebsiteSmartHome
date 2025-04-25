@@ -9,6 +9,6 @@ namespace WebsiteSmartHome.IServices
         Task<KhoDto> GetKhoByIdAsync(string id);
         Task<KhoCreateDto> CreateKhoAsync(KhoCreateDto dto);
         Task<KhoDto> UpdateKhoAsync(KhoDto dto);
-        Task DeleteKhoAsync(string id);
+        Task<string> DeleteKhoAsync(string id);
     }
 }

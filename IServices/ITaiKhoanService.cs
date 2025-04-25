@@ -8,7 +8,7 @@ namespace WebsiteSmartHome.IServices
         Task<IEnumerable<TaiKhoanDto>> GetTaiKhoanAsync();
         Task<TaiKhoanDto?> GetTaiKhoanByIdAsync(string id);
         Task AddTaiKhoanAsync(TaiKhoanCreateDto taiKhoanDto);
-        Task<IEnumerable<TaiKhoan>> SearchTaiKhoan(string? keyword, string? trangThai);
+        Task<IEnumerable<TaiKhoanDto>> SearchTaiKhoan(string? keyword, string? trangThai);
         Task UpdateTaiKhoanAsync(string taiKhoanId, TaiKhoanUpdateDto taiKhoanDto);
         Task DeleteTaiKhoanAsync(string taiKhoanId);
     }

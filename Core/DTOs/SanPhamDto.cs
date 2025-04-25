@@ -33,13 +33,12 @@ namespace WebsiteSmartHome.Core.DTOs
         public required decimal DonGia { get; set; } = 0;
         public required int SoLuongTon { get; set; } = 0;
         public required int ThoiGianBaoHanh { get; set; }
-        public  required System.DateTime NgaySanXuat { get; set; }
+        public required System.DateTime NgaySanXuat { get; set; }
         public string MoTa { get; set; } = string.Empty;
     }
 
     public class SanPhamUpdateDto
     {
-        public string Id { get; set; } = string.Empty;
         public string TenSanPham { get; set; } = string.Empty;
         public decimal DonGia { get; set; } = 0;
         public int? SoLuongTon { get; set; } = 0;

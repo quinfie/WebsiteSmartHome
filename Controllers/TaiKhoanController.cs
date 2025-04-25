@@ -17,7 +17,7 @@ namespace WebsiteSmartHome.Controllers
             _taiKhoanService = taiKhoanService ?? throw new ArgumentNullException(nameof(taiKhoanService));
         }
 
-        [HttpGet("getAll")]
+        [HttpGet]
         public async Task<IActionResult> GetTaiKhoans()
         {
             IEnumerable<TaiKhoanDto> result = await _taiKhoanService.GetTaiKhoanAsync();
@@ -32,7 +32,7 @@ namespace WebsiteSmartHome.Controllers
             return Ok(BaseResponse<TaiKhoanDto>.OkResponse(result, "Lấy thông tin tài khoản thành công"));
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<IActionResult> AddTaiKhoan([FromBody] TaiKhoanCreateDto taiKhoanDto)
         {
 
@@ -56,11 +56,12 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchTaiKhoan([FromQuery] string keyword, [FromQuery] string trangThai)
+        public async Task<IActionResult> SearchTaiKhoan([FromQuery] string? keyword, [FromQuery] string? trangThai)
         {
             var result = await _taiKhoanService.SearchTaiKhoan(keyword, trangThai);
-            return Ok(BaseResponse<IEnumerable<TaiKhoan>>.OkResponse(result, "Tìm kiếm tài khoản thành công"));
+            return Ok(BaseResponse<IEnumerable<TaiKhoanDto>>.OkResponse(result, "Tìm kiếm tài khoản thành công"));
         }
+
 
     }
 }

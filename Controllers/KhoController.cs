@@ -44,11 +44,11 @@ namespace WebsiteSmartHome.Controllers
             return Ok(BaseResponse<KhoDto>.OkResponse(result, "Cập nhật kho thành công"));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteKho(string id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteKho([FromQuery] string id)
         {
-            await _khoService.DeleteKhoAsync(id);
-            return Ok(BaseResponse<string>.OkResponse(id, "Xóa kho thành công"));
+            string message = await _khoService.DeleteKhoAsync(id);
+            return Ok(BaseResponse<string>.OkResponse(message));
         }
     }
 }

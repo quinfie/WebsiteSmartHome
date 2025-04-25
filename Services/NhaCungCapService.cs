@@ -1,5 +1,7 @@
-﻿using WebsiteSmartHome.Core;
+﻿using Microsoft.EntityFrameworkCore;
+using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core.Utils;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
@@ -71,15 +73,41 @@ namespace WebsiteSmartHome.Services
             return dto;
         }
 
-        public async Task<NhaCungCapDto> UpdateNhaCungCapAsync(NhaCungCapDto dto)
+        public async Task<NhaCungCapCreateDto> UpdateNhaCungCapAsync(string id, NhaCungCapCreateDto dto)
         {
-            if (dto == null)
-                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ.");
+            if (!Guid.TryParse(id, out Guid guidId))
+            {
+                throw new BaseException.BadRequestException("invalid_id", "ID nhà cung cấp không hợp lệ");
+            }
 
-            Guid.TryParse(dto.Id, out Guid guidId);
-            var ncc = await _unitOfWork.GetRepository<NhaCungCap>().GetByIdAsync(guidId);
+            // 🔎 Kiểm tra trùng email, số điện thoại, tên
+            var repo = _unitOfWork.GetRepository<NhaCungCap>();
+
+            NhaCungCap? ncc = await repo.GetByIdAsync(guidId);
             if (ncc == null)
                 throw new BaseException.NotFoundException("not_found", "Không tìm thấy nhà cung cấp.");
+
+            ValidationHelper.ValidateEmail(dto.Email!);
+            ValidationHelper.ValidateDiaChi(dto.DiaChi!);
+            ValidationHelper.ValidateSDT(dto.SDT!);
+
+            bool emailExists = await repo.AnyAsync(x => x.Email == dto.Email && x.Id != guidId);
+            if (emailExists)
+            {
+                throw new BaseException.BadRequestException("email_exists", "Email đã được sử dụng bởi nhà cung cấp khác.");
+            }
+
+            bool sdtExists = await repo.AnyAsync(x => x.SoDienThoai == dto.SDT && x.Id != guidId);
+            if (sdtExists)
+            {
+                throw new BaseException.BadRequestException("phone_exists", "Số điện thoại đã được sử dụng bởi nhà cung cấp khác.");
+            }
+
+            bool nameExists = await repo.AnyAsync(x => x.TenNhaCungCap == dto.TenNhaCungCap && x.Id != guidId);
+            if (nameExists)
+            {
+                throw new BaseException.BadRequestException("name_exists", "Tên nhà cung cấp đã tồn tại.");
+            }
 
             ncc.TenNhaCungCap = dto.TenNhaCungCap;
             ncc.SoDienThoai = dto.SDT;
@@ -104,6 +132,30 @@ namespace WebsiteSmartHome.Services
 
             await _unitOfWork.GetRepository<NhaCungCap>().DeleteAsync(guidId);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<List<NhaCungCapDto>> SearchNhaCungCapAsync(string keyword)
+        {
+            keyword = keyword?.Trim().ToLower() ?? "";
+
+            var query = _unitOfWork.GetRepository<NhaCungCap>()
+                .GetEntitiesWithCondition(x =>
+                    x.TenNhaCungCap.ToLower().Contains(keyword) ||
+                    x.Email!.ToLower().Contains(keyword) ||
+                    x.SoDienThoai!.ToLower().Contains(keyword) ||
+                    x.DiaChi!.ToLower().Contains(keyword)
+                );
+
+            var results = await query.ToListAsync();
+
+            return results.Select(ncc => new NhaCungCapDto
+            {
+                Id = ncc.Id.ToString(),
+                TenNhaCungCap = ncc.TenNhaCungCap,
+                SDT = ncc.SoDienThoai!,
+                Email = ncc.Email!,
+                DiaChi = ncc.DiaChi!
+            }).ToList();
         }
     }
 }

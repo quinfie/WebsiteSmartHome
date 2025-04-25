@@ -6,6 +6,7 @@ using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using WebsiteSmartHome.Core.Utils;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebsiteSmartHome.Services
 {
@@ -23,7 +24,7 @@ namespace WebsiteSmartHome.Services
             IList<NguoiDung> list = await _unitOfWork.GetRepository<NguoiDung>().GetAllAsync();
             return list.Select(x => new NguoiDungDto
             {
-                id = x.Id.ToString(),
+                Id = x.Id.ToString(),
                 TenNguoiDung = x.TenNguoiDung,
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh,
@@ -50,7 +51,7 @@ namespace WebsiteSmartHome.Services
 
             return new NguoiDungDto
             {
-                id = nd.Id.ToString(),
+                Id = nd.Id.ToString(),
                 TenNguoiDung = nd.TenNguoiDung,
                 GioiTinh = nd.GioiTinh!,
                 NgaySinh = nd.NgaySinh,
@@ -111,64 +112,98 @@ namespace WebsiteSmartHome.Services
             {
                 throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi thêm tài khoản");
             }
-
-
         }
 
-        //public async Task UpdateAsync(NguoiDungDto dto)
-        //{
-        //    if (string.IsNullOrWhiteSpace(dto.Id) || !Guid.TryParse(dto.Id, out var id))
-        //        throw new BaseException.BadRequestException("invalid_id", "Mã người dùng không hợp lệ");
+        public async Task UpdateNguoiDungAsync(string id, NguoiDungUpdateDto dto)
+        {
+            if (!Guid.TryParse(id, out Guid guidId))
+            {
+                throw new BaseException.BadRequestException("invalid_id", "ID người dùng không hợp lệ");
+            }
 
-        //    var nd = await _unitOfWork.GetRepository<NguoiDung>().GetByIdAsync(id);
-        //    if (nd == null)
-        //        throw new BaseException.NotFoundException("not_found", "Không tìm thấy người dùng");
+            var repository = _unitOfWork.GetRepository<NguoiDung>();
+            var existing = await repository.GetByIdAsync(guidId);
 
-        //    nd.TenNguoiDung = dto.TenNguoiDung;
-        //    nd.GioiTinh = dto.GioiTinh;
-        //    nd.NgaySinh = dto.NgaySinh;
-        //    nd.Cccd = dto.Cccd;
-        //    nd.Sdt = dto.Sdt;
-        //    nd.DiaChi = dto.DiaChi;
+            if (existing == null)
+            {
+                throw new BaseException.NotFoundException("not_found", "Người dùng không tồn tại");
+            }
 
-        //    _unitOfWork.GetRepository<NguoiDung>().Update(nd);
-        //    await _unitOfWork.SaveAsync();
-        //}
+            // Validate dữ liệu
+            ValidationHelper.ValidateGioiTinh(dto.GioiTinh!);
+            ValidationHelper.ValidateDiaChi(dto.DiaChi!);
+            ValidationHelper.ValidateNgaySinh(dto.NgaySinh);
 
-        //public async Task DeleteAsync(string id)
-        //{
-        //    if (!Guid.TryParse(id, out var guid))
-        //        throw new BaseException.BadRequestException("invalid_id", "Mã người dùng không hợp lệ");
+            // Cập nhật
+            existing.TenNguoiDung = dto.TenNguoiDung!;
+            existing.GioiTinh = dto.GioiTinh!;
+            existing.NgaySinh = dto.NgaySinh!;
+            existing.DiaChi = dto.DiaChi!;
 
-        //    var nd = await _unitOfWork.GetRepository<NguoiDung>().GetByIdAsync(guid);
-        //    if (nd == null)
-        //        throw new BaseException.NotFoundException("not_found", "Không tìm thấy người dùng");
+            try
+            {
+                _unitOfWork.GetRepository<NguoiDung>().Update(existing);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (SqlException)
+            {
+                throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi cập nhật người dùng");
+            }
+        }
 
-        //    _unitOfWork.GetRepository<NguoiDung>().Delete(nd);
-        //    await _unitOfWork.SaveAsync();
-        //}
+        public async Task DeleteNguoiDungAsync(string id)
+        {
+            if (!Guid.TryParse(id, out Guid guidId))
+            {
+                throw new BaseException.BadRequestException("invalid_id", "ID người dùng không hợp lệ");
+            }
+
+            var repository = _unitOfWork.GetRepository<NguoiDung>();
+            var existing = await repository.GetByIdAsync(guidId);
+
+            if (existing == null)
+            {
+                throw new BaseException.NotFoundException("not_found", "Người dùng không tồn tại");
+            }
+
+            try
+            {
+                repository.Delete(existing);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (SqlException)
+            {
+                throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi xoá người dùng");
+            }
+        }
 
         public async Task<IEnumerable<NguoiDungDto>> SearchNguoiDungAsync(string keyword)
         {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return Enumerable.Empty<NguoiDungDto>();
+            }
+
             var query = _unitOfWork.GetRepository<NguoiDung>().Entities;
 
-            query = query.Where(x =>
-                x.TenNguoiDung.Contains(keyword) ||
-                (x.SoDienThoai != null && x.SoDienThoai.Contains(keyword)) ||
-                (x.CCCD != null && x.CCCD.Contains(keyword)));
+            var filtered = await query
+                .Where(x =>
+                    x.TenNguoiDung.Contains(keyword) ||
+                    (x.SoDienThoai != null && x.SoDienThoai.Contains(keyword)) ||
+                    (x.CCCD != null && x.CCCD.Contains(keyword)))
+                .ToListAsync();
 
-            var result = await query.ToListAsync();
-
-            return result.Select(x => new NguoiDungDto
+            return filtered.Select(x => new NguoiDungDto
             {
-                id = x.Id.ToString(),
+                Id = x.Id.ToString(),
                 TenNguoiDung = x.TenNguoiDung,
                 GioiTinh = x.GioiTinh!,
-                NgaySinh = x.NgaySinh!,
+                NgaySinh = x.NgaySinh,
                 Cccd = x.CCCD!,
                 Sdt = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
         }
+
     }
 }

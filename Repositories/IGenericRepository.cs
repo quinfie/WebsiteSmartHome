@@ -18,6 +18,7 @@ namespace WebsiteSmartHome.Repositories
         void Save();
 
         // async
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
         Task<IList<T>> GetAllAsync();
         Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize);
         BasePaginatedList<T> GetPaggingDto(IEnumerable<T> items, int pageNumber, int pageSize);
@@ -41,7 +42,6 @@ namespace WebsiteSmartHome.Repositories
             Expression<Func<T, bool>> expression,
             Expression<Func<T, TResult>> selector,
             params Expression<Func<T, object>>[] includes);
-        IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression);
 
     }
 }
