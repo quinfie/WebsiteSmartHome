@@ -30,3 +30,4 @@ packages/
 # Rider / JetBrains
 .idea/
 *.iml
+appsettings.json
