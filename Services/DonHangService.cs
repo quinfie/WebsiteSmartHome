@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.Services;
@@ -15,43 +16,44 @@ namespace WebsiteSmartHome.Services
             _unitOfWork = unitOfWork;
         }
 
-        // Lấy tất cả đơn hàng
+        // Lấy danh sách tất cả đơn hàng và chuyển sang dạng DonHangDto
         public async Task<List<DonHangDto>> GetAllDonHangAsync()
         {
             var donHangs = await _unitOfWork.GetRepository<DonHang>().GetAllAsync();
             return donHangs.Select(dh => new DonHangDto
             {
-                Id = dh.Id,
-                MaNguoiDung = dh.MaNguoiDung,
+                MaNguoiDung = dh.MaNguoiDung.ToString(),
                 TongTien = dh.TongTien,
                 TrangThaiDonHang = dh.TrangThaiDonHang,
                 NgayDat = dh.NgayDat,
-                MaKhuyenMai = dh.MaKhuyenMai
+                MaKhuyenMai = dh.MaKhuyenMai?.ToString()
             }).ToList();
         }
 
-        // Tìm đơn hàng theo ID
-        public async Task<DonHangDto?> GetDonHangByIdAsync(Guid id)
+        // Lấy đơn hàng theo ID kèm theo chi tiết đơn hàng
+        public async Task<DonHangDto?> GetDonHangByIdAsync(string id)
         {
+            if (!Guid.TryParse(id, out Guid guidId))
+                return null;
+
             var donHang = await _unitOfWork.GetRepository<DonHang>().FindByConditionWithIncludesAsync(
-                dh => dh.Id == id,
-                dh => dh.ChiTietDonHangs
+                dh => dh.Id == guidId,
+                dh => dh.ChiTietDonHangs // include chi tiết đơn hàng
             );
 
             if (donHang == null) return null;
 
             return new DonHangDto
             {
-                Id = donHang.Id,
-                MaNguoiDung = donHang.MaNguoiDung,
+                MaNguoiDung = donHang.MaNguoiDung.ToString(),
                 TongTien = donHang.TongTien,
                 TrangThaiDonHang = donHang.TrangThaiDonHang,
                 NgayDat = donHang.NgayDat,
-                MaKhuyenMai = donHang.MaKhuyenMai
+                MaKhuyenMai = donHang.MaKhuyenMai?.ToString()
             };
         }
 
-        // Tìm kiếm theo trạng thái đơn hàng
+        // Tìm kiếm đơn hàng theo trạng thái
         public async Task<List<DonHangDto>> SearchDonHangAsync(string trangThai)
         {
             var donHangs = await _unitOfWork.GetRepository<DonHang>().GetEntitiesWithCondition(
@@ -60,83 +62,104 @@ namespace WebsiteSmartHome.Services
 
             return donHangs.Select(dh => new DonHangDto
             {
-                Id = dh.Id,
-                MaNguoiDung = dh.MaNguoiDung,
+                MaNguoiDung = dh.MaNguoiDung.ToString(),
                 TongTien = dh.TongTien,
                 TrangThaiDonHang = dh.TrangThaiDonHang,
                 NgayDat = dh.NgayDat,
-                MaKhuyenMai = dh.MaKhuyenMai
+                MaKhuyenMai = dh.MaKhuyenMai?.ToString()
             }).ToList();
         }
 
-        public async Task<bool> CreateDonHangAsync(DonHangDto donHangDto)
+        // Tạo đơn hàng mới
+        public async Task<bool> CreateDonHangAsync(CreateDonHangDto createDto)
         {
-            // Bắt đầu transaction
-            _unitOfWork.BeginTransaction();
+            if (createDto == null)
+                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ");
 
-            try
+            // Tạo đơn hàng
+            var donHang = new DonHang
             {
-                var donHang = new DonHang
-                {
-                    Id = Guid.NewGuid(),
-                    MaNguoiDung = donHangDto.MaNguoiDung,
-                    TongTien = donHangDto.TongTien, // Chỉ lấy tổng tiền từ DTO
-                    TrangThaiDonHang = donHangDto.TrangThaiDonHang,
-                    NgayDat = DateTime.UtcNow,
-                    MaKhuyenMai = donHangDto.MaKhuyenMai
-                };
+                Id = Guid.NewGuid(),
+                MaNguoiDung = Guid.Parse(createDto.MaNguoiDung),
+                TongTien = createDto.TongTien,
+                TrangThaiDonHang = createDto.TrangThaiDonHang,
+                NgayDat = DateTime.UtcNow, // thời gian đặt hàng là thời điểm hiện tại
+                MaKhuyenMai = string.IsNullOrWhiteSpace(createDto.MaKhuyenMai) ? null : Guid.Parse(createDto.MaKhuyenMai)
+            };
 
-                // Thêm vào bảng DonHang
-                await _unitOfWork.GetRepository<DonHang>().InsertAsync(donHang);
-                await _unitOfWork.SaveAsync();
+            // Lưu đơn hàng vào cơ sở dữ liệu
+            await _unitOfWork.GetRepository<DonHang>().InsertAsync(donHang);
+            await _unitOfWork.SaveAsync();
 
-                // Commit transaction
-                _unitOfWork.CommitTransaction();
-                return true;
-            }
-            catch
+            // Tạo chi tiết đơn hàng
+            var chiTietDonHang = new ChiTietDonHang
             {
-                // Rollback transaction nếu có lỗi
-                _unitOfWork.RollBack();
-                return false;
-            }
+                MaDonHang = donHang.Id,
+                MaSanPham = Guid.Parse(createDto.MaSanPham),  // Lấy MaSanPham từ DTO
+                SoLuong = createDto.SoLuong,
+                DonGia = await GetDonGiaSanPhamAsync(createDto.MaSanPham) // Lấy giá từ bảng SanPham
+            };
+
+            // Tính tổng tiền chi tiết đơn hàng và cập nhật lại tổng tiền đơn hàng
+            donHang.TongTien += chiTietDonHang.DonGia * chiTietDonHang.SoLuong;
+
+            // Lưu chi tiết đơn hàng
+            await _unitOfWork.GetRepository<ChiTietDonHang>().InsertAsync(chiTietDonHang);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
+        // Phương thức lấy giá của sản phẩm từ bảng SanPham
+        private async Task<decimal> GetDonGiaSanPhamAsync(string maSanPham)
+        {
+            var sanPham = await _unitOfWork.GetRepository<SanPham>().FindByConditionAsync(sp => sp.Id == Guid.Parse(maSanPham));
+            if (sanPham == null)
+                throw new BaseException.BadRequestException("product_not_found", "Sản phẩm không tồn tại");
+
+            return sanPham.Gia;
         }
 
 
-
-        // Cập nhật đơn hàng
-        public async Task<bool> UpdateDonHangAsync(Guid id, DonHangDto donHangDto)
+        // Cập nhật đơn hàng theo ID
+        public async Task<bool> UpdateDonHangAsync(string id, UpdateDonHangDto updateDto)
         {
-            var donHang = await _unitOfWork.GetRepository<DonHang>().GetByIdAsync(id);
-            if (donHang == null) return false;
+            if (!Guid.TryParse(id, out Guid guidId))
+                throw new BaseException.BadRequestException("invalid_id", "ID không hợp lệ");
 
-            donHang.TrangThaiDonHang = donHangDto.TrangThaiDonHang;
-            donHang.MaKhuyenMai = donHangDto.MaKhuyenMai;
+            var donHang = await _unitOfWork.GetRepository<DonHang>().FindByConditionAsync(dh => dh.Id == guidId);
+            if (donHang == null)
+                return false;
 
-            _unitOfWork.GetRepository<DonHang>().Update(donHang);
+            donHang.TongTien = updateDto.TongTien;
+            donHang.TrangThaiDonHang = updateDto.TrangThaiDonHang;
+            donHang.MaKhuyenMai = string.IsNullOrWhiteSpace(updateDto.MaKhuyenMai) ? null : Guid.Parse(updateDto.MaKhuyenMai);
+
             await _unitOfWork.SaveAsync();
             return true;
         }
 
-        // Xóa đơn hàng (Xóa cả `ChiTietDonHang`)
-        public async Task<bool> DeleteDonHangAsync(Guid id)
+        // Xóa đơn hàng và các chi tiết liên quan
+        public async Task<bool> DeleteDonHangAsync(string id)
         {
-            var donHang = await _unitOfWork.GetRepository<DonHang>().GetByIdAsync(id);
+            if (!Guid.TryParse(id, out Guid guidId)) return false;
+
+            var donHang = await _unitOfWork.GetRepository<DonHang>().GetByIdAsync(guidId);
             if (donHang == null) return false;
 
+            // Xóa các chi tiết đơn hàng trước
             var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
-                .GetEntitiesWithCondition(ct => ct.MaDonHang == id).ToListAsync();
+                .GetEntitiesWithCondition(ct => ct.MaDonHang == guidId).ToListAsync();
 
             foreach (var chiTiet in chiTietDonHangs)
             {
                 _unitOfWork.GetRepository<ChiTietDonHang>().Delete(chiTiet);
             }
 
+            // Sau đó xóa đơn hàng chính
             _unitOfWork.GetRepository<DonHang>().Delete(donHang);
             await _unitOfWork.SaveAsync();
             return true;
         }
-        
-
     }
 }

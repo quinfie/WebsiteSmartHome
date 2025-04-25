@@ -13,7 +13,7 @@ public partial class DonHang
 
     public string TrangThaiDonHang { get; set; } = null!;
 
-    public System.DateTime NgayDat { get; set; }
+    public DateTime NgayDat { get; set; }
 
     public Guid? MaKhuyenMai { get; set; }
 

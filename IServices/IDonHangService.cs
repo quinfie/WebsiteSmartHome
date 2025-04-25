@@ -6,11 +6,11 @@ namespace WebsiteSmartHome.Services
     public interface IDonHangService
     {
         Task<List<DonHangDto>> GetAllDonHangAsync();
-        Task<DonHangDto?> GetDonHangByIdAsync(Guid id);
+        Task<DonHangDto?> GetDonHangByIdAsync(string id);
         Task<List<DonHangDto>> SearchDonHangAsync(string trangThai);
-        Task<bool> CreateDonHangAsync(DonHangDto donHangDto);
-        Task<bool> UpdateDonHangAsync(Guid id, DonHangDto donHangDto);
-        Task<bool> DeleteDonHangAsync(Guid id);
-      
+        Task<bool> CreateDonHangAsync(CreateDonHangDto createDto);
+        Task<bool> UpdateDonHangAsync(string id, UpdateDonHangDto updateDto);
+        Task<bool> DeleteDonHangAsync(string id);
     }
+
 }

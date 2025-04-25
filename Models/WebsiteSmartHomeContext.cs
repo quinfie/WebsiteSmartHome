@@ -17,6 +17,8 @@ public partial class WebsiteSmartHomeContext : DbContext
 
     public virtual DbSet<ChiTietDonHang> ChiTietDonHangs { get; set; }
 
+    public virtual DbSet<DanhGium> DanhGia { get; set; }
+
     public virtual DbSet<DanhMuc> DanhMucs { get; set; }
 
     public virtual DbSet<DonHang> DonHangs { get; set; }
@@ -41,11 +43,15 @@ public partial class WebsiteSmartHomeContext : DbContext
 
     public virtual DbSet<YeuCauDichVu> YeuCauDichVus { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=(local);uid=sa;pwd=123;database=WebsiteSmartHome;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=True;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ChiTietDonHang>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ChiTietD__3214EC079AE6E40C");
+            entity.HasKey(e => e.Id).HasName("PK__ChiTietD__3214EC07B2A258C5");
 
             entity.HasOne(d => d.MaDonHangNavigation).WithMany(p => p.ChiTietDonHangs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -56,16 +62,30 @@ public partial class WebsiteSmartHomeContext : DbContext
                 .HasConstraintName("FK_ChiTietDonHang_SanPham");
         });
 
+        modelBuilder.Entity<DanhGium>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__DanhGia__3214EC0710E6DDCE");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.NgayDanhGia).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.ChiTietDonHang).WithMany(p => p.DanhGia)
+                .HasPrincipalKey(p => new { p.MaDonHang, p.MaSanPham })
+                .HasForeignKey(d => new { d.MaDonHang, d.MaSanPham })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DanhGia_ChiTietDH");
+        });
+
         modelBuilder.Entity<DanhMuc>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DanhMuc__3214EC07BD778A95");
+            entity.HasKey(e => e.Id).HasName("PK__DanhMuc__3214EC0758C083E5");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
         });
 
         modelBuilder.Entity<DonHang>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DonHang__3214EC07E20EBC8F");
+            entity.HasKey(e => e.Id).HasName("PK__DonHang__3214EC07E3266E49");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.NgayDat).HasDefaultValueSql("(getdate())");
@@ -79,21 +99,21 @@ public partial class WebsiteSmartHomeContext : DbContext
 
         modelBuilder.Entity<Kho>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Kho__3214EC07BC75C3E7");
+            entity.HasKey(e => e.Id).HasName("PK__Kho__3214EC07036D7ED2");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
         });
 
         modelBuilder.Entity<KhuyenMai>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__KhuyenMa__3214EC07A503CC05");
+            entity.HasKey(e => e.Id).HasName("PK__KhuyenMa__3214EC07EC81046B");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
         });
 
         modelBuilder.Entity<LichBaoTri>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LichBaoT__3214EC07345E00B4");
+            entity.HasKey(e => e.Id).HasName("PK__LichBaoT__3214EC07D91B6491");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
@@ -104,7 +124,7 @@ public partial class WebsiteSmartHomeContext : DbContext
 
         modelBuilder.Entity<NguoiDung>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__NguoiDun__3214EC07F82845AD");
+            entity.HasKey(e => e.Id).HasName("PK__NguoiDun__3214EC07E4D367BB");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
@@ -119,14 +139,14 @@ public partial class WebsiteSmartHomeContext : DbContext
 
         modelBuilder.Entity<NhaCungCap>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__NhaCungC__3214EC07F4A15727");
+            entity.HasKey(e => e.Id).HasName("PK__NhaCungC__3214EC07D44E96FC");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
         });
 
         modelBuilder.Entity<PhanCongDichVu>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PhanCong__3214EC070823C82C");
+            entity.HasKey(e => e.Id).HasName("PK__PhanCong__3214EC072F21DE35");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.TrangThaiPhanCong).HasDefaultValue("Đang chờ xử lý");
@@ -142,7 +162,7 @@ public partial class WebsiteSmartHomeContext : DbContext
 
         modelBuilder.Entity<SanPham>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SanPham__3214EC075F75C32E");
+            entity.HasKey(e => e.Id).HasName("PK__SanPham__3214EC070C203B72");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.SoLuongTon).HasDefaultValue(0);
@@ -162,7 +182,7 @@ public partial class WebsiteSmartHomeContext : DbContext
 
         modelBuilder.Entity<TaiKhoan>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TaiKhoan__3214EC070D16E4F0");
+            entity.HasKey(e => e.Id).HasName("PK__TaiKhoan__3214EC0779FCBCB2");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.NgayTao).HasDefaultValueSql("(getdate())");
@@ -171,14 +191,14 @@ public partial class WebsiteSmartHomeContext : DbContext
 
         modelBuilder.Entity<VaiTro>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__VaiTro__3214EC071F158C0E");
+            entity.HasKey(e => e.Id).HasName("PK__VaiTro__3214EC078FB904D1");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
         });
 
         modelBuilder.Entity<YeuCauDichVu>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__YeuCauDi__3214EC07FB1E5D45");
+            entity.HasKey(e => e.Id).HasName("PK__YeuCauDi__3214EC073574199A");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.TrangThaiYeuCau).HasDefaultValue("Đang chờ xử lý");
