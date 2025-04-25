@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
+using WebsiteSmartHome.Services;
 
 namespace WebsiteSmartHome.Controllers
 {
-    [Route("api/danh_gia")]
+    [Route("api/[controller]")]
     [ApiController]
     public class DanhGiaController : ControllerBase
     {
@@ -17,62 +17,58 @@ namespace WebsiteSmartHome.Controllers
             _danhGiaService = danhGiaService;
         }
 
-        // Lấy tất cả đánh giá
         [HttpGet]
-        public async Task<ActionResult<BaseResponse<List<DanhGiaDto>>>> GetAll()
+        public async Task<ActionResult<List<DanhGiaDto>>> GetAll()
         {
             var danhGias = await _danhGiaService.GetAllDanhGiaAsync();
-            return BaseResponse<List<DanhGiaDto>>.OkResponse(danhGias, "Lấy danh sách đánh giá thành công");
+            return Ok(danhGias);
         }
 
-        // Tạo đánh giá mới
+
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> Create([FromBody] DanhGiaDto danhGiaDto)
+        public async Task<ActionResult> Create([FromBody] DanhGiaDto danhGiaDto)
         {
             if (danhGiaDto == null)
-                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ");
+                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
 
             var result = await _danhGiaService.CreateDanhGiaAsync(danhGiaDto);
             if (result)
-                return BaseResponse<DanhGiaDto>.Created(danhGiaDto, "Tạo đánh giá thành công");
+                return CreatedAtAction(nameof(GetById), new { id = danhGiaDto.Id }, danhGiaDto);
 
-            throw new BaseException.BadRequestException("create_failed", "Không thể tạo đánh giá");
+            return StatusCode(500, new { message = "Không thể tạo đánh giá" });
         }
 
-        // Cập nhật đánh giá theo ID
         [HttpPut("{id}")]
-        public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] DanhGiaDto danhGiaDto)
+        public async Task<ActionResult> Update(Guid id, [FromBody] DanhGiaDto danhGiaDto)
         {
             if (id != danhGiaDto.Id)
-                throw new BaseException.BadRequestException("id_mismatch", "ID không khớp");
+                return BadRequest(new { message = "ID không khớp" });
 
             var result = await _danhGiaService.UpdateDanhGiaAsync(id, danhGiaDto);
             if (result)
-                return BaseResponse<bool>.OkResponse(true, "Cập nhật đánh giá thành công");
+                return NoContent();
 
-            throw new BaseException.BadRequestException("not_found", "Đánh giá không tồn tại");
+            return NotFound(new { message = "Danh gia không tồn tại" });
         }
 
-        // Xóa đánh giá theo ID
         [HttpDelete("{id}")]
-        public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
+        public async Task<ActionResult> Delete(Guid id)
         {
             var result = await _danhGiaService.DeleteDanhGiaAsync(id);
             if (result)
-                return BaseResponse<bool>.OkResponse(true, "Xóa đánh giá thành công");
+                return NoContent();
 
-            throw new BaseException.BadRequestException("not_found", "Đánh giá không tồn tại");
+            return NotFound(new { message = "Danh gia không tồn tại" });
         }
-
-        // Lấy đánh giá theo ID
+        // Tìm đánh giá theo ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(string id)
+        public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(Guid id)
         {
             var danhGia = await _danhGiaService.GetDanhGiaByIdAsync(id);
             if (danhGia == null)
-                throw new BaseException.BadRequestException("not_found", "Đánh giá không tồn tại");
+                return NotFound(new { message = "Đánh giá không tồn tại" });
 
-            return BaseResponse<DanhGiaDto>.OkResponse(danhGia, "Lấy đánh giá thành công");
+            return BaseResponse<DanhGiaDto>.OkResponse(danhGia);
         }
 
         // Tìm kiếm đánh giá theo nội dung
@@ -80,7 +76,7 @@ namespace WebsiteSmartHome.Controllers
         public async Task<ActionResult<BaseResponse<List<DanhGiaDto>>>> SearchByContent([FromQuery] string noiDung)
         {
             var danhGias = await _danhGiaService.SearchDanhGiaByContentAsync(noiDung);
-            return BaseResponse<List<DanhGiaDto>>.OkResponse(danhGias, "Tìm kiếm đánh giá thành công");
+            return BaseResponse<List<DanhGiaDto>>.OkResponse(danhGias);
         }
     }
 }
