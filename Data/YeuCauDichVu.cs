@@ -7,9 +7,7 @@ public partial class YeuCauDichVu
 {
     public Guid Id { get; set; }
 
-    public Guid MaDonHang { get; set; }
-
-    public Guid MaSanPham { get; set; }
+    public int MaChiTietDonHang { get; set; }
 
     public string LoaiDichVu { get; set; } = null!;
 

@@ -1,9 +1,9 @@
-﻿using WebsiteSmartHome.Core.DTOs;
+﻿using WebsiteSmartHome.Core;
+using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace WebsiteSmartHome.Services
 {
@@ -11,74 +11,103 @@ namespace WebsiteSmartHome.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        // Constructor: inject UnitOfWork để quản lý các repository
         public DanhGiaService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
+        // Lấy danh sách tất cả đánh giá
         public async Task<List<DanhGiaDto>> GetAllDanhGiaAsync()
         {
             var danhGias = await _unitOfWork.GetRepository<DanhGia>().GetAllAsync();
             return danhGias.Select(d => new DanhGiaDto
             {
-                Id = d.Id,
-                MaDonHang = d.MaDonHang,
-                MaSanPham = d.MaSanPham,
+                Id = d.Id.ToString(),
+                MaDonHang = d.MaDonHang.ToString(),
+                MaSanPham = d.MaSanPham.ToString(),
                 SoSao = d.SoSao,
                 NoiDung = d.NoiDung,
                 NgayDanhGia = d.NgayDanhGia
             }).ToList();
         }
 
-        public async Task<DanhGiaDto?> GetDanhGiaByIdAsync(Guid id)
+        // Lấy chi tiết đánh giá theo Id
+        public async Task<DanhGiaDto?> GetDanhGiaByIdAsync(string id)
         {
-            var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(id);
-            if (danhGia == null)
-                return null;
+            // Kiểm tra và chuyển đổi string sang Guid
+            if (!Guid.TryParse(id, out var guid))
+                throw BaseException.BadRequest("ID không hợp lệ");
+
+            var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(guid);
+            if (danhGia == null) return null;
 
             return new DanhGiaDto
             {
-                Id = danhGia.Id,
-                MaDonHang = danhGia.MaDonHang,
-                MaSanPham = danhGia.MaSanPham,
+                Id = danhGia.Id.ToString(),
+                MaDonHang = danhGia.MaDonHang.ToString(),
+                MaSanPham = danhGia.MaSanPham.ToString(),
                 SoSao = danhGia.SoSao,
                 NoiDung = danhGia.NoiDung,
                 NgayDanhGia = danhGia.NgayDanhGia
             };
         }
 
-        public async Task<bool> CreateDanhGiaAsync(DanhGiaDto danhGiaDto)
+        // Thêm mới đánh giá
+        public async Task<bool> CreateDanhGiaAsync(CreateDanhGiaDto dto)
         {
+            // Kiểm tra mã đơn hàng và sản phẩm hợp lệ
+            if (!Guid.TryParse(dto.MaDonHang, out Guid maDonHang) ||
+                !Guid.TryParse(dto.MaSanPham, out Guid maSanPham))
+            {
+                throw BaseException.BadRequest("Mã đơn hàng hoặc mã sản phẩm không hợp lệ.");
+            }
+
+            // Tạo đối tượng đánh giá mới
             var danhGia = new DanhGia
             {
-                MaDonHang = danhGiaDto.MaDonHang,
-                MaSanPham = danhGiaDto.MaSanPham,
-                SoSao = danhGiaDto.SoSao,
-                NoiDung = danhGiaDto.NoiDung,
-                NgayDanhGia = danhGiaDto.NgayDanhGia
+                Id = Guid.NewGuid(),
+                MaDonHang = maDonHang,
+                MaSanPham = maSanPham,
+                SoSao = dto.SoSao,
+                NoiDung = dto.NoiDung,
+                NgayDanhGia = DateTime.Now // Tự động set ngày
             };
 
+            // Thêm vào DB
             await _unitOfWork.GetRepository<DanhGia>().InsertAsync(danhGia);
             await _unitOfWork.SaveAsync();
             return true;
         }
 
-        public async Task<bool> UpdateDanhGiaAsync(Guid id, DanhGiaDto danhGiaDto)
+        // Cập nhật nội dung đánh giá theo mã đơn hàng và mã sản phẩm
+        public async Task<bool> UpdateDanhGiaAsync(string maDonHang, string maSanPham, UpdateDanhGiaDto dto)
         {
-            var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(id);
+            // Kiểm tra đầu vào
+            if (!Guid.TryParse(maDonHang, out Guid donHangId) || !Guid.TryParse(maSanPham, out Guid sanPhamId))
+                throw BaseException.BadRequest("Mã đơn hàng hoặc mã sản phẩm không hợp lệ.");
+
+            // Tìm đánh giá cần cập nhật
+            var danhGia = await _unitOfWork.GetRepository<DanhGia>()
+                 .FindByCondition(dg => dg.MaDonHang == donHangId && dg.MaSanPham == sanPhamId)
+                 .FirstOrDefaultAsync();
+
             if (danhGia == null)
                 return false;
 
-            danhGia.SoSao = danhGiaDto.SoSao;
-            danhGia.NoiDung = danhGiaDto.NoiDung;
-            danhGia.NgayDanhGia = danhGiaDto.NgayDanhGia;
+            // Gán giá trị mới
+            danhGia.SoSao = dto.SoSao;
+            danhGia.NoiDung = dto.NoiDung;
+            danhGia.NgayDanhGia = DateTime.Now;
 
+            // Cập nhật vào DB
             _unitOfWork.GetRepository<DanhGia>().Update(danhGia);
             await _unitOfWork.SaveAsync();
             return true;
         }
 
-        public async Task<bool> DeleteDanhGiaAsync(Guid id)
+        // Xóa đánh giá theo Id
+        public async Task<bool> DeleteDanhGiaAsync(string id)
         {
             var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(id);
             if (danhGia == null)
@@ -88,20 +117,23 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.SaveAsync();
             return true;
         }
+
+        // Tìm đánh giá theo nội dung chứa chuỗi nhập vào
         public async Task<List<DanhGiaDto>> SearchDanhGiaByContentAsync(string content)
         {
-            return await _unitOfWork.GetRepository<DanhGia>()
-                .GetEntitiesWithCondition(dg => dg.NoiDung!.Contains(content))
+            var danhGias = await _unitOfWork.GetRepository<DanhGia>()
+                .FindByCondition(dg => dg.NoiDung.Contains(content))
                 .Select(dg => new DanhGiaDto
                 {
-                    Id = dg.Id,
-                    MaDonHang = dg.MaDonHang,
-                    MaSanPham = dg.MaSanPham,
+                    Id = dg.Id.ToString(),
+                    MaDonHang = dg.MaDonHang.ToString(),
+                    MaSanPham = dg.MaSanPham.ToString(),
                     SoSao = dg.SoSao,
                     NoiDung = dg.NoiDung
                 })
                 .ToListAsync();
-        }
 
+            return danhGias;
+        }
     }
 }
