@@ -81,41 +81,71 @@ namespace WebsiteSmartHome.Services
             }
         }
 
-        public async Task AddTaiKhoanAsync(TaiKhoanCreateDto taiKhoanDto)
+        public async Task<TaiKhoanDto> AddTaiKhoanAsync(TaiKhoanCreateDto taiKhoanDto)
         {
             // Kiểm tra dữ liệu đầu vào
             if (taiKhoanDto == null)
             {
-                throw new BaseException.ValidationException("invalid_data", "Dữ liệu tài khoản không hợp lệ");
+                throw new BaseException.BadRequestException("invalid_input", "Dữ liệu tài khoản không hợp lệ");
             }
 
-            // Kiểm tra dữ liệu hợp lệ
-            ValidationHelper.ValidateEmail(taiKhoanDto.Email);
-            ValidationHelper.ValidatePassword(taiKhoanDto.MatKhau);
-            ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai);
+            // Kiểm tra email và tên tài khoản
+            if (string.IsNullOrWhiteSpace(taiKhoanDto.Email) || string.IsNullOrWhiteSpace(taiKhoanDto.TenTaiKhoan))
+            {
+                throw new BaseException.BadRequestException("invalid_input", "Email và tên tài khoản không được để trống");
+            }
 
-            // Kiểm tra trùng email, trùng tên tài khoản
-            await CheckTaiKhoanExistsAsync(taiKhoanDto);
+            // Kiểm tra mật khẩu
+            if (string.IsNullOrWhiteSpace(taiKhoanDto.MatKhau))
+            {
+                throw new BaseException.BadRequestException("invalid_input", "Mật khẩu không được để trống");
+            }
 
-            TaiKhoan taiKhoan = new TaiKhoan
+            // Kiểm tra tài khoản đã tồn tại chưa
+            var existingTaiKhoan = await _unitOfWork.GetRepository<TaiKhoan>()
+                .FindByConditionAsync(t => t.Email == taiKhoanDto.Email || t.TenTaiKhoan == taiKhoanDto.TenTaiKhoan);
+
+            if (existingTaiKhoan != null)
+            {
+                throw new BaseException.BadRequestException("duplicate", "Email hoặc tên tài khoản đã tồn tại");
+            }
+
+            // Kiểm tra người dùng có tồn tại không
+            if (!Guid.TryParse(taiKhoanDto.MaNguoiDung, out var maNguoiDung))
+            {
+                throw new BaseException.BadRequestException("invalid_input", "Mã người dùng không hợp lệ");
+            }
+
+            var nguoiDung = await _unitOfWork.GetRepository<NguoiDung>()
+                .FindByConditionAsync(n => n.Id == maNguoiDung);
+
+            if (nguoiDung == null)
+            {
+                throw new BaseException.NotFoundException("user_not_found", "Không tìm thấy người dùng");
+            }
+
+            // Tạo tài khoản mới
+            var taiKhoan = new TaiKhoan
             {
                 Email = taiKhoanDto.Email,
                 TenTaiKhoan = taiKhoanDto.TenTaiKhoan,
                 MatKhau = taiKhoanDto.MatKhau,
-                TrangThai = taiKhoanDto.TrangThai,
-                NgayTao = taiKhoanDto.NgayTao
+                TrangThai = AccountStatus.HoatDong.ToString(),
+                NgayTao = DateTime.Now,
+                NguoiDung = nguoiDung
             };
 
-            try
+            await _unitOfWork.GetRepository<TaiKhoan>().InsertAsync(taiKhoan);
+            await _unitOfWork.SaveAsync();
+
+            return new TaiKhoanDto
             {
-                // Thực hiện chèn tài khoản vào cơ sở dữ liệu
-                await _unitOfWork.GetRepository<TaiKhoan>().InsertAsync(taiKhoan);
-                await _unitOfWork.SaveAsync();
-            }
-            catch (SqlException)
-            {
-                throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi thêm tài khoản");
-            }
+                Email = taiKhoan.Email,
+                TenTaiKhoan = taiKhoan.TenTaiKhoan,
+                MatKhau = taiKhoan.MatKhau,
+                TrangThai = taiKhoan.TrangThai,
+                NgayTao = taiKhoan.NgayTao,
+            };
         }
 
         public async Task UpdateTaiKhoanAsync(string taiKhoanId, TaiKhoanUpdateDto taiKhoanDto)
@@ -145,7 +175,7 @@ namespace WebsiteSmartHome.Services
             if (!string.IsNullOrWhiteSpace(taiKhoanDto.MatKhau))
             {
                 ValidationHelper.ValidatePassword(taiKhoanDto.MatKhau);
-                taiKhoan.MatKhau = taiKhoanDto.MatKhau;
+                taiKhoan.MatKhau = PasswordHelper.HashPassword(taiKhoanDto.MatKhau);
             }
 
             // Cập nhật Trạng thái nếu khác

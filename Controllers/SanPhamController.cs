@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 
 namespace WebsiteSmartHome.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/san_pham")]
-    public class SanPhamController : Controller
+    [Authorize]
+    public class SanPhamController : ControllerBase
     {
         private readonly ISanPhamService _sanPhamService;
 
@@ -17,60 +19,65 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPagedSanPham([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [AllowAnonymous]
+        public async Task<ActionResult<BaseResponse<PagedResult<SanPhamDto>>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _sanPhamService.GetAllAsync(page, pageSize);
-            return Ok(BaseResponse<PagedResult<SanPhamDto>>.OkResponse(result, "Lấy danh sách sản phẩm thành công"));
+            return BaseResponse<PagedResult<SanPhamDto>>.OkResponse(result, "Lấy danh sách sản phẩm thành công");
         }
 
-
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSanPhamById(string id)
+        [AllowAnonymous]
+        public async Task<ActionResult<BaseResponse<SanPhamResponseDto>>> GetById(string id)
         {
             var result = await _sanPhamService.GetSanPhamByIdAsync(id);
-            return Ok(BaseResponse<SanPhamResponseDto>.OkResponse(result, "Lấy thông tin sản phẩm thành công"));
+            return BaseResponse<SanPhamResponseDto>.OkResponse(result, "Lấy thông tin sản phẩm thành công");
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSanPham(
-            [FromBody] SanPhamCreateDto sanPhamDto,
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<SanPhamResponseDto>>> Create(
+            [FromBody] SanPhamCreateDto request,
             [FromQuery] string maDanhMuc,
             [FromQuery] string maNhaCungCap,
             [FromQuery] string maKho)
         {
-            var result = await _sanPhamService.CreateSanPhamAsync(sanPhamDto, maDanhMuc, maNhaCungCap, maKho);
-            return Ok(BaseResponse<SanPhamResponseDto>.OkResponse(result, "Tạo sản phẩm thành công"));
+            var result = await _sanPhamService.CreateSanPhamAsync(request, maDanhMuc, maNhaCungCap, maKho);
+            return BaseResponse<SanPhamResponseDto>.OkResponse(result, "Tạo sản phẩm thành công");
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSanPham(string id, [FromBody] SanPhamUpdateDto sanPhamDto)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<SanPhamResponseDto>>> Update(string id, SanPhamUpdateDto request)
         {
-            var result = await _sanPhamService.UpdateSanPhamAsync(id, sanPhamDto);
-            return Ok(BaseResponse<SanPhamResponseDto>.OkResponse(result, "Cập nhật sản phẩm thành công"));
+            var result = await _sanPhamService.UpdateSanPhamAsync(id, request);
+            return BaseResponse<SanPhamResponseDto>.OkResponse(result, "Cập nhật sản phẩm thành công");
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSanPham(string id)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             var result = await _sanPhamService.DeleteSanPhamAsync(id);
-            return Ok(BaseResponse<string>.OkResponse("Xóa sản phẩm thành công"));
+            return BaseResponse<bool>.OkResponse(result, "Xóa sản phẩm thành công");
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchSanPham(
+        [AllowAnonymous]
+        public async Task<ActionResult<BaseResponse<PagedResult<SanPhamResponseDto>>>> Search(
             [FromQuery] string? keyword,
             [FromQuery] string? maDanhMuc,
             [FromQuery] string? maNhaCungCap,
             [FromQuery] string? maKho,
             [FromQuery] decimal? minPrice,
             [FromQuery] decimal? maxPrice,
-            [FromQuery] string? sortBy,
+            [FromQuery] string? sortBy = "TenSanPham",
             [FromQuery] bool ascending = true,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
             var result = await _sanPhamService.SearchSanPhamAsync(keyword, maDanhMuc, maNhaCungCap, maKho, minPrice, maxPrice, sortBy, ascending, page, pageSize);
-            return Ok(BaseResponse<PagedResult<SanPhamResponseDto>>.OkResponse(result, "Tìm kiếm sản phẩm thành công"));
+            return BaseResponse<PagedResult<SanPhamResponseDto>>.OkResponse(result, "Tìm kiếm sản phẩm thành công");
         }
     }
 }

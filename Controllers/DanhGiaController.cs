@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
@@ -8,6 +9,7 @@ namespace WebsiteSmartHome.Controllers
 {
     [Route("api/danh_gia")]
     [ApiController]
+    [Authorize]
     public class DanhGiaController : ControllerBase
     {
         private readonly IDanhGiaService _danhGiaService;
@@ -19,6 +21,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy tất cả đánh giá
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<BaseResponse<List<DanhGiaDto>>>> GetAll()
         {
             var danhGias = await _danhGiaService.GetAllDanhGiaAsync();
@@ -27,6 +30,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Tạo đánh giá mới
         [HttpPost]
+        [Authorize(Policy = "RequireCustomerRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateDanhGiaDto createDto)
         {
             if (createDto == null)
@@ -42,6 +46,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Cập nhật đánh giá theo madonhang masanpham
         [HttpPut("{maDonHang}/{maSanPham}")]
+        [Authorize(Policy = "RequireCustomerRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Update(string maDonHang, string maSanPham, [FromBody] UpdateDanhGiaDto dto)
         {
             var result = await _danhGiaService.UpdateDanhGiaAsync(maDonHang, maSanPham, dto);
@@ -55,6 +60,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Xóa đánh giá theo ID
         [HttpDelete("{id}")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             var result = await _danhGiaService.DeleteDanhGiaAsync(id);
@@ -66,6 +72,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy đánh giá theo ID
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<BaseResponse<DanhGiaDto>>> GetById(string id)
         {
             var danhGia = await _danhGiaService.GetDanhGiaByIdAsync(id);
@@ -77,6 +84,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Tìm kiếm đánh giá theo nội dung
         [HttpGet("search")]
+        [AllowAnonymous]
         public async Task<ActionResult<BaseResponse<List<DanhGiaDto>>>> SearchByContent([FromQuery] string noiDung)
         {
             var danhGias = await _danhGiaService.SearchDanhGiaByContentAsync(noiDung);

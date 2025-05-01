@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
@@ -6,8 +7,9 @@ using WebsiteSmartHome.Services;
 
 namespace WebsiteSmartHome.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/vai_tro")]
+    [Authorize]
     public class VaiTroController : ControllerBase
     {
         private readonly IVaiTroService _vaiTroService;
@@ -18,47 +20,52 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetVaiTro()
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<VaiTroDto>>>> GetAll()
         {
-            IEnumerable<VaiTroDto> result = await _vaiTroService.GetVaiTroAsync();
-            return Ok(BaseResponse<IEnumerable<VaiTroDto>>.OkResponse(result, "Lấy danh sách vai trò thành công"));
+            var result = await _vaiTroService.GetVaiTroAsync();
+            return BaseResponse<IEnumerable<VaiTroDto>>.OkResponse(result, "Lấy danh sách vai trò thành công");
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetVaiTroById(string id)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<VaiTroDto>>> GetById(string id)
         {
             var result = await _vaiTroService.GetVaiTroByIdAsync(id);
-            return Ok(BaseResponse<VaiTroDto>.OkResponse(result, "Lấy vai trò thành công"));
+            return BaseResponse<VaiTroDto>.OkResponse(result, "Lấy thông tin vai trò thành công");
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddVaiTro([FromBody] string tenVaiTro)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<VaiTroDto>>> Create([FromBody] string tenVaiTro)
         {
-            await _vaiTroService.AddVaiTroAsync(tenVaiTro);
-            return Ok(BaseResponse<string>.OkResponse("Vai trò đã được thêm thành công"));
+            var result = await _vaiTroService.AddVaiTroAsync(tenVaiTro);
+            return BaseResponse<VaiTroDto>.OkResponse(result, "Tạo vai trò thành công");
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateVaiTro(string id, [FromBody] string tenVaiTro)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] string tenVaiTro)
         {
-            await _vaiTroService.UpdateVaiTroAsync(id, tenVaiTro);
-            return Ok(BaseResponse<string>.OkResponse("Cập nhật vai trò thành công"));
+            var result = await _vaiTroService.UpdateVaiTroAsync(id, tenVaiTro);
+            return BaseResponse<bool>.OkResponse(result, "Cập nhật vai trò thành công");
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVaiTro(string id)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
-            await _vaiTroService.DeleteVaiTroAsync(id);
-            return Ok(BaseResponse<string>.OkResponse("Xóa vai trò thành công"));
+            var result = await _vaiTroService.DeleteVaiTroAsync(id);
+            return BaseResponse<bool>.OkResponse(result, "Xóa vai trò thành công");
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchVaiTro([FromQuery] string keyword)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<VaiTro>>>> Search([FromQuery] string? keyword)
         {
             var result = await _vaiTroService.SearchVaiTro(keyword);
-            return Ok(BaseResponse<IEnumerable<VaiTro>>.OkResponse(result, "Tìm kiếm vai trò thành công"));
+            return BaseResponse<IEnumerable<VaiTro>>.OkResponse(result, "Tìm kiếm vai trò thành công");
         }
     }
-
 }
 

@@ -6,7 +6,7 @@ namespace WebsiteSmartHome.IServices
     {
         Task<IEnumerable<NguoiDungDto>> GetAllNguoiDungAsync();
         Task<NguoiDungDto?> GetNguoiDungByIdAsync(string id);
-        Task<NguoiDungCreateDto> AddNguoiDungAsync(NguoiDungCreateDto dto);
+        Task<NguoiDungDto> AddNguoiDungAsync(NguoiDungCreateDto dto);
         Task UpdateNguoiDungAsync(string id, NguoiDungUpdateDto dto);
         Task DeleteNguoiDungAsync(string id);
         Task<IEnumerable<NguoiDungDto>> SearchNguoiDungAsync(string keyword);

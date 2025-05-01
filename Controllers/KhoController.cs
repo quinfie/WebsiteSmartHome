@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 
 namespace WebsiteSmartHome.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/kho")]
+    [Authorize]
     public class KhoController : ControllerBase
     {
         private readonly IKhoService _khoService;
@@ -17,38 +19,51 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllKho()
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<List<KhoDto>>>> GetAll()
         {
             var result = await _khoService.GetAllKhoAsync();
-            return Ok(BaseResponse<IEnumerable<KhoDto>>.OkResponse(result, "Lấy danh sách kho thành công"));
+            return BaseResponse<List<KhoDto>>.OkResponse(result, "Lấy danh sách kho thành công");
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetKhoById(string id)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<KhoDto>>> GetById(string id)
         {
             var result = await _khoService.GetKhoByIdAsync(id);
-            return Ok(BaseResponse<KhoDto>.OkResponse(result, "Lấy thông tin kho thành công"));
+            return BaseResponse<KhoDto>.OkResponse(result, "Lấy thông tin kho thành công");
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateKho([FromBody] KhoCreateDto dto)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<KhoCreateDto>>> Create(KhoCreateDto request)
         {
-            var result = await _khoService.CreateKhoAsync(dto);
-            return Ok(BaseResponse<KhoCreateDto>.OkResponse(result, "Tạo kho thành công"));
+            var result = await _khoService.CreateKhoAsync(request);
+            return BaseResponse<KhoCreateDto>.OkResponse(result, "Tạo kho thành công");
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateKho([FromBody] KhoDto dto)
-        {
-            var result = await _khoService.UpdateKhoAsync(dto);
-            return Ok(BaseResponse<KhoDto>.OkResponse(result, "Cập nhật kho thành công"));
-        }
+        // [HttpPut("{id}")]
+        // [Authorize(Policy = "RequireAdminRole")]
+        // public async Task<ActionResult<BaseResponse<KhoCreateDto>>> Update(string id, KhoCreateDto request)
+        // {
+        //     var result = await _khoService.UpdateKhoAsync(id, request);
+        //     return BaseResponse<KhoCreateDto>.OkResponse(result, "Cập nhật kho thành công");
+        // }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteKho([FromQuery] string id)
-        {
-            string message = await _khoService.DeleteKhoAsync(id);
-            return Ok(BaseResponse<string>.OkResponse(message));
-        }
+        // [HttpDelete("{id}")]
+        // [Authorize(Policy = "RequireAdminRole")]
+        // public async Task<ActionResult<BaseResponse<string>>> Delete(string id)
+        // {
+        //     await _khoService.DeleteKhoAsync(id);
+        //     return BaseResponse<string>.OkResponse("Xóa kho thành công");
+        // }
+
+        // [HttpGet("search")]
+        // [Authorize(Policy = "RequireStaffRole")]
+        // public async Task<ActionResult<BaseResponse<List<KhoDto>>>> Search([FromQuery] string keyword)
+        // {
+        //     var result = await _khoService.SearchKhoAsync(keyword);
+        //     return BaseResponse<List<KhoDto>>.OkResponse(result, "Tìm kiếm kho thành công");
+        // }
     }
 }

@@ -4,16 +4,19 @@ namespace WebsiteSmartHome.Core.Utils
 {
     public enum OrderStatusHelper
     {
-        [Description("Đang chờ xử lý")]
-        Pending,
+        [Description("Chờ xác nhận")]
+        ChoXacNhan,
 
         [Description("Đã xác nhận")]
-        Confirmed,
+        DaXacNhan,
 
-        [Description("Đã hoàn thành")]
-        Completed,
+        [Description("Đang giao")]
+        DangGiaog,
+
+        [Description("Hoàn thành")]
+        HoanThanh,
 
         [Description("Đã hủy")]
-        Canceled
+        DaHuy
     }
 }

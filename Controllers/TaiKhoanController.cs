@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Data;
@@ -6,8 +7,9 @@ using WebsiteSmartHome.IServices;
 
 namespace WebsiteSmartHome.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/tai_khoan")]
+    [Authorize]
     public class TaiKhoanController : ControllerBase
     {
         private readonly ITaiKhoanService _taiKhoanService;
@@ -18,50 +20,51 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTaiKhoans()
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<TaiKhoanDto>>>> GetAll()
         {
-            IEnumerable<TaiKhoanDto> result = await _taiKhoanService.GetTaiKhoanAsync();
-            return Ok(BaseResponse<IEnumerable<object>>.OkResponse(result, "Lấy danh sách tài khoản thành công"));
-
+            var result = await _taiKhoanService.GetTaiKhoanAsync();
+            return BaseResponse<IEnumerable<TaiKhoanDto>>.OkResponse(result, "Lấy danh sách tài khoản thành công");
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTaiKhoanById(string id)
+        [Authorize(Policy = "RequireCustomerRole")]
+        public async Task<ActionResult<BaseResponse<TaiKhoanDto>>> GetById(string id)
         {
-            TaiKhoanDto? result = await _taiKhoanService.GetTaiKhoanByIdAsync(id);
-            return Ok(BaseResponse<TaiKhoanDto>.OkResponse(result, "Lấy thông tin tài khoản thành công"));
+            var result = await _taiKhoanService.GetTaiKhoanByIdAsync(id);
+            return BaseResponse<TaiKhoanDto>.OkResponse(result, "Lấy thông tin tài khoản thành công");
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTaiKhoan([FromBody] TaiKhoanCreateDto taiKhoanDto)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<TaiKhoanDto>>> Create(TaiKhoanCreateDto request)
         {
-
-            await _taiKhoanService.AddTaiKhoanAsync(taiKhoanDto);
-            return Ok(BaseResponse<string>.OkResponse("Tài khoản đã được thêm thành công"));
+            var result = await _taiKhoanService.AddTaiKhoanAsync(request);
+            return BaseResponse<TaiKhoanDto>.OkResponse(result, "Tạo tài khoản thành công");
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTaiKhoan(string id, [FromBody] TaiKhoanUpdateDto taiKhoanDto)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<string>>> Update(string id, TaiKhoanUpdateDto request)
         {
-
-            await _taiKhoanService.UpdateTaiKhoanAsync(id, taiKhoanDto);
-            return Ok(BaseResponse<string>.OkResponse("Tài khoản đã được cập nhật thành công"));
+            await _taiKhoanService.UpdateTaiKhoanAsync(id, request);
+            return BaseResponse<string>.OkResponse("Cập nhật tài khoản thành công");
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTaiKhoan(string id)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<string>>> Delete(string id)
         {
             await _taiKhoanService.DeleteTaiKhoanAsync(id);
-            return Ok(BaseResponse<string>.OkResponse("Tài khoản đã xóa thành công"));
+            return BaseResponse<string>.OkResponse("Xóa tài khoản thành công");
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchTaiKhoan([FromQuery] string? keyword, [FromQuery] string? trangThai)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<TaiKhoanDto>>>> Search([FromQuery] string? keyword, [FromQuery] string? trangThai)
         {
             var result = await _taiKhoanService.SearchTaiKhoan(keyword, trangThai);
-            return Ok(BaseResponse<IEnumerable<TaiKhoanDto>>.OkResponse(result, "Tìm kiếm tài khoản thành công"));
+            return BaseResponse<IEnumerable<TaiKhoanDto>>.OkResponse(result, "Tìm kiếm tài khoản thành công");
         }
-
-
     }
 }

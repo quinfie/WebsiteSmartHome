@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
-using WebsiteSmartHome.Services;
 
 namespace WebsiteSmartHome.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/nguoi_dung")]
+    [Authorize]
     public class NguoiDungController : ControllerBase
     {
         private readonly INguoiDungService _nguoiDungService;
@@ -18,39 +19,43 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllNguoiDung()
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<NguoiDungDto>>>> GetAll()
         {
             var result = await _nguoiDungService.GetAllNguoiDungAsync();
-            return Ok(BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Lấy danh sách người dùng thành công"));
+            return BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Lấy danh sách người dùng thành công");
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetNguoiDungById(string id)
+        [Authorize(Policy = "RequireCustomerRole")]
+        public async Task<ActionResult<BaseResponse<NguoiDungDto>>> GetById(string id)
         {
             var result = await _nguoiDungService.GetNguoiDungByIdAsync(id);
-            return Ok(BaseResponse<NguoiDungDto>.OkResponse(result, "Lấy thông tin người dùng thành công"));
+            return BaseResponse<NguoiDungDto>.OkResponse(result, "Lấy thông tin người dùng thành công");
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNguoiDung([FromBody] NguoiDungCreateDto nguoiDung)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<NguoiDungDto>>> Create(NguoiDungCreateDto request)
         {
-            var result = await _nguoiDungService.AddNguoiDungAsync(nguoiDung);
-            return Ok(BaseResponse<NguoiDungCreateDto>.OkResponse(result, "Thêm người dùng thành công"));
+            var result = await _nguoiDungService.AddNguoiDungAsync(request);
+            return BaseResponse<NguoiDungDto>.OkResponse(result, "Tạo người dùng thành công");
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateNguoiDung(string id, [FromBody] NguoiDungUpdateDto dto)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<string>>> Update(string id, NguoiDungUpdateDto request)
         {
-
-            await _nguoiDungService.UpdateNguoiDungAsync(id, dto);
-            return Ok(BaseResponse<string>.OkResponse("Tài khoản đã được cập nhật thành công"));
+            await _nguoiDungService.UpdateNguoiDungAsync(id, request);
+            return BaseResponse<string>.OkResponse("Cập nhật người dùng thành công");
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTaiKhoan(string id)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<string>>> Delete(string id)
         {
             await _nguoiDungService.DeleteNguoiDungAsync(id);
-            return Ok(BaseResponse<string>.OkResponse("Người dùng đã xóa thành công"));
+            return BaseResponse<string>.OkResponse("Xóa người dùng thành công");    
         }
 
         [HttpGet("search")]

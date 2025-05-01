@@ -1,4 +1,6 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Models;
+using WebsiteSmartHome.Data;
 
 namespace WebsiteSmartHome.IServices
 {
@@ -11,5 +13,7 @@ namespace WebsiteSmartHome.IServices
         Task<bool> CreateLichBaoTriAsync(CreateLichBaoTriDto lichBaoTriDto);//DTO RIENG
         Task<bool> UpdateLichBaoTriAsync(Guid id, LichBaoTriDto lichBaoTriDto);
         Task<bool> DeleteLichBaoTriAsync(Guid id);
+
+        Task ThemLichBaoTriAsync(List<Data.ChiTietDonHang> chiTietDonHangs);
     }
 }

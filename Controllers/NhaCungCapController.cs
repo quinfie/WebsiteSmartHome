@@ -1,61 +1,69 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 
 namespace WebsiteSmartHome.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/nha_cung_cap")]
+    [Authorize]
     public class NhaCungCapController : ControllerBase
     {
         private readonly INhaCungCapService _nhaCungCapService;
 
         public NhaCungCapController(INhaCungCapService nhaCungCapService)
         {
-            _nhaCungCapService = nhaCungCapService ?? throw new ArgumentNullException(nameof(_nhaCungCapService));
+            _nhaCungCapService = nhaCungCapService ?? throw new ArgumentNullException(nameof(nhaCungCapService));
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<List<NhaCungCapDto>>>> GetAll()
         {
             var result = await _nhaCungCapService.GetAllNhaCungCapAsync();
-            return Ok(BaseResponse<IEnumerable<NhaCungCapDto>>.OkResponse(result, "Lấy thông tin các nhà cung cấp thành công"));
+            return BaseResponse<List<NhaCungCapDto>>.OkResponse(result, "Lấy danh sách nhà cung cấp thành công");
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<NhaCungCapDto>>> GetById(string id)
         {
             var result = await _nhaCungCapService.GetNhaCungCapByIdAsync(id);
-            return Ok(BaseResponse<NhaCungCapDto>.OkResponse(result, "Lấy thông tin nhà cung cấp thành công"));
+            return BaseResponse<NhaCungCapDto>.OkResponse(result, "Lấy thông tin nhà cung cấp thành công");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] NhaCungCapCreateDto dto)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<NhaCungCapCreateDto>>> Create(NhaCungCapCreateDto request)
         {
-            var result = await _nhaCungCapService.CreateNhaCungCapAsync(dto);
-            return Ok(BaseResponse<NhaCungCapCreateDto>.OkResponse(result, "Thêm nhà cung cấp thành công"));
+            var result = await _nhaCungCapService.CreateNhaCungCapAsync(request);
+            return BaseResponse<NhaCungCapCreateDto>.OkResponse(result, "Tạo nhà cung cấp thành công");
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] NhaCungCapCreateDto dto)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<NhaCungCapCreateDto>>> Update(string id, NhaCungCapCreateDto request)
         {
-            var result = await _nhaCungCapService.UpdateNhaCungCapAsync(id, dto);
-            return Ok(BaseResponse<NhaCungCapCreateDto>.OkResponse(result, "Cập nhật thông tin nhà cung cấp thành công"));
+            var result = await _nhaCungCapService.UpdateNhaCungCapAsync(id, request);
+            return BaseResponse<NhaCungCapCreateDto>.OkResponse(result, "Cập nhật nhà cung cấp thành công");
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<ActionResult<BaseResponse<string>>> Delete(string id)
         {
             await _nhaCungCapService.DeleteNhaCungCapAsync(id);
-            return Ok(BaseResponse<string>.OkResponse("Xóa nhà cung cấp thành công"));
+            return BaseResponse<string>.OkResponse("Xóa nhà cung cấp thành công");
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string keyword)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<List<NhaCungCapDto>>>> Search([FromQuery] string keyword)
         {
             var result = await _nhaCungCapService.SearchNhaCungCapAsync(keyword);
-            return Ok(BaseResponse<BaseResponse<NhaCungCapDto>>.OkResponse("Tìm kiếm nhà cung cấp thành công"));
+            return BaseResponse<List<NhaCungCapDto>>.OkResponse(result, "Tìm kiếm nhà cung cấp thành công");
         }
     }
 }

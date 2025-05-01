@@ -4,16 +4,16 @@ namespace WebsiteSmartHome.Core.Utils
 {
     public enum RoleHelper
     {
-        [Description("Khách hàng")]
-        Customer,
+        [Description("Khách Hàng")]
+        KhachHang,
 
-        [Description("Nhân viên")]
-        Worker,
+        [Description("Nhân Viên")]
+        NhanVien,
 
-        [Description("Quản trị viên")]
-        Admin,
+        [Description("Quản Trị Viên")]
+        QuanTriVien,
 
-        [Description("Quản lí")]
-        Manager,
+        [Description("Quản Lí")]
+        QuanLy,
     }
 }

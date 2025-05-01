@@ -23,7 +23,7 @@ public partial class ChiTietDonHang
     public decimal DonGia { get; set; }
 
     [InverseProperty("ChiTietDonHang")]
-    public virtual ICollection<DanhGium> DanhGia { get; set; } = new List<DanhGium>();
+    public virtual ICollection<DanhGia> DanhGia { get; set; } = new List<DanhGia>();
 
     [InverseProperty("MaChiTietDonHangNavigation")]
     public virtual ICollection<LichBaoTri> LichBaoTris { get; set; } = new List<LichBaoTri>();

@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
-using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Services;
 
 namespace WebsiteSmartHome.Controllers
 {
     // Định tuyến mặc định cho controller này: api/don_hang
-    [Route("api/don_hang")]
+    [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DonHangController : ControllerBase
     {
         // Service xử lý logic cho đơn hàng
@@ -18,71 +19,52 @@ namespace WebsiteSmartHome.Controllers
         // Inject service qua constructor
         public DonHangController(IDonHangService donHangService)
         {
-            _donHangService = donHangService;
+            _donHangService = donHangService ?? throw new ArgumentNullException(nameof(donHangService));
         }
 
-        // GET: api/don_hang
-        // Lấy tất cả đơn hàng
+        // GET: api/DonHang
         [HttpGet]
+        [Authorize(Policy = "RequireStaffRole")]
         public async Task<ActionResult<BaseResponse<List<DonHangDto>>>> GetAll()
         {
-            var donHangs = await _donHangService.GetAllDonHangAsync();
-            return BaseResponse<List<DonHangDto>>.OkResponse(donHangs, "Lấy danh sách đơn hàng thành công");
+            var result = await _donHangService.GetDanhSachDonHangAsync();
+            return BaseResponse<List<DonHangDto>>.OkResponse(result, "Lấy danh sách đơn hàng thành công");
         }
 
-        // POST: api/don_hang
-        // Tạo đơn hàng mới
+        // GET: api/DonHang/{id}
+        [HttpGet("{id}")]
+        [Authorize(Policy = "RequireCustomerRole")]
+        public async Task<ActionResult<BaseResponse<ViewResponseCreateDonHangDto>>> GetById(string id)
+        {
+            var result = await _donHangService.GetChiTietDonHangAsync(id);
+            return BaseResponse<ViewResponseCreateDonHangDto>.OkResponse(result, "Lấy chi tiết đơn hàng thành công");
+        }
+
+        // POST: api/DonHang
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateDonHangDto createDto)
+        [Authorize(Policy = "RequireCustomerRole")]
+        public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> Create([FromBody] RequestCreateDonHangDto dto)
         {
-            // Kiểm tra dữ liệu đầu vào
-            if (createDto == null)
-                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ");
-
-            var result = await _donHangService.CreateDonHangAsync(createDto);
-            if (result)
-                return BaseResponse<bool>.Created(true, "Tạo đơn hàng và chi tiết đơn hàng thành công");
-
-            // Nếu không thành công thì ném lỗi
-            throw new BaseException.BadRequestException("create_failed", "Không thể tạo đơn hàng");
+            var result = await _donHangService.ThemDonHangAsync(dto);
+            return BaseResponse<ResponseCreateDonHangDto>.OkResponse(result, "Thêm đơn hàng thành công");
         }
 
-
-        // PUT: api/don_hang/{id}
-        // Cập nhật đơn hàng theo ID
+        // PUT: api/DonHang/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] UpdateDonHangDto updateDto)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> Update(string id, [FromBody] RequestCreateDonHangDto dto)
         {
-            var result = await _donHangService.UpdateDonHangAsync(id, updateDto);
-
-            if (result)
-                return BaseResponse<bool>.OkResponse(true, "Cập nhật đơn hàng thành công");
-
-            throw new BaseException.BadRequestException("not_found", "Đơn hàng không tồn tại");
+            var result = await _donHangService.UpdateDonHangAsync(id, dto);
+            return BaseResponse<ResponseCreateDonHangDto>.OkResponse(result, "Cập nhật đơn hàng thành công");
         }
 
-        // DELETE: api/don_hang/{id}
-        // Xóa đơn hàng theo ID
+        // DELETE: api/DonHang/{id}
         [HttpDelete("{id}")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             var result = await _donHangService.DeleteDonHangAsync(id);
-            if (result)
-                return BaseResponse<bool>.OkResponse(true, "Xóa đơn hàng thành công");
-
-            throw new BaseException.BadRequestException("not_found", "Đơn hàng không tồn tại");
-        }
-
-        // GET: api/don_hang/{id}
-        // Lấy đơn hàng theo ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<DonHangDto>>> GetById(string id)
-        {
-            var donHang = await _donHangService.GetDonHangByIdAsync(id);
-            if (donHang == null)
-                throw new BaseException.BadRequestException("not_found", "Đơn hàng không tồn tại");
-
-            return BaseResponse<DonHangDto>.OkResponse(donHang, "Lấy đơn hàng thành công");
+            return BaseResponse<bool>.OkResponse(result, "Xóa đơn hàng thành công");
         }
     }
 }

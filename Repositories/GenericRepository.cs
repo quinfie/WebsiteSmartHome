@@ -88,10 +88,11 @@ namespace WebsiteSmartHome.Repositories
             await _dbSet.AddAsync(obj);
         }
 
-        public void InsertRange(IList<T> obj)
+        public async Task InsertRange(IList<T> obj)
         {
-            _dbSet.AddRange(obj);
+            await _dbSet.AddRangeAsync(obj);  // Sử dụng AddRangeAsync thay vì AddRange
         }
+
 
         public void Save()
         {

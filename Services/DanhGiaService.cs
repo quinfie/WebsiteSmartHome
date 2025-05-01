@@ -122,7 +122,7 @@ namespace WebsiteSmartHome.Services
         public async Task<List<DanhGiaDto>> SearchDanhGiaByContentAsync(string content)
         {
             var danhGias = await _unitOfWork.GetRepository<DanhGia>()
-                .FindByCondition(dg => dg.NoiDung.Contains(content))
+                .FindByCondition(dg => dg.NoiDung != null && dg.NoiDung.Contains(content))
                 .Select(dg => new DanhGiaDto
                 {
                     Id = dg.Id.ToString(),

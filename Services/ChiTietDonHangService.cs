@@ -1,7 +1,10 @@
-﻿using WebsiteSmartHome.Core.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using WebsiteSmartHome.Core;
+using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core.Utils;
 using WebsiteSmartHome.Data;
+using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebsiteSmartHome.Services
 {
@@ -13,138 +16,204 @@ namespace WebsiteSmartHome.Services
         // Inject UnitOfWork để thao tác dữ liệu
         public ChiTietDonHangService(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
-        // Lấy toàn bộ danh sách chi tiết đơn hàng
         public async Task<List<ChiTietDonHangDto>> GetAllChiTietDonHangAsync()
         {
-            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>().GetAllAsync();
+            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .GetEntitiesWithCondition(ct => true)
+                .Include(ct => ct.MaSanPhamNavigation)
+                .ToListAsync();
 
-            // Chuyển đổi sang DTO trước khi trả về
-            return chiTietDonHangs.Select(c => new ChiTietDonHangDto
+            return chiTietDonHangs.Select(ct => new ChiTietDonHangDto
             {
-                MaDonHang = c.MaDonHang.ToString(),
-                MaSanPham = c.MaSanPham.ToString(),
-                SoLuong = c.SoLuong,
-                DonGia = c.DonGia
+                Id = ct.Id.ToString(),
+                MaDonHang = ct.MaDonHang.ToString(),
+                MaSanPham = ct.MaSanPham.ToString(),
+                TenSanPham = ct.MaSanPhamNavigation?.TenSanPham ?? "Không xác định",
+                SoLuong = ct.SoLuong,
+                DonGia = ct.DonGia
             }).ToList();
         }
 
-        // Lấy chi tiết đơn hàng theo ID (kết hợp của MaDonHang và MaSanPham)
-        public async Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid maDonHang, Guid maSanPham)
+        public async Task<List<ChiTietDonHangDto>> SearchChiTietDonHangByNameAsync(string name)
         {
+            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .GetEntitiesWithCondition(ct => ct.MaSanPhamNavigation.TenSanPham.ToLower().Contains(name.ToLower()))
+                .Include(ct => ct.MaSanPhamNavigation)
+                .ToListAsync();
+
+            return chiTietDonHangs.Select(ct => new ChiTietDonHangDto
+            {
+                Id = ct.Id.ToString(),
+                MaDonHang = ct.MaDonHang.ToString(),
+                MaSanPham = ct.MaSanPham.ToString(),
+                TenSanPham = ct.MaSanPhamNavigation?.TenSanPham ?? "Không xác định",
+                SoLuong = ct.SoLuong,
+                DonGia = ct.DonGia
+            }).ToList();
+        }
+
+        public async Task<List<ChiTietDonHangDto>> GetChiTietDonHangByDonHangIdAsync(string donHangId)
+        {
+            if (!Guid.TryParse(donHangId, out Guid id))
+            {
+                throw new BaseException.BadRequestException("invalid_id", "ID đơn hàng không hợp lệ");
+            }
+
+            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .GetEntitiesWithCondition(ct => ct.MaDonHang == id)
+                .Include(ct => ct.MaSanPhamNavigation)
+                .ToListAsync();
+
+            return chiTietDonHangs.Select(ct => new ChiTietDonHangDto
+            {
+                Id = ct.Id.ToString(),
+                MaDonHang = ct.MaDonHang.ToString(),
+                MaSanPham = ct.MaSanPham.ToString(),
+                TenSanPham = ct.MaSanPhamNavigation?.TenSanPham ?? "Không xác định",
+                SoLuong = ct.SoLuong,
+                DonGia = ct.DonGia
+            }).ToList();
+        }
+
+        public async Task<ChiTietDonHangDto> UpdateChiTietDonHangAsync(string id, UpdateChiTietDonHangDto dto)
+        {
+            if (!Guid.TryParse(id, out Guid chiTietId))
+            {
+                throw new BaseException.BadRequestException("invalid_id", "ID chi tiết đơn hàng không hợp lệ");
+            }
+
             var chiTiet = await _unitOfWork.GetRepository<ChiTietDonHang>()
-                .FindByCondition(x => x.MaDonHang == maDonHang && x.MaSanPham == maSanPham)
-                .FirstOrDefaultAsync();
+                .FindByConditionWithIncludesAsync(ct => ct.Id.Equals(chiTietId), ct => ct.MaDonHangNavigation);
 
             if (chiTiet == null)
-                return null;
+            {
+                throw new BaseException.NotFoundException("not_found", "Chi tiết đơn hàng không tồn tại");
+            }
+
+            // Kiểm tra trạng thái đơn hàng
+            if (chiTiet.MaDonHangNavigation.TrangThaiDonHang != OrderStatusHelper.ChoXacNhan.ToString().GetDescription(typeof(OrderStatusHelper)))
+            {
+                throw new BaseException.ValidationException("invalid_status", "Chỉ có thể cập nhật chi tiết đơn hàng ở trạng thái 'Chờ xác nhận'");
+            }
+
+            // Lấy thông tin sản phẩm
+            var sanPham = await _unitOfWork.GetRepository<SanPham>().FindByConditionAsync(x => x.Id == chiTiet.MaSanPham);
+            if (sanPham == null)
+            {
+                throw new BaseException.NotFoundException("product_not_found", "Sản phẩm không tồn tại");
+            }
+
+            // Tính toán số lượng thay đổi
+            int soLuongThayDoi = dto.SoLuongMoi - chiTiet.SoLuong;
+
+            // Kiểm tra số lượng tồn kho
+            if (sanPham.SoLuongTon + soLuongThayDoi < 0)
+            {
+                throw new BaseException.ValidationException("invalid_quantity", "Số lượng sản phẩm không đủ");
+            }
+
+            // Cập nhật số lượng tồn kho
+            sanPham.SoLuongTon += soLuongThayDoi;
+            await _unitOfWork.GetRepository<SanPham>().UpdateAsync(sanPham);
+
+            // Cập nhật thông tin chi tiết đơn hàng
+            chiTiet.SoLuong = dto.SoLuongMoi;
+            chiTiet.DonGia = dto.DonGiaMoi;
+
+            await _unitOfWork.GetRepository<ChiTietDonHang>().UpdateAsync(chiTiet);
+            await _unitOfWork.SaveAsync();
 
             return new ChiTietDonHangDto
             {
+                Id = chiTiet.Id.ToString(),
                 MaDonHang = chiTiet.MaDonHang.ToString(),
                 MaSanPham = chiTiet.MaSanPham.ToString(),
+                TenSanPham = sanPham.TenSanPham,
                 SoLuong = chiTiet.SoLuong,
                 DonGia = chiTiet.DonGia
             };
         }
 
-        // Tạo mới chi tiết đơn hàng
-        public async Task<bool> CreateChiTietDonHangAsync(CreateChiTietDonHangDto dto)
+        public async Task<bool> DeleteChiTietDonHangAsync(string id)
         {
-            // Kiểm tra và parse các ID hợp lệ
-            if (!Guid.TryParse(dto.MaDonHang, out var maDonHangGuid) ||
-                !Guid.TryParse(dto.MaSanPham, out var maSanPhamGuid))
+            if (!Guid.TryParse(id, out Guid chiTietId))
             {
-                return false;
+                throw new BaseException.BadRequestException("invalid_id", "ID chi tiết đơn hàng không hợp lệ");
             }
 
-            var chiTiet = new ChiTietDonHang
-            {
-                MaDonHang = maDonHangGuid,
-                MaSanPham = maSanPhamGuid,
-                SoLuong = dto.SoLuong,
-                DonGia = dto.DonGia
-            };
-
-            try
-            {
-                // Thêm vào database
-                await _unitOfWork.GetRepository<ChiTietDonHang>().InsertAsync(chiTiet);
-                await _unitOfWork.SaveAsync();
-                return true;
-            }
-            catch
-            {
-                // Bắt lỗi nếu có
-                return false;
-            }
-        }
-
-        // Cập nhật chi tiết đơn hàng theo khóa chính kép
-        public async Task<bool> UpdateChiTietDonHangAsync(Guid maDonHang, Guid maSanPham, UpdateChiTietDonHangDto dto)
-        {
             var chiTiet = await _unitOfWork.GetRepository<ChiTietDonHang>()
-                .FindByCondition(x => x.MaDonHang == maDonHang && x.MaSanPham == maSanPham)
-                .FirstOrDefaultAsync();
+                .FindByConditionWithIncludesAsync(ct => ct.Id.Equals(chiTietId), ct => ct.MaDonHangNavigation);
 
             if (chiTiet == null)
-                return false;
-
-            // Cập nhật dữ liệu
-            chiTiet.SoLuong = dto.SoLuong;
-            chiTiet.DonGia = dto.DonGia;
-
-            try
             {
-                _unitOfWork.GetRepository<ChiTietDonHang>().Update(chiTiet);
-                await _unitOfWork.SaveAsync();
-                return true;
+                throw new BaseException.NotFoundException("not_found", "Chi tiết đơn hàng không tồn tại");
             }
-            catch
+
+            // Kiểm tra trạng thái đơn hàng
+            if (chiTiet.MaDonHangNavigation.TrangThaiDonHang != OrderStatusHelper.ChoXacNhan.ToString().GetDescription(typeof(OrderStatusHelper)))
             {
-                return false;
+                throw new BaseException.ValidationException("invalid_status", "Chỉ có thể xóa chi tiết đơn hàng ở trạng thái 'Chờ xác nhận'");
             }
+
+            // Hoàn trả số lượng tồn kho
+            var sanPham = await _unitOfWork.GetRepository<SanPham>().FindByConditionAsync(x => x.Id == chiTiet.MaSanPham);
+            if (sanPham != null)
+            {
+                sanPham.SoLuongTon += chiTiet.SoLuong;
+                await _unitOfWork.GetRepository<SanPham>().UpdateAsync(sanPham);
+            }
+
+            // Xóa chi tiết đơn hàng
+            await _unitOfWork.GetRepository<ChiTietDonHang>().DeleteAsync(chiTietId);
+            await _unitOfWork.SaveAsync();
+
+            return true;
         }
 
-        // Xóa chi tiết đơn hàng
-        public async Task<bool> DeleteChiTietDonHangAsync(Guid maDonHang, Guid maSanPham)
+        public async Task<List<ChiTietDonHang>> ThemChiTietDonHangAsync(Guid donHangId, List<RequestCreateChiTietDonHangDto> chiTietDonHangs)
         {
-            var chiTiet = await _unitOfWork.GetRepository<ChiTietDonHang>()
-                .FindByCondition(x => x.MaDonHang == maDonHang && x.MaSanPham == maSanPham)
-                .FirstOrDefaultAsync();
+            var result = new List<ChiTietDonHang>();
 
-            if (chiTiet == null)
-                return false;
-
-            try
+            foreach (var chiTiet in chiTietDonHangs)
             {
-                _unitOfWork.GetRepository<ChiTietDonHang>().Delete(chiTiet);
-                await _unitOfWork.SaveAsync();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        // Tìm kiếm chi tiết đơn hàng theo tên sản phẩm
-        public async Task<List<ChiTietDonHangDto>> SearchChiTietDonHangByNameAsync(string name)
-        {
-            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
-                .FindByCondition(ct => ct.MaSanPhamNavigation.TenSanPham.ToLower().Contains(name.ToLower()))
-                .Select(ct => new ChiTietDonHangDto
+                if (!Guid.TryParse(chiTiet.MaSanPham, out Guid maSanPham))
                 {
-                    MaDonHang = ct.MaDonHang.ToString(),
-                    MaSanPham = ct.MaSanPham.ToString(),
-                    SoLuong = ct.SoLuong,
-                    DonGia = ct.DonGia
-                })
-                .ToListAsync();
+                    throw new BaseException.BadRequestException("invalid_product_id", "Mã sản phẩm không hợp lệ");
+                }
 
-            return chiTietDonHangs;
+                var sanPham = await _unitOfWork.GetRepository<SanPham>().FindByConditionAsync(x => x.Id == maSanPham);
+                if (sanPham == null)
+                {
+                    throw new BaseException.NotFoundException("product_not_found", "Sản phẩm không tồn tại");
+                }
+
+                if (sanPham.SoLuongTon < chiTiet.SoLuongMua)
+                {
+                    throw new BaseException.ValidationException("insufficient_quantity", $"Số lượng sản phẩm {sanPham.TenSanPham} không đủ");
+                }
+
+                var chiTietDonHang = new ChiTietDonHang
+                {
+                    MaDonHang = donHangId,
+                    MaSanPham = maSanPham,
+                    SoLuong = chiTiet.SoLuongMua,
+                    DonGia = chiTiet.DonGiaMua
+                };
+
+                await _unitOfWork.GetRepository<ChiTietDonHang>().InsertAsync(chiTietDonHang);
+
+                // Cập nhật số lượng tồn kho
+                sanPham.SoLuongTon -= chiTiet.SoLuongMua;
+                await _unitOfWork.GetRepository<SanPham>().UpdateAsync(sanPham);
+
+                result.Add(chiTietDonHang);
+            }
+
+            await _unitOfWork.SaveAsync();
+            return result;
         }
     }
 }

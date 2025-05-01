@@ -1,16 +1,15 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Data;
 
-namespace WebsiteSmartHome.Services
+namespace WebsiteSmartHome.IServices
 {
     public interface IChiTietDonHangService
     {
         Task<List<ChiTietDonHangDto>> GetAllChiTietDonHangAsync();
         Task<List<ChiTietDonHangDto>> SearchChiTietDonHangByNameAsync(string name);
-
-        Task<bool> CreateChiTietDonHangAsync(CreateChiTietDonHangDto dto);
-        Task<ChiTietDonHangDto?> GetChiTietDonHangByIdAsync(Guid maDonHang, Guid maSanPham);
-        Task<bool> UpdateChiTietDonHangAsync(Guid maDonHang, Guid maSanPham, UpdateChiTietDonHangDto dto);
-        Task<bool> DeleteChiTietDonHangAsync(Guid maDonHang, Guid maSanPham);
+        Task<List<ChiTietDonHangDto>> GetChiTietDonHangByDonHangIdAsync(string donHangId);
+        Task<ChiTietDonHangDto> UpdateChiTietDonHangAsync(string id, UpdateChiTietDonHangDto dto);
+        Task<bool> DeleteChiTietDonHangAsync(string id);
+        Task<List<ChiTietDonHang>> ThemChiTietDonHangAsync(Guid donHangId, List<RequestCreateChiTietDonHangDto> chiTietDonHangs);
     }
-
 }

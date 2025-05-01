@@ -76,7 +76,7 @@ namespace WebsiteSmartHome.Services
             }
         }
 
-        public async Task<NguoiDungCreateDto> AddNguoiDungAsync(NguoiDungCreateDto dto)
+        public async Task<NguoiDungDto> AddNguoiDungAsync(NguoiDungCreateDto dto)
         {
             // Kiểm tra dữ liệu đầu vào
             if (dto == null)
@@ -84,13 +84,27 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.BadRequestException("invalid_data", "Dữ liệu người dùng không hợp lệ");
             }
 
+            // Validate dữ liệu
             ValidationHelper.ValidateGioiTinh(dto.GioiTinh);
             ValidationHelper.ValidateDiaChi(dto.DiaChi);
             ValidationHelper.ValidateNgaySinh(dto.NgaySinh);
             ValidationHelper.ValidateSDT(dto.Sdt);
             ValidationHelper.ValidateCCCD(dto.Cccd);
 
+            // Kiểm tra trùng CCCD, SĐT
             await CheckNguoiDungExistsAsync(dto);
+
+            // Kiểm tra vai trò tồn tại
+            if (!Guid.TryParse(dto.MaVaiTro, out Guid maVaiTro))
+            {
+                throw new BaseException.BadRequestException("invalid_role_id", "Mã vai trò không hợp lệ");
+            }
+
+            var vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(maVaiTro);
+            if (vaiTro == null)
+            {
+                throw new BaseException.NotFoundException("role_not_found", "Vai trò không tồn tại");
+            }
 
             NguoiDung nguoiDung = new NguoiDung
             {
@@ -99,19 +113,23 @@ namespace WebsiteSmartHome.Services
                 NgaySinh = dto.NgaySinh,
                 CCCD = dto.Cccd,
                 SoDienThoai = dto.Sdt,
-                DiaChi = dto.DiaChi
+                DiaChi = dto.DiaChi,
+                MaVaiTro = maVaiTro
             };
 
-            try
+            await _unitOfWork.GetRepository<NguoiDung>().InsertAsync(nguoiDung);
+            await _unitOfWork.SaveAsync();
+
+            return new NguoiDungDto
             {
-                await _unitOfWork.GetRepository<NguoiDung>().InsertAsync(nguoiDung);
-                await _unitOfWork.SaveAsync();
-                return dto;
-            }
-            catch (SqlException)
-            {
-                throw new BaseException.BadRequestException("server_error", "Lỗi hệ thống khi thêm tài khoản");
-            }
+                Id = nguoiDung.Id.ToString(),
+                TenNguoiDung = nguoiDung.TenNguoiDung,
+                GioiTinh = nguoiDung.GioiTinh!,
+                NgaySinh = nguoiDung.NgaySinh,
+                Cccd = nguoiDung.CCCD!,
+                Sdt = nguoiDung.SoDienThoai!,
+                DiaChi = nguoiDung.DiaChi
+            };
         }
 
         public async Task UpdateNguoiDungAsync(string id, NguoiDungUpdateDto dto)

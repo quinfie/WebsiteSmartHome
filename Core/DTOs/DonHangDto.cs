@@ -1,24 +1,31 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations;
 using WebsiteSmartHome.Core.Utils;
 
 namespace WebsiteSmartHome.Core.DTOs
 {
     public class DonHangDto
     {
-        public DonHangDto()
-        {
-            TrangThaiDonHang = OrderStatusHelper.Pending.ToString();
-            NgayDat = DateTime.Now;
-        }
-
-        public string Id { get; set; } = Guid.NewGuid().ToString(); // Gán giá trị mặc định
-
-        public string MaNguoiDung { get; set; } = null!;
+        public string Id { get; set; }
+        public string TenNguoiDung { get; set; }
         public decimal TongTien { get; set; }
         public string TrangThaiDonHang { get; set; }
         public DateTime NgayDat { get; set; }
-        public string? MaKhuyenMai { get; set; }
+        public string? TenKhuyenMai { get; set; }
     }
 
+    public class ViewCreateChiTietDonHangDto
+    {
+        public string TenSanPham { get; set; }
+        public int SoLuong { get; set; }
+        public decimal DonGia { get; set; }
+    }
 
+    public class ViewResponseCreateDonHangDto
+    {
+        public string TenNguoiDung { get; set; }
+        public decimal TongTien { get; set; }
+        public string TrangThaiDonHang { get; set; }
+        public string? TenKhuyenMai { get; set; }
+        public List<ViewCreateChiTietDonHangDto> ChiTietDonHangs { get; set; }
+    }
 }

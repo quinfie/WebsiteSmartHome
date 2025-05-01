@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
@@ -8,6 +9,7 @@ namespace WebsiteSmartHome.Controllers
 {
     [Route("api/lich_bao_tri")]
     [ApiController]
+    [Authorize]
     public class LichBaoTriController : ControllerBase
     {
         private readonly ILichBaoTriService _lichBaoTriService;
@@ -19,6 +21,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy tất cả lịch bảo trì
         [HttpGet]
+        [Authorize(Policy = "RequireStaffRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetAll()
         {
             var lichBaoTris = await _lichBaoTriService.GetAllLichBaoTriAsync();
@@ -27,14 +30,15 @@ namespace WebsiteSmartHome.Controllers
 
         // Tạo lịch bảo trì mới
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<string>>> Create([FromBody] CreateLichBaoTriDto dto)
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateLichBaoTriDto dto)
         {
             if (dto == null)
                 throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ");
 
             var result = await _lichBaoTriService.CreateLichBaoTriAsync(dto);
             if (result)
-                return BaseResponse<string>.Created("ok", "Tạo lịch bảo trì thành công");
+                return BaseResponse<bool>.OkResponse(true, "Tạo lịch bảo trì thành công");
 
             throw new BaseException.BadRequestException("create_failed", "Không thể tạo lịch bảo trì");
         }
@@ -42,6 +46,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Cập nhật lịch bảo trì theo ID
         [HttpPut("{id}")]
+        [Authorize(Policy = "RequireStaffRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] LichBaoTriDto lichBaoTriDto)
         {
             if (string.IsNullOrWhiteSpace(id) || id != lichBaoTriDto.Id)
@@ -56,6 +61,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Xóa lịch bảo trì theo ID
         [HttpDelete("{id}")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -70,6 +76,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy lịch bảo trì theo ID
         [HttpGet("{id}")]
+        [Authorize(Policy = "RequireCustomerRole")]
         public async Task<ActionResult<BaseResponse<LichBaoTriDto>>> GetById(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -84,6 +91,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Tìm kiếm lịch bảo trì theo mã đơn hàng
         [HttpGet("search")]
+        [Authorize(Policy = "RequireStaffRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> SearchByOrder([FromQuery] string maDonHang)
         {
             if (string.IsNullOrWhiteSpace(maDonHang))

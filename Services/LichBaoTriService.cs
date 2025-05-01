@@ -3,6 +3,7 @@ using WebsiteSmartHome.Data;
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using WebsiteSmartHome.IServices;
+using WebsiteSmartHome.Core;
 
 namespace WebsiteSmartHome.Services
 {
@@ -117,6 +118,46 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.GetRepository<LichBaoTri>().DeleteAsync(id);
             await _unitOfWork.SaveAsync();
             return true;
+        }
+
+        public async Task ThemLichBaoTriAsync(List<ChiTietDonHang> chiTietDonHangs)
+        {
+            foreach (var chiTietDonHang in chiTietDonHangs)
+            {
+                var maSanPham = chiTietDonHang.MaSanPham;
+
+                // Lấy thông tin sản phẩm từ bảng SanPham
+                var sanPham = await _unitOfWork.GetRepository<SanPham>()
+                    .FindByConditionAsync(x => x.Id == maSanPham);
+
+                if (sanPham == null)
+                {
+                    throw new BaseException.NotFoundException("not_found", $"Không tìm thấy sản phẩm với Id {chiTietDonHang.MaSanPham}");
+                }
+
+                // Lấy thời gian bảo hành của sản phẩm
+                var thoiGianBaoHanh = sanPham.ThoiGianBaoHanh;
+
+                // Tạo các bản ghi lịch bảo trì
+                for (int i = 1; i <= thoiGianBaoHanh / 6; i++)  // Mỗi lần 6 tháng
+                {
+                    // Tính ngày bảo trì (Ngày mua hàng + 6 tháng * i)
+                    var ngayBaoTri = DateTime.Now.AddMonths(i * 6);
+
+                    // Tạo lịch bảo trì
+                    var lichBaoTri = new LichBaoTri
+                    {
+                        MaChiTietDonHang = chiTietDonHang.Id,
+                        NgayBaoTri = ngayBaoTri,
+                        LoaiBaoTri = "Bảo trì",
+                        TrangThai = "Chưa thông báo"
+                    };
+
+                    // Lưu vào cơ sở dữ liệu
+                    await _unitOfWork.GetRepository<LichBaoTri>().InsertAsync(lichBaoTri);
+                    await _unitOfWork.GetRepository<LichBaoTri>().SaveAsync();
+                }
+            }
         }
     }
 }

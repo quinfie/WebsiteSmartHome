@@ -4,16 +4,24 @@ namespace WebsiteSmartHome.Core.DTOs
 {
     public class ChiTietDonHangDto
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string MaDonHang { get; set; } = null!;
-        public string MaSanPham { get; set; } = null!;
-        public int ThoiGianBaoHanh { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string MaDonHang { get; set; } = string.Empty;
+        public string MaSanPham { get; set; } = string.Empty;
+        public string TenSanPham { get; set; } = string.Empty;
         public int SoLuong { get; set; }
         public decimal DonGia { get; set; }
+    }
 
-        public decimal ThanhTien => SoLuong * DonGia;
+    public class UpdateChiTietDonHangDto
+    {
+        public int SoLuongMoi { get; set; }
+        public decimal DonGiaMoi { get; set; }
+    }
 
-        public virtual SanPham? SanPham { get; set; }
-
+    public class RequestCreateChiTietDonHangDto
+    {
+        public string MaSanPham { get; set; } = string.Empty;
+        public int SoLuongMua { get; set; }
+        public decimal DonGiaMua { get; set; }
     }
 }

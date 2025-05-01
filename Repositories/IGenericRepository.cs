@@ -12,12 +12,12 @@ namespace WebsiteSmartHome.Repositories
         IEnumerable<T> GetAll();
         T? GetById(object id);
         void Insert(T obj);
-        void InsertRange(IList<T> obj);
         void Update(T obj);
         void Delete(object id);
         void Save();
 
         // async
+        Task InsertRange(IList<T> obj);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
         Task<IList<T>> GetAllAsync();
         Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize);

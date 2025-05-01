@@ -42,19 +42,35 @@ namespace WebsiteSmartHome.Services
             };
         }
 
-        public async Task AddVaiTroAsync(string tenVaiTro)
+        public async Task<VaiTroDto> AddVaiTroAsync(string tenVaiTro)
         {
             if (string.IsNullOrWhiteSpace(tenVaiTro))
             {
                 throw new BaseException.BadRequestException("invalid_data", "Tên vai trò không được để trống");
             }
 
+            // Kiểm tra vai trò đã tồn tại chưa
+            var existingVaiTro = await _unitOfWork.GetRepository<VaiTro>()
+                .FindByConditionAsync(v => v.TenVaiTro.ToLower() == tenVaiTro.ToLower());
+            
+            if (existingVaiTro != null)
+            {
+                throw new BaseException.BadRequestException("duplicate", "Vai trò đã tồn tại");
+            }
+
             VaiTro vaiTro = new VaiTro
             {
                 TenVaiTro = tenVaiTro
             };
+
             await _unitOfWork.GetRepository<VaiTro>().InsertAsync(vaiTro);
             await _unitOfWork.SaveAsync();
+
+            return new VaiTroDto
+            {
+                Id = vaiTro.Id.ToString(),
+                TenVaiTro = vaiTro.TenVaiTro
+            };
         }
 
         public async Task<bool> UpdateVaiTroAsync(string id, string tenVaiTro)
