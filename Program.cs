@@ -86,9 +86,13 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireAdminRole", policy => 
         policy.RequireRole("Quản Trị Viên"));
     options.AddPolicy("RequireStaffRole", policy => 
-        policy.RequireRole("Nhân Viên", "Quản Trị Viên"));
+        policy.RequireRole("Nhân Viên", "Quản Trị Viên", "Quản Lí"));
     options.AddPolicy("RequireCustomerRole", policy => 
         policy.RequireRole("Khách Hàng", "Nhân Viên", "Quản Trị Viên"));
+    options.AddPolicy("RequireManagerRole", policy =>
+        policy.RequireRole("Quản Lí", "Quản Trị Viên"));
+    options.AddPolicy("RequireAllRoles", policy =>
+        policy.RequireRole("Quản Trị Viên", "Quản Lí", "Nhân Viên", "Khách Hàng"));
 });
 
 builder.Services.AddCors(options =>

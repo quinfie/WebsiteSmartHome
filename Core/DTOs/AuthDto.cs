@@ -23,7 +23,7 @@ namespace WebsiteSmartHome.Core.DTOs
         public string TenTaiKhoan { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Mật khẩu không được để trống")]
-        [MinLength(6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
+        [MinLength(8, ErrorMessage = "Mật khẩu phải có ít nhất 8 ký tự")]
         public string MatKhau { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Tên người dùng không được để trống")]

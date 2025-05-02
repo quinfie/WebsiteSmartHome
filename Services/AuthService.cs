@@ -38,7 +38,7 @@ namespace WebsiteSmartHome.Services
         {
             // Tìm tài khoản theo email hoặc tên tài khoản
             var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>()
-                .FindByConditionAsync(t => 
+                .FindByConditionAsync(t =>
                     t.Email == request.Username || t.TenTaiKhoan == request.Username);
 
             if (taiKhoan == null)
@@ -75,7 +75,7 @@ namespace WebsiteSmartHome.Services
                 .FindByConditionAsync(v => v.Id == nguoiDung.MaVaiTro);
 
             // Tạo token
-            var token = GenerateJwtToken(taiKhoan.Email, taiKhoan.TenTaiKhoan, vaiTro?.TenVaiTro ?? RoleHelper.KhachHang.ToString());
+            var token = GenerateJwtToken(taiKhoan.Email, taiKhoan.TenTaiKhoan, vaiTro?.TenVaiTro ?? RoleHelper.KhachHang.ToString(), taiKhoan.Id.ToString());
 
             return new AuthResponseDto
             {
@@ -156,7 +156,7 @@ namespace WebsiteSmartHome.Services
             var vaiTro = await _vaiTroService.GetVaiTroByIdAsync(vaiTroId.Value.ToString());
 
             // Tạo token
-            var token = GenerateJwtToken(request.Email, request.TenTaiKhoan, vaiTro.TenVaiTro);
+            var token = GenerateJwtToken(request.Email, request.TenTaiKhoan, vaiTro.TenVaiTro, taiKhoan.Id.ToString());
 
             return new AuthResponseDto
             {
@@ -168,7 +168,7 @@ namespace WebsiteSmartHome.Services
             };
         }
 
-        private string GenerateJwtToken(string email, string tenTaiKhoan, string tenVaiTro)
+        private string GenerateJwtToken(string email, string tenTaiKhoan, string tenVaiTro, string userId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -177,7 +177,8 @@ namespace WebsiteSmartHome.Services
             {
                 new Claim(ClaimTypes.Name, tenTaiKhoan),
                 new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Role, tenVaiTro)
+                new Claim(ClaimTypes.Role, tenVaiTro),
+                new Claim(ClaimTypes.NameIdentifier, userId)
             };
 
             var token = new JwtSecurityToken(
@@ -188,5 +189,161 @@ namespace WebsiteSmartHome.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<TaiKhoan> GetProfileAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new BaseException.BadRequestException("invalid_user_id", "UserId không được để trống");
+            }
+
+            var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(Guid.Parse(userId));
+            if (taiKhoan == null)
+            {
+                throw new BaseException.NotFoundException("account_not_found", "Không tìm thấy tài khoản");
+            }
+
+            return taiKhoan;
+        }
+
+        public async Task<bool> UpdateTaiKhoanAsync(string userId, UpdateTaiKhoanDto taiKhoan)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new BaseException.BadRequestException("invalid_user_id", "UserId không được để trống");
+            }
+
+            var existingTaiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(Guid.Parse(userId));
+            if (existingTaiKhoan == null)
+            {
+                throw new BaseException.NotFoundException("account_not_found", "Không tìm thấy tài khoản");
+            }
+
+            // Validate email
+            ValidationHelper.ValidateEmail(taiKhoan.Email);
+
+            // Validate username length
+            if (taiKhoan.TenTaiKhoan.Length < 3 || taiKhoan.TenTaiKhoan.Length > 50)
+            {
+                throw new BaseException.BadRequestException("invalid_username_length", "Tên tài khoản phải có độ dài từ 3 đến 50 ký tự");
+            }
+
+            // Validate account status
+            ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoan.TrangThai);
+
+            // Update only necessary fields
+            existingTaiKhoan.Email = taiKhoan.Email;
+            existingTaiKhoan.TenTaiKhoan = taiKhoan.TenTaiKhoan;
+            existingTaiKhoan.TrangThai = taiKhoan.TrangThai;
+
+            await _unitOfWork.GetRepository<TaiKhoan>().UpdateAsync(existingTaiKhoan);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
+        public async Task<bool> UpdateNguoiDungAsync(string userId, UpdateNguoiDungDto nguoiDung)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new BaseException.BadRequestException("invalid_user_id", "UserId không được để trống");
+            }
+
+            var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(Guid.Parse(userId));
+            if (taiKhoan == null)
+            {
+                throw new BaseException.NotFoundException("account_not_found", "Không tìm thấy tài khoản");
+            }
+
+            var existingNguoiDung = await _unitOfWork.GetRepository<NguoiDung>().GetByIdAsync(taiKhoan.Id);
+            if (existingNguoiDung == null)
+            {
+                throw new BaseException.NotFoundException("user_not_found", "Không tìm thấy thông tin người dùng");
+            }
+
+            // Update only necessary fields
+            existingNguoiDung.TenNguoiDung = nguoiDung.TenNguoiDung;
+
+            // Validate and update optional fields if provided
+            if (!string.IsNullOrWhiteSpace(nguoiDung.SoDienThoai))
+            {
+                ValidationHelper.ValidateSDT(nguoiDung.SoDienThoai);
+                existingNguoiDung.SoDienThoai = nguoiDung.SoDienThoai;
+            }
+
+            if (!string.IsNullOrWhiteSpace(nguoiDung.CCCD))
+            {
+                ValidationHelper.ValidateCCCD(nguoiDung.CCCD);
+                existingNguoiDung.CCCD = nguoiDung.CCCD;
+            }
+
+            if (nguoiDung.NgaySinh.HasValue)
+            {
+                ValidationHelper.ValidateNgaySinh(nguoiDung.NgaySinh.Value);
+                existingNguoiDung.NgaySinh = nguoiDung.NgaySinh;
+            }
+
+            if (!string.IsNullOrWhiteSpace(nguoiDung.GioiTinh))
+            {
+                ValidationHelper.ValidateGioiTinh(nguoiDung.GioiTinh);
+                existingNguoiDung.GioiTinh = nguoiDung.GioiTinh;
+            }
+
+            if (!string.IsNullOrWhiteSpace(nguoiDung.DiaChi))
+            {
+                ValidationHelper.ValidateDiaChi(nguoiDung.DiaChi);
+                existingNguoiDung.DiaChi = nguoiDung.DiaChi;
+            }
+
+            await _unitOfWork.GetRepository<NguoiDung>().UpdateAsync(existingNguoiDung);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePassword)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new BaseException.BadRequestException("invalid_user_id", "UserId không được để trống");
+            }
+
+            var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(Guid.Parse(userId));
+            if (taiKhoan == null)
+            {
+                throw new BaseException.NotFoundException("account_not_found", "Không tìm thấy tài khoản");
+            }
+
+            // Verify current password
+            if (!PasswordHelper.VerifyPassword(changePassword.CurrentPassword, taiKhoan.MatKhau))
+            {
+                throw new BaseException.BadRequestException("invalid_password", "Mật khẩu hiện tại không đúng");
+            }
+
+            // Update password
+            taiKhoan.MatKhau = PasswordHelper.HashPassword(changePassword.NewPassword);
+            await _unitOfWork.GetRepository<TaiKhoan>().UpdateAsync(taiKhoan);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ForgotPasswordAsync(ForgotPasswordDto forgotPassword)
+        {
+            var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>()
+                .FindByConditionAsync(t => t.Email == forgotPassword.Email);
+
+            if (taiKhoan == null)
+            {
+                throw new BaseException.NotFoundException("account_not_found", "Không tìm thấy tài khoản với email này");
+            }
+
+            // Update password
+            taiKhoan.MatKhau = PasswordHelper.HashPassword(forgotPassword.NewPassword);
+            await _unitOfWork.GetRepository<TaiKhoan>().UpdateAsync(taiKhoan);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
     }
-} 
+}

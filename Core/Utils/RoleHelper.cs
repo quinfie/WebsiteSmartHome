@@ -14,6 +14,6 @@ namespace WebsiteSmartHome.Core.Utils
         QuanTriVien,
 
         [Description("Quản Lí")]
-        QuanLy,
+        QuanLi,
     }
 }
