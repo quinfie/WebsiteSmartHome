@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.Core;
 
 namespace WebsiteSmartHome.Repositories

@@ -1,4 +1,4 @@
-﻿using WebsiteSmartHome.Data;
+﻿using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.UnitOfWork;
 using WebsiteSmartHome.Core;
 using Microsoft.EntityFrameworkCore;
@@ -59,7 +59,8 @@ namespace WebsiteSmartHome.Services
                 TrangThai = taiKhoan.TrangThai,
                 MatKhau = taiKhoan.MatKhau,
                 Email = taiKhoan.Email,
-                NgayTao = taiKhoan.NgayTao
+                NgayTao = taiKhoan.NgayTao,
+                MaNguoiDung = taiKhoan.NguoiDung!.Id.ToString(),
             };
         }
 
@@ -148,7 +149,7 @@ namespace WebsiteSmartHome.Services
             };
         }
 
-        public async Task UpdateTaiKhoanAsync(string taiKhoanId, TaiKhoanUpdateDto taiKhoanDto)
+        public async Task UpdateTaiKhoanAsync(string taiKhoanId, UpdateTaiKhoanDto taiKhoanDto)
         {
             if (taiKhoanDto == null)
             {
@@ -164,25 +165,38 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.NotFoundException("not_found", "Tài khoản không tồn tại");
             }
 
-            // Cập nhật Email nếu khác
-            if (!string.IsNullOrWhiteSpace(taiKhoanDto.Email) && taiKhoan.Email != taiKhoanDto.Email)
+            // Cập nhật TenTaiKhoan nếu khác
+            if (taiKhoan.TenTaiKhoan != taiKhoanDto.TenTaiKhoan)
             {
-                ValidationHelper.ValidateEmail(taiKhoanDto.Email);
-                taiKhoan.Email = taiKhoanDto.Email;
+                // Kiểm tra trùng tên tài khoản
+                var existingUsername = await _unitOfWork.GetRepository<TaiKhoan>()
+                    .FindByConditionAsync(x => x.TenTaiKhoan == taiKhoanDto.TenTaiKhoan && x.Id.ToString() != taiKhoanId);
+                if (existingUsername != null)
+                {
+                    throw new BaseException.BadRequestException("duplicate", "Tên tài khoản đã tồn tại");
+                }
+                taiKhoan.TenTaiKhoan = taiKhoanDto.TenTaiKhoan;
             }
 
-            // Cập nhật Mật khẩu nếu có
-            if (!string.IsNullOrWhiteSpace(taiKhoanDto.MatKhau))
+            // Cập nhật Email nếu khác
+            if (taiKhoan.Email != taiKhoanDto.Email)
             {
-                ValidationHelper.ValidatePassword(taiKhoanDto.MatKhau);
-                taiKhoan.MatKhau = PasswordHelper.HashPassword(taiKhoanDto.MatKhau);
+                ValidationHelper.ValidateEmail(taiKhoanDto.Email);
+                // Kiểm tra trùng email
+                var existingEmail = await _unitOfWork.GetRepository<TaiKhoan>()
+                    .FindByConditionAsync(x => x.Email == taiKhoanDto.Email && x.Id.ToString() != taiKhoanId);
+                if (existingEmail != null)
+                {
+                    throw new BaseException.BadRequestException("duplicate", "Email đã tồn tại");
+                }
+                taiKhoan.Email = taiKhoanDto.Email;
             }
 
             // Cập nhật Trạng thái nếu khác
             if (taiKhoan.TrangThai != taiKhoanDto.TrangThai)
             {
-                ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai!);
-                taiKhoan.TrangThai = taiKhoanDto.TrangThai!;
+                ValidationHelper.ValidateTrangThai<AccountStatus>(taiKhoanDto.TrangThai);
+                taiKhoan.TrangThai = taiKhoanDto.TrangThai;
             }
 
             try

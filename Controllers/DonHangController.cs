@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebsiteSmartHome.Core.Base;
+using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Services;
+using WebsiteSmartHome.IServices;
+using System.Security.Claims;
 
 namespace WebsiteSmartHome.Controllers
 {
@@ -23,7 +25,7 @@ namespace WebsiteSmartHome.Controllers
 
         // GET: api/DonHang
         [HttpGet]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<List<DonHangDto>>>> GetAll()
         {
             var result = await _donHangService.GetDanhSachDonHangAsync();
@@ -32,7 +34,7 @@ namespace WebsiteSmartHome.Controllers
 
         // GET: api/DonHang/{id}
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireCustomerRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<ViewResponseCreateDonHangDto>>> GetById(string id)
         {
             var result = await _donHangService.GetChiTietDonHangAsync(id);
@@ -42,28 +44,43 @@ namespace WebsiteSmartHome.Controllers
         // POST: api/DonHang
         [HttpPost]
         [Authorize(Policy = "RequireCustomerRole")]
-        public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> Create([FromBody] RequestCreateDonHangDto dto)
+        public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> ThemDonHang(RequestCreateDonHangDto dto)
         {
-            var result = await _donHangService.ThemDonHangAsync(dto);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var result = await _donHangService.ThemDonHangAsync(dto, userId);
             return BaseResponse<ResponseCreateDonHangDto>.OkResponse(result, "Thêm đơn hàng thành công");
         }
 
         // PUT: api/DonHang/{id}
         [HttpPut("{id}")]
         [Authorize(Policy = "RequireStaffRole")]
-        public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> Update(string id, [FromBody] RequestCreateDonHangDto dto)
+        public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> UpdateDonHang(string id, RequestUpdateDonHangDto dto)
         {
-            var result = await _donHangService.UpdateDonHangAsync(id, dto);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var result = await _donHangService.UpdateDonHangAsync(id, dto, userId);
             return BaseResponse<ResponseCreateDonHangDto>.OkResponse(result, "Cập nhật đơn hàng thành công");
         }
 
         // DELETE: api/DonHang/{id}
         [HttpDelete("{id}")]
         [Authorize(Policy = "RequireAdminRole")]
-        public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
+        public async Task<ActionResult<BaseResponse<bool>>> DeleteDonHang(string id)
         {
-            var result = await _donHangService.DeleteDonHangAsync(id);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var result = await _donHangService.DeleteDonHangAsync(id, userId);
             return BaseResponse<bool>.OkResponse(result, "Xóa đơn hàng thành công");
+        }
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng và chi tiết của người dùng hiện tại
+        /// </summary>
+        [HttpGet("current-user")]
+        [Authorize(Policy = "RequireCustomerRole")]
+        public async Task<ActionResult<BaseResponse<List<ViewResponseCreateDonHangDto>>>> GetDonHangByCurrentUser()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var result = await _donHangService.GetDonHangByCurrentUserAsync(userId);
+            return BaseResponse<List<ViewResponseCreateDonHangDto>>.OkResponse(result, "Lấy danh sách đơn hàng thành công");
         }
     }
 }

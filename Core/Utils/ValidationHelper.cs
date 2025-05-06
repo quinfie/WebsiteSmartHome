@@ -98,6 +98,77 @@ namespace WebsiteSmartHome.Core.Utils
             }
         }
 
+        // Kiểm tra ngày hẹn hợp lệ
+        public static void ValidateNgayHen(DateTime ngayHen)
+        {
+            if (ngayHen.Date < DateTime.Today)
+            {
+                throw new BaseException.ValidationException("invalid_date", "Ngày hẹn không được nhỏ hơn ngày hiện tại");
+            }
+        }
+
+        // Kiểm tra loại dịch vụ hợp lệ
+        public static void ValidateLoaiDichVu(string loaiDichVu)
+        {
+            if (loaiDichVu != "Bảo hành" && loaiDichVu != "Sửa chữa")
+            {
+                throw new BaseException.ValidationException("invalid_type_service", "Loại dịch vụ chỉ được phép là 'Bảo hành' hoặc 'Sửa chữa'");
+            }
+        }
+
+        // Kiểm tra trạng thái yêu cầu dịch vụ hợp lệ
+        public static void ValidateTrangThaiYeuCau(string trangThai)
+        {
+            var validStatuses = new[] { "Chờ xác nhận", "Đã xác nhận", "Đang xử lý", "Hoàn thành", "Đã hủy" };
+            if (!validStatuses.Contains(trangThai))
+            {
+                throw new BaseException.ValidationException("invalid_status", "Trạng thái yêu cầu không hợp lệ");
+            }
+        }
+
+        // Kiểm tra chi phí hợp lệ
+        public static void ValidateChiPhi(decimal chiPhi)
+        {
+            if (chiPhi < 0)
+            {
+                throw new BaseException.ValidationException("invalid_cost", "Chi phí không được âm");
+            }
+        }
+
+        public static void ValidateThoiGianBaoHanh(DateTime ngayMua, int thoiGianBaoHanh)
+        {
+            var ngayHetHan = ngayMua.AddMonths(thoiGianBaoHanh);
+            if (DateTime.Now > ngayHetHan)
+            {
+                throw new BaseException.ValidationException("expired_warranty",
+                    $"Sản phẩm đã hết thời gian bảo hành. Ngày hết hạn: {ngayHetHan:dd/MM/yyyy}");
+            }
+        }
+
+        public static void ValidateChiPhiSuaChua(decimal chiPhi, string loaiDichVu)
+        {
+            if (loaiDichVu == TypeServiceHelper.SuaChua.ToString().GetDescription(typeof(TypeServiceHelper)) && chiPhi < 0)
+            {
+                throw new BaseException.ValidationException("missing_cost", "Chưa có báo giá cho yêu cầu sửa chữa");
+            }
+        }
+
+        public static void ValidateMoTa(string moTa)
+        {
+            if (string.IsNullOrWhiteSpace(moTa))
+            {
+                throw new BaseException.ValidationException("invalid_mota", "Mô tả không được để trống");
+            }
+        }
+
+        public static void ValidateGhiChu(string ghiChu)
+        {
+            if (!string.IsNullOrWhiteSpace(ghiChu))
+            {
+                throw new BaseException.ValidationException("invalid_ghichu", "Ghi chú không được quá để trống");
+            }
+        }
+
         // Các hàm kiểm tra riêng lẻ cho các loại khác
         private static bool IsValidEmail(string email)
         {
@@ -109,7 +180,5 @@ namespace WebsiteSmartHome.Core.Utils
         {
             return password.Length >= 8;
         }
-
-
     }
 }

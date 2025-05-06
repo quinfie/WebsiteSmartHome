@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebsiteSmartHome.Core.Base;
+using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 
@@ -27,7 +27,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireCustomerRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<NguoiDungDto>>> GetById(string id)
         {
             var result = await _nguoiDungService.GetNguoiDungByIdAsync(id);
@@ -43,7 +43,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<string>>> Update(string id, NguoiDungUpdateDto request)
         {
             await _nguoiDungService.UpdateNguoiDungAsync(id, request);
@@ -55,7 +55,7 @@ namespace WebsiteSmartHome.Controllers
         public async Task<ActionResult<BaseResponse<string>>> Delete(string id)
         {
             await _nguoiDungService.DeleteNguoiDungAsync(id);
-            return BaseResponse<string>.OkResponse("Xóa người dùng thành công");    
+            return BaseResponse<string>.OkResponse("Xóa người dùng thành công");
         }
 
         [HttpGet("search")]

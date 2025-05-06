@@ -1,6 +1,6 @@
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core.Utils;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 
 namespace WebsiteSmartHome.Services
 {

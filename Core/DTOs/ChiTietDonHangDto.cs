@@ -1,4 +1,4 @@
-﻿using WebsiteSmartHome.Data;
+﻿using WebsiteSmartHome.Core.Data;
 
 namespace WebsiteSmartHome.Core.DTOs
 {

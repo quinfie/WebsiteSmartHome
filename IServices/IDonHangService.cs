@@ -1,6 +1,6 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
 
-namespace WebsiteSmartHome.Services
+namespace WebsiteSmartHome.IServices
 {
     public interface IDonHangService
     {
@@ -11,12 +11,17 @@ namespace WebsiteSmartHome.Services
         Task<ViewResponseCreateDonHangDto> GetChiTietDonHangAsync(string id);
 
         // Thêm đơn hàng mới
-        Task<ResponseCreateDonHangDto> ThemDonHangAsync(RequestCreateDonHangDto dto);
+        Task<ResponseCreateDonHangDto> ThemDonHangAsync(RequestCreateDonHangDto dto, string userId);
 
         // Cập nhật đơn hàng
-        Task<ResponseCreateDonHangDto> UpdateDonHangAsync(string id, RequestCreateDonHangDto dto);
+        Task<ResponseCreateDonHangDto> UpdateDonHangAsync(string id, RequestUpdateDonHangDto dto, string userId);
 
         // Xóa đơn hàng
-        Task<bool> DeleteDonHangAsync(string id);
+        Task<bool> DeleteDonHangAsync(string id, string userId);
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng và chi tiết của người dùng hiện tại
+        /// </summary>
+        Task<List<ViewResponseCreateDonHangDto>> GetDonHangByCurrentUserAsync(string userId);
     }
-} 
+}

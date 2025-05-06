@@ -6,9 +6,10 @@ using System.Text;
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core.Utils;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebsiteSmartHome.Services
 {
@@ -43,7 +44,7 @@ namespace WebsiteSmartHome.Services
 
             if (taiKhoan == null)
             {
-                throw new BaseException.BadRequestException("invalid_credentials", "Email/tên tài khoản hoặc mật khẩu không đúng");
+                throw new BaseException.NotFoundException("invalid_credentials", "Email/tên tài khoản hoặc mật khẩu không đúng");
             }
 
             // Kiểm tra mật khẩu
@@ -142,7 +143,7 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = request.TenNguoiDung,
                 GioiTinh = request.GioiTinh,
                 NgaySinh = request.NgaySinh,
-                CCCD = request.Cccd,
+                Cccd = request.Cccd,
                 SoDienThoai = request.Sdt,
                 DiaChi = request.DiaChi,
                 MaVaiTro = vaiTroId.Value,
@@ -156,7 +157,7 @@ namespace WebsiteSmartHome.Services
             var vaiTro = await _vaiTroService.GetVaiTroByIdAsync(vaiTroId.Value.ToString());
 
             // Tạo token
-            var token = GenerateJwtToken(request.Email, request.TenTaiKhoan, vaiTro.TenVaiTro, taiKhoan.Id.ToString());
+            var token = GenerateJwtToken(request.Email, request.TenTaiKhoan, vaiTro!.TenVaiTro, taiKhoan.Id.ToString());
 
             return new AuthResponseDto
             {
@@ -190,20 +191,31 @@ namespace WebsiteSmartHome.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<TaiKhoan> GetProfileAsync(string userId)
+        public async Task<TaiKhoanDto> GetProfileAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
                 throw new BaseException.BadRequestException("invalid_user_id", "UserId không được để trống");
             }
 
-            var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().GetByIdAsync(Guid.Parse(userId));
+            TaiKhoan? taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>()
+                .Entities
+                .Include(tk => tk.NguoiDung)
+                .FirstOrDefaultAsync(tk => tk.Id == Guid.Parse(userId));
             if (taiKhoan == null)
             {
                 throw new BaseException.NotFoundException("account_not_found", "Không tìm thấy tài khoản");
             }
 
-            return taiKhoan;
+            return new TaiKhoanDto
+            {
+                Email = taiKhoan.Email,
+                TenTaiKhoan = taiKhoan.TenTaiKhoan,
+                MatKhau = taiKhoan.MatKhau,
+                NgayTao = taiKhoan.NgayTao,
+                TrangThai = taiKhoan.TrangThai,
+                MaNguoiDung = taiKhoan.NguoiDung?.Id.ToString() ?? ""
+            };
         }
 
         public async Task<bool> UpdateTaiKhoanAsync(string userId, UpdateTaiKhoanDto taiKhoan)
@@ -262,7 +274,7 @@ namespace WebsiteSmartHome.Services
             }
 
             // Update only necessary fields
-            existingNguoiDung.TenNguoiDung = nguoiDung.TenNguoiDung;
+            //existingNguoiDung.TenNguoiDung = nguoiDung.TenNguoiDung;
 
             // Validate and update optional fields if provided
             if (!string.IsNullOrWhiteSpace(nguoiDung.SoDienThoai))
@@ -274,7 +286,7 @@ namespace WebsiteSmartHome.Services
             if (!string.IsNullOrWhiteSpace(nguoiDung.CCCD))
             {
                 ValidationHelper.ValidateCCCD(nguoiDung.CCCD);
-                existingNguoiDung.CCCD = nguoiDung.CCCD;
+                existingNguoiDung.Cccd = nguoiDung.CCCD;
             }
 
             if (nguoiDung.NgaySinh.HasValue)

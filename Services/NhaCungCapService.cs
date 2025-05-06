@@ -2,7 +2,7 @@
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core.Utils;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
 

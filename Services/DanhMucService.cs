@@ -1,6 +1,6 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 

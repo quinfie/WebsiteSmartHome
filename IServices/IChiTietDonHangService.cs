@@ -1,5 +1,5 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 
 namespace WebsiteSmartHome.IServices
 {

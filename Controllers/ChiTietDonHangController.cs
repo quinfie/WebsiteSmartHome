@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebsiteSmartHome.Core.Base;
-using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core;
+using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 
 namespace WebsiteSmartHome.Controllers

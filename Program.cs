@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Middleware;
 using WebsiteSmartHome.Repositories;
@@ -51,6 +51,8 @@ var connectionString = builder.Configuration.GetConnectionString("WebsiteSmartHo
 builder.Services.AddDbContext<SmartHomeDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -61,7 +63,8 @@ builder.Services.AddScoped<INguoiDungService, NguoiDungService>();
 builder.Services.AddScoped<IKhoService, KhoService>();
 builder.Services.AddScoped<INhaCungCapService, NhaCungCapService>();
 builder.Services.AddScoped<ISanPhamService, SanPhamService>();
-//builder.Services.AddScoped<INguoiPhanCongService, NguoiPhanCongService>();
+builder.Services.AddScoped<IYeuCauDichVuService, YeuCauDichVuService>();
+builder.Services.AddScoped<IPhanCongDichVuService, PhanCongDichVuService>();
 builder.Services.AddScoped<ILichBaoTriService, LichBaoTriService>();
 builder.Services.AddScoped<IDanhGiaService, DanhGiaService>();
 builder.Services.AddScoped<IDonHangService, DonHangService>();
@@ -69,8 +72,10 @@ builder.Services.AddScoped<IChiTietDonHangService, ChiTietDonHangService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options => {
-        options.TokenValidationParameters = new TokenValidationParameters {
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
@@ -81,17 +86,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Cấu hình các policy phân quyền cho hệ thống
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAdminRole", policy => 
+    // Policy yêu cầu vai trò Khách Hàng
+    options.AddPolicy("RequireCustomerRole", policy =>
+        policy.RequireRole("Khách Hàng"));
+
+    // Policy yêu cầu vai trò Quản Trị Viên
+    options.AddPolicy("RequireAdminRole", policy =>
         policy.RequireRole("Quản Trị Viên"));
-    options.AddPolicy("RequireStaffRole", policy => 
-        policy.RequireRole("Nhân Viên", "Quản Trị Viên", "Quản Lí"));
-    options.AddPolicy("RequireCustomerRole", policy => 
-        policy.RequireRole("Khách Hàng", "Nhân Viên", "Quản Trị Viên"));
-    options.AddPolicy("RequireManagerRole", policy =>
-        policy.RequireRole("Quản Lí", "Quản Trị Viên"));
-    options.AddPolicy("RequireAllRoles", policy =>
+
+    // Policy yêu cầu vai trò Nhân Viên hoặc Quản Lí
+    options.AddPolicy("RequireStaffRole", policy =>
+        policy.RequireRole("Nhân Viên", "Quản Lí"));
+
+    // Policy yêu cầu vai trò Quản Lí, Quản Trị Viên hoặc Nhân Viên
+    options.AddPolicy("RequireManageRole", policy =>
+        policy.RequireRole("Quản Lí", "Quản Trị Viên", "Nhân Viên"));
+
+    // Policy cho phép tất cả các vai trò truy cập
+    options.AddPolicy("RequireAllRole", policy =>
         policy.RequireRole("Quản Trị Viên", "Quản Lí", "Nhân Viên", "Khách Hàng"));
 });
 
@@ -113,9 +128,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler("/error");
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseHttpsRedirection();
+
+// Sử dụng CORS
 app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -1,13 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using WebsiteSmartHome.Core;
-using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core.Utils;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
-using WebsiteSmartHome.Services;
 using WebsiteSmartHome.UnitOfWork;
+using System.Security.Claims;
 
 namespace WebsiteSmartHome.Services
 {
@@ -16,12 +14,15 @@ namespace WebsiteSmartHome.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IChiTietDonHangService _chiTietDonHangService;
         private readonly ILichBaoTriService _lichBaoTriService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DonHangService(IUnitOfWork unitOfWork, IChiTietDonHangService chiTietDonHangService, ILichBaoTriService lichBaoTriService)
+        public DonHangService(IUnitOfWork unitOfWork, IChiTietDonHangService chiTietDonHangService,
+            ILichBaoTriService lichBaoTriService, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _chiTietDonHangService = chiTietDonHangService;
             _lichBaoTriService = lichBaoTriService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // Lấy danh sách đơn hàng (không bao gồm chi tiết)
@@ -65,11 +66,11 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.NotFoundException("not_found", "Đơn hàng không tồn tại");
             }
 
-            var chiTietDonHangs = donHang.ChiTietDonHangs.Select(ct => new ViewCreateChiTietDonHangDto
+            var chiTietDonHangs = donHang.ChiTietDonHangs.Select(ct => new ChiTietDonHangDto
             {
                 TenSanPham = ct.MaSanPhamNavigation?.TenSanPham ?? "Không xác định",
                 SoLuong = ct.SoLuong,
-                DonGia = ct.DonGia  
+                DonGia = ct.DonGia
             }).ToList();
 
             return new ViewResponseCreateDonHangDto
@@ -78,6 +79,7 @@ namespace WebsiteSmartHome.Services
                 TongTien = donHang.TongTien,
                 TrangThaiDonHang = donHang.TrangThaiDonHang,
                 TenKhuyenMai = donHang.MaKhuyenMaiNavigation?.TenKhuyenMai,
+                NgayDat = donHang.NgayDat,
                 ChiTietDonHangs = chiTietDonHangs
             };
         }
@@ -98,27 +100,29 @@ namespace WebsiteSmartHome.Services
 
         private void ValidateTrangThaiDonHang(string trangThai)
         {
-            var enumName = GetDesriptionHelper.GetEnumNameByDescription<OrderStatusHelper>(trangThai);
-            if (enumName == null)
+            if (string.IsNullOrWhiteSpace(trangThai))
             {
-                var validStatuses = Enum.GetValues(typeof(OrderStatusHelper))
-                    .Cast<OrderStatusHelper>()
-                    .Select(x => x.ToString().GetDescription(typeof(OrderStatusHelper)))
-                    .ToList();
+                throw new BaseException.ValidationException("invalid_status", "Trạng thái đơn hàng không được để trống");
+            }
 
-                throw new BaseException.ValidationException("invalid_status", 
+            var validStatuses = Enum.GetValues(typeof(OrderStatusHelper))
+                .Cast<OrderStatusHelper>()
+                .Select(x => x.ToString().GetDescription(typeof(OrderStatusHelper)))
+                .ToList();
+
+            if (!validStatuses.Contains(trangThai))
+            {
+                throw new BaseException.ValidationException("invalid_status",
                     $"Trạng thái đơn hàng không hợp lệ. Các trạng thái hợp lệ: {string.Join(", ", validStatuses)}");
             }
         }
 
-        private async Task<DonHang> CreateDonHangAsync(RequestCreateDonHangDto dto, KhuyenMai? khuyenMai)
+        private async Task<DonHang> CreateDonHangAsync(RequestCreateDonHangDto dto, KhuyenMai? khuyenMai, string userId)
         {
-            ValidateTrangThaiDonHang(dto.TrangThaiDonHang);
-
             var donHang = new DonHang
             {
-                MaNguoiDung = Guid.Parse(dto.MaNguoiDung),
-                TrangThaiDonHang = dto.TrangThaiDonHang,
+                MaNguoiDung = Guid.Parse(userId),
+                TrangThaiDonHang = OrderStatusHelper.ChoXacNhan.ToString().GetDescription(typeof(OrderStatusHelper)),
                 NgayDat = DateTime.Now,
                 MaKhuyenMai = khuyenMai?.Id,
                 TongTien = 0
@@ -159,7 +163,7 @@ namespace WebsiteSmartHome.Services
         {
             return new ResponseCreateDonHangDto
             {
-                MaNguoiDung = dto.MaNguoiDung,
+                MaNguoiDung = donHang.MaNguoiDung.ToString(),
                 TongTien = tongTien,
                 TrangThaiDonHang = donHang.TrangThaiDonHang,
                 MaKhuyenMai = dto.MaKhuyenMai,
@@ -167,10 +171,14 @@ namespace WebsiteSmartHome.Services
             };
         }
 
-        public async Task<ResponseCreateDonHangDto> ThemDonHangAsync(RequestCreateDonHangDto dto)
+        public async Task<ResponseCreateDonHangDto> ThemDonHangAsync(RequestCreateDonHangDto dto, string userId)
         {
             // Kiểm tra người dùng
-            var nguoiDung = await _unitOfWork.GetRepository<NguoiDung>().FindByConditionAsync(x => x.Id.ToString() == dto.MaNguoiDung);
+            var nguoiDung = await _unitOfWork.GetRepository<NguoiDung>()
+                .GetEntitiesWithCondition(x => x.MaTaiKhoanNavigation.Id.ToString() == userId)
+                .Include(x => x.MaTaiKhoanNavigation)
+                .FirstOrDefaultAsync();
+
             if (nguoiDung == null)
             {
                 throw new BaseException.NotFoundException("not_found", "Người dùng không tồn tại");
@@ -179,17 +187,17 @@ namespace WebsiteSmartHome.Services
             // Kiểm tra và lấy thông tin khuyến mãi
             var khuyenMai = await ValidateKhuyenMaiAsync(dto.MaKhuyenMai);
 
-            // Tạo đơn hàng
-            var donHang = await CreateDonHangAsync(dto, khuyenMai);
+            // Tạo đơn hàng với MaNguoiDung là ID của NguoiDung
+            var donHang = await CreateDonHangAsync(dto, khuyenMai, nguoiDung.Id.ToString());
 
             // Thêm chi tiết đơn hàng
-            var chiTietDonHangs = await _chiTietDonHangService.ThemChiTietDonHangAsync(donHang.Id, dto.ChiTietDonHangs);
+            var chiTietDonHangs = await _chiTietDonHangService.ThemChiTietDonHangAsync(donHang.Id, dto.ChiTietDonHangs!);
 
             // Xử lý lịch bảo trì
             await _lichBaoTriService.ThemLichBaoTriAsync(chiTietDonHangs);
 
             // Tính tổng tiền
-            decimal tongTien = CalculateTongTien(dto.ChiTietDonHangs, khuyenMai);
+            decimal tongTien = CalculateTongTien(dto.ChiTietDonHangs!, khuyenMai);
 
             // Cập nhật tổng tiền
             donHang.TongTien = tongTien;
@@ -199,7 +207,7 @@ namespace WebsiteSmartHome.Services
             return CreateResponse(donHang, dto, tongTien);
         }
 
-        public async Task<ResponseCreateDonHangDto> UpdateDonHangAsync(string id, RequestCreateDonHangDto dto)
+        public async Task<ResponseCreateDonHangDto> UpdateDonHangAsync(string id, RequestUpdateDonHangDto dto, string userId)
         {
             // Kiểm tra đơn hàng tồn tại
             if (!Guid.TryParse(id, out Guid donHangId))
@@ -208,11 +216,20 @@ namespace WebsiteSmartHome.Services
             }
 
             var donHang = await _unitOfWork.GetRepository<DonHang>()
-                .FindByConditionWithIncludesAsync(dh => dh.Id == donHangId, dh => dh.ChiTietDonHangs);
+                .GetEntitiesWithCondition(dh => dh.Id == donHangId)
+                .Include(dh => dh.MaNguoiDungNavigation)
+                .Include(dh => dh.ChiTietDonHangs)
+                .FirstOrDefaultAsync();
 
             if (donHang == null)
             {
                 throw new BaseException.NotFoundException("not_found", "Đơn hàng không tồn tại");
+            }
+
+            // Kiểm tra quyền cập nhật đơn hàng
+            if (donHang.MaNguoiDungNavigation.MaTaiKhoanNavigation.Id.ToString() != userId)
+            {
+                throw new BaseException.ValidationException("invalid_permission", "Bạn không có quyền cập nhật đơn hàng này");
             }
 
             // Kiểm tra trạng thái đơn hàng có thể cập nhật không
@@ -243,36 +260,50 @@ namespace WebsiteSmartHome.Services
             }
 
             // Thêm chi tiết đơn hàng mới
-            var chiTietDonHangs = await _chiTietDonHangService.ThemChiTietDonHangAsync(donHang.Id, dto.ChiTietDonHangs);
+            var chiTietDonHangs = await _chiTietDonHangService.ThemChiTietDonHangAsync(donHang.Id, dto.ChiTietDonHangs!);
 
             // Tính tổng tiền mới
-            decimal tongTien = CalculateTongTien(dto.ChiTietDonHangs, khuyenMai);
+            decimal tongTien = CalculateTongTien(dto.ChiTietDonHangs!, khuyenMai);
 
             // Cập nhật thông tin đơn hàng
             donHang.MaKhuyenMai = khuyenMai?.Id;
             donHang.TongTien = tongTien;
 
-            // Cập nhật lịch bảo trì
-            await _lichBaoTriService.ThemLichBaoTriAsync(chiTietDonHangs);
-
             // Lưu các thay đổi
             await _unitOfWork.GetRepository<DonHang>().UpdateAsync(donHang);
             await _unitOfWork.SaveAsync();
 
-            return CreateResponse(donHang, dto, tongTien);
+            return new ResponseCreateDonHangDto
+            {
+                MaNguoiDung = donHang.MaNguoiDung.ToString(),
+                TongTien = tongTien,
+                TrangThaiDonHang = donHang.TrangThaiDonHang,
+                MaKhuyenMai = donHang.MaKhuyenMai?.ToString(),
+                ChiTietDonHangs = dto.ChiTietDonHangs
+            };
         }
 
-        public async Task<bool> DeleteDonHangAsync(string id)
+        public async Task<bool> DeleteDonHangAsync(string id, string userId)
         {
             if (!Guid.TryParse(id, out Guid donHangId))
             {
                 throw new BaseException.BadRequestException("invalid_id", "ID đơn hàng không hợp lệ");
             }
 
-            var donHang = await _unitOfWork.GetRepository<DonHang>().FindByConditionAsync(dh => dh.Id == donHangId);
+            var donHang = await _unitOfWork.GetRepository<DonHang>()
+                .GetEntitiesWithCondition(dh => dh.Id == donHangId)
+                .Include(dh => dh.MaNguoiDungNavigation)
+                .FirstOrDefaultAsync();
+
             if (donHang == null)
             {
                 throw new BaseException.NotFoundException("not_found", "Đơn hàng không tồn tại");
+            }
+
+            // Kiểm tra quyền xóa đơn hàng
+            if (donHang.MaNguoiDungNavigation.MaTaiKhoanNavigation.Id.ToString() != userId)
+            {
+                throw new BaseException.ValidationException("invalid_permission", "Bạn không có quyền xóa đơn hàng này");
             }
 
             // Chỉ cho phép xóa khi đơn hàng ở trạng thái "Chờ xác nhận"
@@ -295,6 +326,42 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.SaveAsync();
 
             return true;
+        }
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng và chi tiết của người dùng hiện tại
+        /// </summary>
+        public async Task<List<ViewResponseCreateDonHangDto>> GetDonHangByCurrentUserAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new BaseException.ValidationException("invalid_user", "Thông tin người dùng không hợp lệ");
+            }
+
+            var donHangs = await _unitOfWork.GetRepository<DonHang>()
+                .GetEntitiesWithCondition(dh => dh.MaNguoiDungNavigation.MaTaiKhoanNavigation.Id.ToString() == userId)
+                .Include(dh => dh.MaNguoiDungNavigation)
+                .Include(dh => dh.MaKhuyenMaiNavigation)
+                .Include(dh => dh.ChiTietDonHangs)
+                    .ThenInclude(ct => ct.MaSanPhamNavigation)
+                .OrderByDescending(dh => dh.NgayDat)
+                .ToListAsync();
+
+            return donHangs.Select(dh => new ViewResponseCreateDonHangDto
+            {
+                Id = dh.Id.ToString(),
+                TenNguoiDung = dh.MaNguoiDungNavigation?.TenNguoiDung ?? "Không xác định",
+                TongTien = dh.TongTien,
+                TrangThaiDonHang = dh.TrangThaiDonHang,
+                NgayDat = dh.NgayDat,
+                TenKhuyenMai = dh.MaKhuyenMaiNavigation?.TenKhuyenMai,
+                ChiTietDonHangs = dh.ChiTietDonHangs.Select(ct => new ChiTietDonHangDto
+                {
+                    TenSanPham = ct.MaSanPhamNavigation?.TenSanPham ?? "Không xác định",
+                    SoLuong = ct.SoLuong,
+                    DonGia = ct.DonGia
+                }).ToList()
+            }).ToList();
         }
     }
 }

@@ -6,14 +6,14 @@ namespace WebsiteSmartHome.Core.DTOs
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 8)]
-        public string NewPassword { get; set; }
+        public required string NewPassword { get; set; }
 
         [Required]
         [Compare("NewPassword")]
-        public string ConfirmPassword { get; set; }
+        public required string ConfirmPassword { get; set; }
     }
-} 
+}

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core.Utils;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 
-namespace WebsiteSmartHome.Core.Base
+namespace WebsiteSmartHome.Core
 {
     public class BaseResponse<T>
     {

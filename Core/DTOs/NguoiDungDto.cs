@@ -1,4 +1,6 @@
-﻿namespace WebsiteSmartHome.Core.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebsiteSmartHome.Core.DTOs
 {
     public class NguoiDungDto
     {
@@ -27,6 +29,24 @@
         public string? TenNguoiDung { get; set; }
         public string? GioiTinh { get; set; }
         public DateTime? NgaySinh { get; set; }
+        public string? DiaChi { get; set; }
+        public string? Cccd { get; set; }
+        public string? Sdt { get; set; }
+    }
+
+    public class UpdateNguoiDungDto
+    {
+        [Required]
+        public string? TenNguoiDung { get; set; }
+
+        public string? SoDienThoai { get; set; }
+
+        public string? CCCD { get; set; }
+
+        public DateTime? NgaySinh { get; set; }
+
+        public string? GioiTinh { get; set; }
+
         public string? DiaChi { get; set; }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using WebsiteSmartHome.Core.Utils;
 using Microsoft.Data.SqlClient;
-using Microsoft.AspNetCore.Mvc;
 
 namespace WebsiteSmartHome.Services
 {
@@ -28,7 +27,7 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = x.TenNguoiDung,
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh,
-                Cccd = x.CCCD!,
+                Cccd = x.Cccd!,
                 Sdt = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
@@ -55,7 +54,7 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = nd.TenNguoiDung,
                 GioiTinh = nd.GioiTinh!,
                 NgaySinh = nd.NgaySinh,
-                Cccd = nd.CCCD!,
+                Cccd = nd.Cccd!,
                 Sdt = nd.SoDienThoai!,
                 DiaChi = nd.DiaChi
             };
@@ -63,7 +62,7 @@ namespace WebsiteSmartHome.Services
 
         private async Task CheckNguoiDungExistsAsync(NguoiDungCreateDto nguoiDungDto)
         {
-            var existingCCCD = await _unitOfWork.GetRepository<NguoiDung>().FindByConditionAsync(t => t.CCCD == nguoiDungDto.Cccd);
+            var existingCCCD = await _unitOfWork.GetRepository<NguoiDung>().FindByConditionAsync(t => t.Cccd == nguoiDungDto.Cccd);
             if (existingCCCD != null)
             {
                 throw new BaseException.BadRequestException("duplicate", "CCCD đã tồn tại");
@@ -111,7 +110,7 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = dto.TenNguoiDung,
                 GioiTinh = dto.GioiTinh,
                 NgaySinh = dto.NgaySinh,
-                CCCD = dto.Cccd,
+                Cccd = dto.Cccd,
                 SoDienThoai = dto.Sdt,
                 DiaChi = dto.DiaChi,
                 MaVaiTro = maVaiTro
@@ -126,7 +125,7 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = nguoiDung.TenNguoiDung,
                 GioiTinh = nguoiDung.GioiTinh!,
                 NgaySinh = nguoiDung.NgaySinh,
-                Cccd = nguoiDung.CCCD!,
+                Cccd = nguoiDung.Cccd!,
                 Sdt = nguoiDung.SoDienThoai!,
                 DiaChi = nguoiDung.DiaChi
             };
@@ -152,15 +151,40 @@ namespace WebsiteSmartHome.Services
             ValidationHelper.ValidateDiaChi(dto.DiaChi!);
             ValidationHelper.ValidateNgaySinh(dto.NgaySinh);
 
+            // Validate CCCD và SĐT nếu có thay đổi
+            if (dto.Cccd != existing.Cccd)
+            {
+                ValidationHelper.ValidateCCCD(dto.Cccd!);
+                // Kiểm tra trùng CCCD
+                var existingCCCD = await repository.FindByConditionAsync(x => x.Cccd == dto.Cccd && x.Id != guidId);
+                if (existingCCCD != null)
+                {
+                    throw new BaseException.BadRequestException("duplicate", "CCCD đã tồn tại");
+                }
+            }
+
+            if (dto.Sdt != existing.SoDienThoai)
+            {
+                ValidationHelper.ValidateSDT(dto.Sdt!);
+                // Kiểm tra trùng SĐT
+                var existingSDT = await repository.FindByConditionAsync(x => x.SoDienThoai == dto.Sdt && x.Id != guidId);
+                if (existingSDT != null)
+                {
+                    throw new BaseException.BadRequestException("duplicate", "Số điện thoại đã tồn tại");
+                }
+            }
+
             // Cập nhật
             existing.TenNguoiDung = dto.TenNguoiDung!;
             existing.GioiTinh = dto.GioiTinh!;
             existing.NgaySinh = dto.NgaySinh!;
             existing.DiaChi = dto.DiaChi!;
+            existing.Cccd = dto.Cccd!;
+            existing.SoDienThoai = dto.Sdt!;
 
             try
             {
-                _unitOfWork.GetRepository<NguoiDung>().Update(existing);
+                repository.Update(existing);
                 await _unitOfWork.SaveAsync();
             }
             catch (SqlException)
@@ -208,7 +232,7 @@ namespace WebsiteSmartHome.Services
                 .Where(x =>
                     x.TenNguoiDung.Contains(keyword) ||
                     (x.SoDienThoai != null && x.SoDienThoai.Contains(keyword)) ||
-                    (x.CCCD != null && x.CCCD.Contains(keyword)))
+                    (x.Cccd != null && x.Cccd.Contains(keyword)))
                 .ToListAsync();
 
             return filtered.Select(x => new NguoiDungDto
@@ -217,7 +241,7 @@ namespace WebsiteSmartHome.Services
                 TenNguoiDung = x.TenNguoiDung,
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh,
-                Cccd = x.CCCD!,
+                Cccd = x.Cccd!,
                 Sdt = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });

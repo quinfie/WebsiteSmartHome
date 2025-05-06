@@ -1,5 +1,5 @@
 using WebsiteSmartHome.Core.DTOs;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 
 namespace WebsiteSmartHome.IServices
 {
@@ -7,10 +7,10 @@ namespace WebsiteSmartHome.IServices
     {
         Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
         Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
-        Task<TaiKhoan> GetProfileAsync(string userId);
+        Task<TaiKhoanDto> GetProfileAsync(string userId);
         Task<bool> UpdateTaiKhoanAsync(string userId, UpdateTaiKhoanDto taiKhoan);
         Task<bool> UpdateNguoiDungAsync(string userId, UpdateNguoiDungDto nguoiDung);
         Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePassword);
         Task<bool> ForgotPasswordAsync(ForgotPasswordDto forgotPassword);
     }
-} 
+}

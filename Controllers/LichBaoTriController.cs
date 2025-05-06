@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core;
-using WebsiteSmartHome.Core.Base;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
 
@@ -16,7 +15,7 @@ namespace WebsiteSmartHome.Controllers
 
         public LichBaoTriController(ILichBaoTriService lichBaoTriService)
         {
-            _lichBaoTriService = lichBaoTriService;
+            _lichBaoTriService = lichBaoTriService ?? throw new ArgumentNullException(nameof(lichBaoTriService));
         }
 
         // Lấy tất cả lịch bảo trì
@@ -33,14 +32,8 @@ namespace WebsiteSmartHome.Controllers
         [Authorize(Policy = "RequireStaffRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateLichBaoTriDto dto)
         {
-            if (dto == null)
-                throw new BaseException.BadRequestException("invalid_data", "Dữ liệu không hợp lệ");
-
             var result = await _lichBaoTriService.CreateLichBaoTriAsync(dto);
-            if (result)
-                return BaseResponse<bool>.OkResponse(true, "Tạo lịch bảo trì thành công");
-
-            throw new BaseException.BadRequestException("create_failed", "Không thể tạo lịch bảo trì");
+            return BaseResponse<bool>.OkResponse(true, "Tạo lịch bảo trì thành công");
         }
 
 
@@ -49,14 +42,9 @@ namespace WebsiteSmartHome.Controllers
         [Authorize(Policy = "RequireStaffRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] LichBaoTriDto lichBaoTriDto)
         {
-            if (string.IsNullOrWhiteSpace(id) || id != lichBaoTriDto.Id)
-                throw new BaseException.BadRequestException("id_mismatch", "ID không khớp hoặc không hợp lệ");
 
             var result = await _lichBaoTriService.UpdateLichBaoTriAsync(Guid.Parse(id), lichBaoTriDto);
-            if (result)
-                return BaseResponse<bool>.OkResponse(true, "Cập nhật lịch bảo trì thành công");
-
-            throw new BaseException.BadRequestException("not_found", "Lịch bảo trì không tồn tại");
+            return BaseResponse<bool>.OkResponse(true, "Cập nhật lịch bảo trì thành công");
         }
 
         // Xóa lịch bảo trì theo ID
@@ -64,14 +52,8 @@ namespace WebsiteSmartHome.Controllers
         [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
-                throw new BaseException.BadRequestException("invalid_id", "ID không được để trống");
-
             var result = await _lichBaoTriService.DeleteLichBaoTriAsync(Guid.Parse(id));
-            if (result)
-                return BaseResponse<bool>.OkResponse(true, "Xóa lịch bảo trì thành công");
-
-            throw new BaseException.BadRequestException("not_found", "Lịch bảo trì không tồn tại");
+            return BaseResponse<bool>.OkResponse(true, "Xóa lịch bảo trì thành công");
         }
 
         // Lấy lịch bảo trì theo ID
@@ -79,13 +61,7 @@ namespace WebsiteSmartHome.Controllers
         [Authorize(Policy = "RequireCustomerRole")]
         public async Task<ActionResult<BaseResponse<LichBaoTriDto>>> GetById(string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
-                throw new BaseException.BadRequestException("invalid_id", "ID không được để trống");
-
             var lichBaoTri = await _lichBaoTriService.GetLichBaoTriByIdAsync(Guid.Parse(id));
-            if (lichBaoTri == null)
-                throw new BaseException.BadRequestException("not_found", "Lịch bảo trì không tồn tại");
-
             return BaseResponse<LichBaoTriDto>.OkResponse(lichBaoTri, "Lấy lịch bảo trì thành công");
         }
 
@@ -94,9 +70,6 @@ namespace WebsiteSmartHome.Controllers
         [Authorize(Policy = "RequireStaffRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> SearchByOrder([FromQuery] string maDonHang)
         {
-            if (string.IsNullOrWhiteSpace(maDonHang))
-                throw new BaseException.BadRequestException("invalid_order_id", "Mã đơn hàng không được để trống");
-
             var lichBaoTris = await _lichBaoTriService.SearchLichBaoTriByOrderAsync(Guid.Parse(maDonHang));
             return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris, "Tìm kiếm lịch bảo trì thành công");
         }

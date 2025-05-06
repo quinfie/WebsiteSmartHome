@@ -2,7 +2,7 @@
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.Core.Utils;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
 
@@ -200,7 +200,7 @@ namespace WebsiteSmartHome.Services
                     MaDonHang = donHangId,
                     MaSanPham = maSanPham,
                     SoLuong = chiTiet.SoLuongMua,
-                    DonGia = chiTiet.DonGiaMua
+                    DonGia = chiTiet.DonGiaMua > 0 ? chiTiet.DonGiaMua : sanPham.Gia
                 };
 
                 await _unitOfWork.GetRepository<ChiTietDonHang>().InsertAsync(chiTietDonHang);

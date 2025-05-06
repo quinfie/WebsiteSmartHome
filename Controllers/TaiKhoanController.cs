@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebsiteSmartHome.Core.Base;
+using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
-using WebsiteSmartHome.Data;
+using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 
 namespace WebsiteSmartHome.Controllers
@@ -44,8 +44,8 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireStaffRole")]
-        public async Task<ActionResult<BaseResponse<string>>> Update(string id, TaiKhoanUpdateDto request)
+        [Authorize(Policy = "RequireAllRole")]
+        public async Task<ActionResult<BaseResponse<string>>> Update(string id, UpdateTaiKhoanDto request)
         {
             await _taiKhoanService.UpdateTaiKhoanAsync(id, request);
             return BaseResponse<string>.OkResponse("Cập nhật tài khoản thành công");

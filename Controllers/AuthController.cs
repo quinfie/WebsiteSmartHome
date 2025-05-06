@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebsiteSmartHome.Core.Base;
+using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
-using WebsiteSmartHome.Data;
 using System.Security.Claims;
 
 namespace WebsiteSmartHome.Controllers
@@ -38,17 +37,17 @@ namespace WebsiteSmartHome.Controllers
 
         // GET: api/Auth/Profile
         [HttpGet("Profile")]
-        [Authorize(Policy = "RequireAllRoles")]
-        public async Task<BaseResponse<TaiKhoan>> GetProfile()
+        [Authorize(Policy = "RequireAllRole")]
+        public async Task<BaseResponse<TaiKhoanDto>> GetProfile()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var taiKhoan = await _authService.GetProfileAsync(userId!);
-            return BaseResponse<TaiKhoan>.OkResponse(taiKhoan, "Lấy thông tin tài khoản thành công");
+            return BaseResponse<TaiKhoanDto>.OkResponse(taiKhoan, "Lấy thông tin tài khoản thành công");
         }
 
         // PUT: api/Auth/TaiKhoan
         [HttpPut("TaiKhoan")]
-        [Authorize(Policy = "RequireAllRoles")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<BaseResponse<UpdateTaiKhoanDto>> UpdateTaiKhoan([FromBody] UpdateTaiKhoanDto taiKhoan)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -58,7 +57,7 @@ namespace WebsiteSmartHome.Controllers
 
         // PUT: api/Auth/NguoiDung
         [HttpPut("NguoiDung")]
-        [Authorize(Policy = "RequireAllRoles")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<BaseResponse<UpdateNguoiDungDto>> UpdateNguoiDung([FromBody] UpdateNguoiDungDto nguoiDung)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -67,7 +66,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("ChangePassword")]
-        [Authorize(Policy = "RequireAllRoles")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<BaseResponse<bool>> ChangePassword([FromBody] ChangePasswordDto changePassword)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
