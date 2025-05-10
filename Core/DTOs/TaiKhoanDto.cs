@@ -20,7 +20,6 @@ namespace WebsiteSmartHome.Core.DTOs
         public required string MatKhau { get; set; }
         public string TrangThai { get; set; } = "Hoạt động";
         public System.DateTime NgayTao { get; set; } = System.DateTime.Now;
-        public required string MaNguoiDung { get; set; }
     }
 
     public class TaiKhoanUpdateDto

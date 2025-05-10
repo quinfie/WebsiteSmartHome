@@ -19,7 +19,6 @@ export interface RegisterRequestDto {
 
 export interface AuthResponseDto {
   token: string;
-  id: string;
   tenNguoiDung: string;
   tenTaiKhoan: string;
   email: string;
@@ -67,8 +66,9 @@ export interface UpdateNguoiDungDto {
 }
 
 export interface ChangePasswordDto {
-  matKhauCu: string;
-  matKhauMoi: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface ForgotPasswordDto {

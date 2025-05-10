@@ -8,24 +8,34 @@ const api = axios.create({
   },
 });
 
-// Thêm interceptor để xử lý lỗi
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // Server trả về lỗi
-      console.error('API Error:', error.response.data);
-      throw new Error(error.response.data.message || 'Có lỗi xảy ra');
+      const data = error.response.data;
+
+      // Xử lý lỗi từ server
+      // Nếu có thông báo lỗi từ server thì sử dụng thông báo đó
+      const message =
+        data?.errorMessage
+        data?.message ||
+        data?.title ||
+        data?.error ||
+        (typeof data === 'string' ? data : null) ||
+        'Có lỗi xảy ra';
+
+      const code = data?.errorCode ? `[${data.errorCode}] ` : '';
+
+      console.error('API Error:', data);
+      throw new Error(`${code}${message}`); // Trả lỗi rõ cho FE
     } else if (error.request) {
-      // Không nhận được response từ server
       console.error('Network Error:', error.request);
       throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
     } else {
-      // Lỗi khi thiết lập request
-      console.error('Request Error:', error.message);
+      console.error('Request Setup Error:', error.message);
       throw new Error('Có lỗi xảy ra khi gửi yêu cầu');
     }
   }
 );
 
-export default api; 
+export default api;

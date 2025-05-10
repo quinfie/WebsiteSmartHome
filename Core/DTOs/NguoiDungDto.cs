@@ -21,7 +21,8 @@ namespace WebsiteSmartHome.Core.DTOs
         public required string Cccd { get; set; }
         public required string Sdt { get; set; }
         public required string DiaChi { get; set; }
-        public required string MaVaiTro { get; set; }
+        public required string TenVaiTro { get; set; }
+        public required string MaTaiKhoan { get; set; }
     }
 
     public class NguoiDungUpdateDto

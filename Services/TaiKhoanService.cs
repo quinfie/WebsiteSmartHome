@@ -111,29 +111,14 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.BadRequestException("duplicate", "Email hoặc tên tài khoản đã tồn tại");
             }
 
-            // Kiểm tra người dùng có tồn tại không
-            if (!Guid.TryParse(taiKhoanDto.MaNguoiDung, out var maNguoiDung))
-            {
-                throw new BaseException.BadRequestException("invalid_input", "Mã người dùng không hợp lệ");
-            }
-
-            var nguoiDung = await _unitOfWork.GetRepository<NguoiDung>()
-                .FindByConditionAsync(n => n.Id == maNguoiDung);
-
-            if (nguoiDung == null)
-            {
-                throw new BaseException.NotFoundException("user_not_found", "Không tìm thấy người dùng");
-            }
-
             // Tạo tài khoản mới
             var taiKhoan = new TaiKhoan
             {
                 Email = taiKhoanDto.Email,
                 TenTaiKhoan = taiKhoanDto.TenTaiKhoan,
                 MatKhau = taiKhoanDto.MatKhau,
-                TrangThai = AccountStatus.HoatDong.ToString(),
-                NgayTao = DateTime.Now,
-                NguoiDung = nguoiDung
+                TrangThai = taiKhoanDto.TrangThai,
+                NgayTao = DateTime.Now
             };
 
             await _unitOfWork.GetRepository<TaiKhoan>().InsertAsync(taiKhoan);
@@ -141,6 +126,7 @@ namespace WebsiteSmartHome.Services
 
             return new TaiKhoanDto
             {
+                Id = taiKhoan.Id.ToString(),
                 Email = taiKhoan.Email,
                 TenTaiKhoan = taiKhoan.TenTaiKhoan,
                 MatKhau = taiKhoan.MatKhau,

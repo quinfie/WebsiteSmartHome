@@ -51,7 +51,7 @@ namespace WebsiteSmartHome.Services
             // Kiểm tra vai trò đã tồn tại chưa
             var existingVaiTro = await _unitOfWork.GetRepository<VaiTro>()
                 .FindByConditionAsync(v => v.TenVaiTro.ToLower() == tenVaiTro.ToLower());
-            
+
             if (existingVaiTro != null)
             {
                 throw new BaseException.BadRequestException("duplicate", "Vai trò đã tồn tại");
@@ -127,8 +127,25 @@ namespace WebsiteSmartHome.Services
 
         public async Task<Guid?> GetRoleIdByNameAsync(string rolename)
         {
-            var vaiTro = await _unitOfWork.GetRepository<VaiTro>().Entities.FirstOrDefaultAsync(v => v.TenVaiTro == rolename);
+            if (string.IsNullOrWhiteSpace(rolename))
+            {
+                Console.WriteLine("Tên vai trò truyền vào là null hoặc rỗng.");
+                return null;
+            }
+
+            string normalizedRoleName = rolename.Trim().ToLower();
+
+            var vaiTro = await _unitOfWork.GetRepository<VaiTro>()
+                .Entities
+                .FirstOrDefaultAsync(v => v.TenVaiTro.Trim().ToLower() == normalizedRoleName);
+
+            if (vaiTro == null)
+            {
+                Console.WriteLine($"Không tìm thấy vai trò với tên: '{rolename}' (sau khi chuẩn hóa: '{normalizedRoleName}')");
+            }
+
             return vaiTro?.Id;
         }
+
     }
 }

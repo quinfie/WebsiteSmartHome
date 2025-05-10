@@ -13,7 +13,6 @@ import {
   EditUser,
   HelpDesk,
   HomeLayout,
-  Landing,
   LandingV2,
   Login,
   Notifications,
@@ -44,7 +43,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/login" replace />,
   },
   {
     path: "/login",

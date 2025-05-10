@@ -19,7 +19,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<IEnumerable<NguoiDungDto>>>> GetAll()
         {
             var result = await _nguoiDungService.GetAllNguoiDungAsync();
@@ -35,7 +35,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<NguoiDungDto>>> Create(NguoiDungCreateDto request)
         {
             var result = await _nguoiDungService.AddNguoiDungAsync(request);
@@ -51,7 +51,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<string>>> Delete(string id)
         {
             await _nguoiDungService.DeleteNguoiDungAsync(id);

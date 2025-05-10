@@ -1,4 +1,3 @@
-import { FaReact } from "react-icons/fa6";
 import { HiOutlineMoon, HiOutlineSun, HiOutlineLogout, HiOutlineUser, HiOutlineCog } from "react-icons/hi";
 import { HiOutlineBell } from "react-icons/hi";
 import { HiOutlineMenu } from "react-icons/hi";
@@ -8,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import SearchInput from "./SearchInput";
 import { toggleDarkMode } from "../features/darkMode/darkModeSlice";
 import { useAuth } from "../contexts/AuthContext";
-import React, { useState } from "react";
+import { useState } from "react";
 
 // Hàm ánh xạ vai trò sang tên tiếng Việt
 const getTenVaiTro = (vaiTro?: string) => {
@@ -45,12 +44,8 @@ const Header = () => {
           className="text-2xl dark:text-whiteSecondary text-blackPrimary absolute bottom-7 left-5 xl:hidden max-sm:static max-sm:order-1 cursor-pointer"
           onClick={() => dispatch(setSidebar())}
         />
-        <Link to="/">
-          <FaReact className="text-4xl dark:text-whiteSecondary text-blackPrimary hover:rotate-180 hover:duration-1000 hover:ease-in-out cursor-pointer" />
-        </Link>
         <SearchInput />
         <div className="flex gap-4 items-center max-xl:justify-center">
-          <span className="dark:text-whiteSecondary text-blackPrimary">VI</span>
           {darkMode ? (
             <HiOutlineSun
               onClick={() => dispatch(toggleDarkMode())}
@@ -101,7 +96,6 @@ const Header = () => {
               className="absolute top-2 right-2 text-gray-500 hover:text-black dark:hover:text-white"
               onClick={() => setShowUserModal(false)}
             >
-              ×
             </button>
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-4">

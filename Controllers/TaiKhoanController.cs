@@ -20,7 +20,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<IEnumerable<TaiKhoanDto>>>> GetAll()
         {
             var result = await _taiKhoanService.GetTaiKhoanAsync();
@@ -28,7 +28,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireCustomerRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<TaiKhoanDto>>> GetById(string id)
         {
             var result = await _taiKhoanService.GetTaiKhoanByIdAsync(id);
@@ -36,7 +36,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<TaiKhoanDto>>> Create(TaiKhoanCreateDto request)
         {
             var result = await _taiKhoanService.AddTaiKhoanAsync(request);
@@ -44,7 +44,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireAllRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<string>>> Update(string id, UpdateTaiKhoanDto request)
         {
             await _taiKhoanService.UpdateTaiKhoanAsync(id, request);
@@ -52,7 +52,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<string>>> Delete(string id)
         {
             await _taiKhoanService.DeleteTaiKhoanAsync(id);
@@ -60,7 +60,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("search")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<IEnumerable<TaiKhoanDto>>>> Search([FromQuery] string? keyword, [FromQuery] string? trangThai)
         {
             var result = await _taiKhoanService.SearchTaiKhoan(keyword, trangThai);

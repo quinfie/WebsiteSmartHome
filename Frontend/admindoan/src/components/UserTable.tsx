@@ -1,9 +1,13 @@
 import { nanoid } from "nanoid";
-import { Link } from "react-router-dom";
-import { HiOutlinePencil, HiOutlineTrash, HiOutlineEye } from "react-icons/hi";
-import { userAdminItems } from "../utils/data";
+import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 
-const UserTable = () => {
+interface UserTableProps {
+  users: any[];
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
   return (
     <table className="mt-6 w-full whitespace-nowrap text-left max-lg:block max-lg:overflow-x-scroll">
       <colgroup>
@@ -27,55 +31,41 @@ const UserTable = () => {
         </tr>
       </thead>
       <tbody className="divide-y divide-white/5">
-        {userAdminItems.map((item) => (
-          <tr key={nanoid()}>
+        {users.map((user) => (
+          <tr key={user.id || nanoid()}>
             <td className="py-4 pl-4 pr-4 sm:pl-6 lg:pl-8">
-              <div className="flex items-center gap-x-4">
-                <img
-                  src={item.user.imageUrl}
-                  alt={item.user.name}
-                  className="h-8 w-8 rounded-full bg-gray-800"
-                />
-                <span className="truncate text-sm font-medium leading-6 dark:text-whiteSecondary text-blackPrimary">
-                  {item.user.name}
-                </span>
-              </div>
+              <span className="truncate text-sm font-medium leading-6 dark:text-whiteSecondary text-blackPrimary">
+                {user.tenNguoiDung}
+              </span>
             </td>
             <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.gioiTinh}
+              {user.gioiTinh}
             </td>
             <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.ngaySinh}
+              {user.ngaySinh ? new Date(user.ngaySinh).toLocaleDateString() : ""}
             </td>
             <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.cccd}
+              {user.cccd}
             </td>
             <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.soDienThoai}
+              {user.sdt}
             </td>
             <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.diaChi}
+              {user.diaChi}
             </td>
             <td className="py-4 pl-0 pr-4 text-right text-sm leading-6 dark:text-whiteSecondary text-blackPrimary sm:pr-6 lg:pr-8">
               <div className="flex gap-x-1 justify-end">
-                <Link
-                  to={`/users/${item.id}`}
+                <button
                   className="dark:bg-blackPrimary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
                   aria-label="Chỉnh sửa"
+                  onClick={() => onEdit(user.id)}
                 >
                   <HiOutlinePencil className="text-lg" />
-                </Link>
-                <Link
-                  to={`/users/${item.id}`}
-                  className="dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
-                  aria-label="Xem"
-                >
-                  <HiOutlineEye className="text-lg" />
-                </Link>
+                </button>
                 <button
                   className="dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
                   aria-label="Xóa"
-                  onClick={() => console.log('Xóa người dùng', item.id)}
+                  onClick={() => onDelete(user.id)}
                 >
                   <HiOutlineTrash className="text-lg" />
                 </button>

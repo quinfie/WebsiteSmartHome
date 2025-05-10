@@ -34,12 +34,20 @@ export const stockStatusList = [
 
 export const roles = [
   {
-    label: "Admin",
-    value: "admin",
+    label: "Quản Trị Viên",
+    value: "Quản Trị Viên",
   },
   {
-    label: "User",
-    value: "user",
+    label: "Quản Lí",
+    value: "Quản Lí",
+  },
+  {
+    label: "Nhân Viên",
+    value: "Nhân Viên",
+  },
+  {
+    label: "Khách Hàng",
+    value: "Khách Hàng",
   },
 ];
 

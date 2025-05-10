@@ -1,159 +1,143 @@
-import { AiOutlineSave } from "react-icons/ai";
-import { HiOutlineSave } from "react-icons/hi";
-import {
-  ImageUpload,
-  InputWithLabel,
-  Sidebar,
-  SimpleInput,
-  WhiteButton,
-} from "../components";
-import SelectInput from "../components/SelectInput";
-import { roles } from "../utils/data";
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { nguoiDungService } from "../api/nguoiDungApi";
+import { NguoiDungDto } from "../types/nguoiDung";
+import { Sidebar, InputWithLabel, SimpleInput, WhiteButton } from "../components";
+import { HiOutlineSave, HiOutlineCamera } from "react-icons/hi";
+import SelectInput from "../components/SelectInput";
 
 const EditUser = () => {
-  const [inputObject, setInputObject] = useState({
-    name: "Brent",
-    lastname: "Fesi",
-    email: "brentfesi@email.com",
-    password: "brentfesi123",
-    confirmPassword: "brentfesi123",
-    role: roles[0].value,
-  });
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<NguoiDungDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    console.log(inputObject);
-  }, [inputObject]);
+    if (id) {
+      nguoiDungService.getById(id)
+        .then((data) => setUser(data))
+        .catch((err) => setError("Không thể lấy thông tin người dùng"))
+        .finally(() => setLoading(false));
+    }
+  }, [id]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    if (user) {
+      setUser({
+        ...user,
+        [name]: value
+      });
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!user || !id) return;
+
+    try {
+      await nguoiDungService.update(id, user);
+      setMessage("Cập nhật thành công!");
+      setTimeout(() => navigate("/dashboard/users"), 1500);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Cập nhật thất bại");
+    }
+  };
+
+  if (loading) return <div>Đang tải...</div>;
+  if (!user) return <div>Không tìm thấy người dùng</div>;
 
   return (
-    <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
+    <div className="flex min-h-screen dark:bg-blackPrimary bg-whiteSecondary">
       <Sidebar />
-      <div className="dark:bg-blackPrimary bg-whiteSecondary w-full ">
-        <div className="dark:bg-blackPrimary bg-whiteSecondary py-10">
-          <div className="px-4 sm:px-6 lg:px-8 pb-8 border-b border-gray-800 flex justify-between items-center max-sm:flex-col max-sm:gap-5">
-            <h2 className="text-3xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
-              Chỉnh sửa người dùng
-            </h2>
-            <div className="flex gap-x-2 max-[370px]:flex-col max-[370px]:gap-2 max-[370px]:items-center">
-              <button className="dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 w-48 py-2 text-lg dark:hover:border-gray-500 hover:border-gray-400 duration-200 flex items-center justify-center gap-x-2">
-                <AiOutlineSave className="dark:text-whiteSecondary text-blackPrimary text-xl" />
-                <span className="dark:text-whiteSecondary text-blackPrimary font-medium">
-                  Lưu nháp
-                </span>
-              </button>
-              <WhiteButton
-                link="/users/create-user"
-                textSize="lg"
-                width="48"
-                py="2"
-                text="Cập nhật người dùng"
-              >
-                <HiOutlineSave className="dark:text-blackPrimary text-whiteSecondary text-xl" />
-              </WhiteButton>
+      <div className="flex-1 flex flex-col items-center py-10 px-4 sm:px-8">
+        <div className="w-full max-w-4xl">
+          <h2 className="text-3xl font-bold mb-8 dark:text-whiteSecondary text-blackPrimary">
+            Chỉnh sửa người dùng
+          </h2>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
             </div>
-          </div>
-
-          <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-8 grid grid-cols-2 gap-x-10 max-xl:grid-cols-1 max-xl:gap-y-10">
-            {/* Thông tin người dùng */}
-            <div>
-              <h3 className="text-2xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
-                Thông tin người dùng
-              </h3>
-              <div className="mt-4 flex flex-col gap-5">
-                <InputWithLabel label="Tên">
-                  <SimpleInput
-                    type="text"
-                    placeholder="Nhập tên..."
-                    value={inputObject.name}
-                    onChange={(e) =>
-                      setInputObject({ ...inputObject, name: e.target.value })
-                    }
-                  />
-                </InputWithLabel>
-
-                <InputWithLabel label="Họ">
-                  <SimpleInput
-                    type="text"
-                    placeholder="Nhập họ..."
-                    value={inputObject.lastname}
-                    onChange={(e) =>
-                      setInputObject({
-                        ...inputObject,
-                        lastname: e.target.value,
-                      })
-                    }
-                  />
-                </InputWithLabel>
-
-                <InputWithLabel label="Email">
-                  <SimpleInput
-                    type="text"
-                    placeholder="Nhập email..."
-                    value={inputObject.email}
-                    onChange={(e) =>
-                      setInputObject({ ...inputObject, email: e.target.value })
-                    }
-                  />
-                </InputWithLabel>
-
-                <InputWithLabel label="Mật khẩu">
-                  <SimpleInput
-                    type="password"
-                    placeholder="Nhập mật khẩu..."
-                    value={inputObject.password}
-                    onChange={(e) =>
-                      setInputObject({
-                        ...inputObject,
-                        password: e.target.value,
-                      })
-                    }
-                  />
-                </InputWithLabel>
-
-                <InputWithLabel label="Xác nhận mật khẩu">
-                  <SimpleInput
-                    type="password"
-                    placeholder="Nhập lại mật khẩu..."
-                    value={inputObject.confirmPassword}
-                    onChange={(e) =>
-                      setInputObject({
-                        ...inputObject,
-                        confirmPassword: e.target.value,
-                      })
-                    }
-                  />
-                </InputWithLabel>
-
-                <InputWithLabel label="Chọn vai trò">
-                  <SelectInput
-                    selectList={roles}
-                    value={inputObject.role}
-                    onChange={(e) =>
-                      setInputObject({ ...inputObject, role: e.target.value })
-                    }
-                  />
-                </InputWithLabel>
-              </div>
+          )}
+          {message && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              {message}
             </div>
-
-            {/* Tải lên ảnh người dùng */}
-            <div>
-              <h3 className="text-2xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
-                Tải lên ảnh người dùng
-              </h3>
-              <ImageUpload />
-              <div className="flex justify-center gap-x-2 mt-5 flex-wrap">
-                <img
-                  src="/src/assets/random user 1.jpg"
-                  alt=""
-                  className="w-36 h-32"
+          )}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 flex flex-col md:flex-row gap-10">
+            {/* Form */}
+            <form className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InputWithLabel label="Tên">
+                <SimpleInput
+                  type="text"
+                  name="tenNguoiDung"
+                  value={user.tenNguoiDung}
+                  onChange={handleChange}
                 />
+              </InputWithLabel>
+              <InputWithLabel label="Giới tính">
+                <SelectInput
+                  selectList={[
+                    { value: 'Nam', label: 'Nam' },
+                    { value: 'Nữ', label: 'Nữ' },
+                  ]}
+                  name="gioiTinh"
+                  value={user.gioiTinh}
+                  onChange={handleChange}
+                />
+              </InputWithLabel>
+              <InputWithLabel label="Ngày sinh">
+                <SimpleInput
+                  type="date"
+                  name="ngaySinh"
+                  value={user.ngaySinh ? new Date(user.ngaySinh).toISOString().split('T')[0] : ""}
+                  onChange={handleChange}
+                />
+              </InputWithLabel>
+              <InputWithLabel label="CCCD">
+                <SimpleInput
+                  type="text"
+                  name="cccd"
+                  value={user.cccd}
+                  onChange={handleChange}
+                />
+              </InputWithLabel>
+              <InputWithLabel label="Số điện thoại">
+                <SimpleInput
+                  type="text"
+                  name="sdt"
+                  value={user.sdt}
+                  onChange={handleChange}
+                />
+              </InputWithLabel>
+              <InputWithLabel label="Địa chỉ">
+                <SimpleInput
+                  type="text"
+                  name="diaChi"
+                  value={user.diaChi}
+                  onChange={handleChange}
+                />
+              </InputWithLabel>
+              {/* Nút cập nhật */}
+              <div className="md:col-span-2 flex justify-end mt-4">
+                <WhiteButton
+                  text="Cập nhật người dùng"
+                  textSize="lg"
+                  width="52"
+                  py="4"
+                  onClick={handleSubmit}
+                >
+                  <HiOutlineSave className="dark:text-blackPrimary text-whiteSecondary text-xl" />
+                </WhiteButton>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 export default EditUser;

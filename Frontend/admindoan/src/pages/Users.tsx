@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   HiOutlineChevronRight,
   HiOutlinePlus,
@@ -11,8 +12,92 @@ import {
   WhiteButton,
 } from "../components";
 import { AiOutlineExport } from "react-icons/ai";
+import { nguoiDungService } from "../api/nguoiDungApi";
+import { taiKhoanService } from "../api/taiKhoanApi";
+import { useNavigate } from "react-router-dom";
+import { NguoiDungDto } from "../types/nguoiDung";
 
-const Users = () => {
+const Users: React.FC = () => {
+  const [users, setUsers] = useState<NguoiDungDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await nguoiDungService.getAll();
+      setUsers(
+        data.map((u) => ({
+          ...u,
+          ngaySinh: u.ngaySinh ? new Date(u.ngaySinh) : new Date(0),
+        }))
+      );
+    } catch (err: any) {
+      setError("Không thể lấy danh sách người dùng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleEdit = (id: string) => {
+    console.log("Edit id:", id);
+    navigate(`/dashboard/users/${id}/edit`);
+  };
+
+  const handleDelete = async (id: string) => {
+    console.log("Delete id:", id);
+
+    // Xác nhận xóa người dùng
+    if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
+
+    try {
+      // Tìm người dùng trong danh sách
+      const userToDelete = users.find((u) => u.id === id);
+
+      if (!userToDelete) {
+        // Nếu không tìm thấy người dùng, báo lỗi
+        alert("Không tìm thấy người dùng để xóa!");
+        return;
+      }
+
+      // Kiểm tra xem người dùng có tài khoản hay không
+      if (userToDelete.maTaiKhoan) {
+        // Nếu có tài khoản, xóa tài khoản liên quan
+        try {
+          await taiKhoanService.delete(userToDelete.maTaiKhoan);
+          console.log("Xóa tài khoản thành công");
+        } catch (err: any) {
+          // Hiển thị thông báo lỗi từ BE khi xóa tài khoản
+          const errorMessage =
+            err?.response?.data?.errorMessage || "Lỗi khi xóa tài khoản!";
+          alert(errorMessage);
+          console.error("Lỗi khi xóa tài khoản:", err);
+          return; // Ngừng xóa người dùng nếu xóa tài khoản thất bại
+        }
+      }
+
+      // Xóa người dùng
+      await nguoiDungService.delete(id);
+      setUsers(users.filter((u) => u.id !== id)); // Cập nhật danh sách người dùng
+
+      setMessage("Xóa người dùng thành công!");
+      console.log("Xóa người dùng thành công");
+    } catch (err: any) {
+      // Hiển thị thông báo lỗi từ BE khi xóa người dùng
+      const errorMessage =
+        err?.response?.data?.errorMessage || "Lỗi khi xóa người dùng!";
+      alert(errorMessage);
+      console.error("Lỗi khi xóa người dùng:", err);
+    }
+  };
+
   return (
     <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
       <Sidebar />
@@ -35,7 +120,7 @@ const Users = () => {
                 <span className="dark:text-whiteSecondary text-blackPrimary font-medium">Xuất</span>
               </button>
               <WhiteButton
-                link="/users/create-user"
+                link="/dashboard/users/create"
                 text="Thêm người dùng"
                 textSize="lg"
                 py="2"
@@ -68,7 +153,18 @@ const Users = () => {
               </select>
             </div>
           </div>
-          <UserTable />
+          {/* Hiển thị thông báo lỗi hoặc thành công */}
+          {message && (
+            <div className="w-full max-w-2xl mx-auto mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center gap-2">
+              <span className="font-bold">Thành công:</span> {message}
+            </div>
+          )}
+          {error && (
+            <div className="w-full max-w-2xl mx-auto mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center gap-2">
+              <span className="font-bold">Lỗi:</span> {error}
+            </div>
+          )}
+          <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
           <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-sm:flex-col gap-4 max-sm:pt-6 max-sm:pb-0">
             <RowsPerPage />
             <Pagination />
@@ -78,4 +174,5 @@ const Users = () => {
     </div>
   );
 };
+
 export default Users;

@@ -4,6 +4,8 @@ import { UpdateTaiKhoanDto, UpdateNguoiDungDto } from '../types/auth';
 import { HiOutlineSave, HiOutlineUpload, HiOutlineUser } from "react-icons/hi";
 import { InputWithLabel, Sidebar, SimpleInput, WhiteButton } from "../components";
 import { authService } from '../api/auth';
+import SelectInput from '../components/SelectInput';
+import { nguoiDungService } from '../api/nguoiDungApi';
 
 const Profile: React.FC = () => {
   const { user, updateProfile } = useAuth();
@@ -71,8 +73,16 @@ const Profile: React.FC = () => {
 
   const fetchUserData = async () => {
     try {
-      if (user?.maNguoiDung) {
-        const nguoiDung = await authService.getNguoiDungByTaiKhoanId(user.maNguoiDung);
+      const profile = await authService.getProfile();
+      setTaiKhoanData({
+        email: profile.email,
+        tenTaiKhoan: profile.tenTaiKhoan,
+        trangThai: profile.trangThai
+      });
+
+      // Lấy thông tin người dùng nếu có maNguoiDung
+      if (profile.maNguoiDung) {
+        const nguoiDung = await nguoiDungService.getById(profile.maNguoiDung);
         setNguoiDungData({
           tenNguoiDung: nguoiDung.tenNguoiDung,
           gioiTinh: nguoiDung.gioiTinh,
@@ -91,15 +101,8 @@ const Profile: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      setTaiKhoanData({
-        email: user.email,
-        tenTaiKhoan: user.tenTaiKhoan,
-        trangThai: user.trangThai
-      });
-      fetchUserData();
-    }
-  }, [user]);
+    fetchUserData();
+  }, []);
 
   const handleTaiKhoanChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -134,7 +137,7 @@ const Profile: React.FC = () => {
       setMessage('Cập nhật thông tin thành công');
       await fetchUserData();
     } catch (error: any) {
-      console.error('Update error:', error); // Thêm dòng này để xem chi tiết lỗi
+      console.error('Update error:', error);
       setError(
         error.response?.data?.message ||
         error.response?.data?.errors?.[0] ||
@@ -151,160 +154,146 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
-      <div className="dark:bg-blackPrimary bg-whiteSecondary w-full">
-        <div className="dark:bg-blackPrimary bg-whiteSecondary py-10">
-          <div className="px-4 sm:px-6 lg:px-8 pb-8 border-b border-gray-800 flex justify-between items-center max-sm:flex-col max-sm:gap-5">
-            <div className="flex flex-col gap-3">
-              <h2 className="text-3xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
-                Hồ sơ của bạn
-              </h2>
+      <div className="flex-1 overflow-auto">
+        <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-8">
+          {message && (
+            <div className="mb-4 p-4 rounded-md bg-green-100 text-green-700">
+              {message}
             </div>
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center gap-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <HiOutlineSave className="text-xl" />
-              <span>{isSubmitting ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}</span>
-            </button>
-          </div>
+          )}
+          {error && (
+            <div className="mb-4 p-4 rounded-md bg-red-100 text-red-700">
+              {error}
+            </div>
+          )}
 
-          <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-8">
-            {message && (
-              <div className="mb-4 p-4 rounded-md bg-green-100 text-green-700">
-                {message}
-              </div>
-            )}
-            {error && (
-              <div className="mb-4 p-4 rounded-md bg-red-100 text-red-700">
-                {error}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center max-sm:flex-col max-sm:gap-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
-                    <HiOutlineUser className="text-4xl text-gray-500" />
-                  </div>
-                  <div>
-                    <p className="dark:text-whiteSecondary text-blackPrimary text-xl">
-                      {nguoiDungData.tenNguoiDung || user.tenTaiKhoan}
-                    </p>
-                    <p className="dark:text-whiteSecondary text-blackPrimary">
-                      {user.vaiTro}
-                    </p>
-                    <p className="dark:text-whiteSecondary text-blackPrimary text-sm">
-                      Trạng thái: {user.trangThai}
-                    </p>
-                    <p className="dark:text-whiteSecondary text-blackPrimary text-sm">
-                      Ngày tạo: {user.ngayTao ? new Date(user.ngayTao).toLocaleDateString() : ''}
-                    </p>
-                    <p className="dark:text-whiteSecondary text-blackPrimary text-sm">
-                      Email: {user.email}
-                    </p>
-                  </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center max-sm:flex-col max-sm:gap-10">
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+                  <HiOutlineUser className="text-4xl text-gray-500" />
                 </div>
-
-                <button className="dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 w-72 py-2 text-lg dark:hover:border-gray-500 hover:border-gray-400 duration-200 flex items-center justify-center gap-x-2">
-                  <HiOutlineUpload className="dark:text-whiteSecondary text-blackPrimary text-xl" />
-                  <span className="dark:text-whiteSecondary text-blackPrimary font-medium">
-                    Thay đổi ảnh đại diện
-                  </span>
-                </button>
+                <div>
+                  <p className="dark:text-whiteSecondary text-blackPrimary text-xl">
+                    {nguoiDungData.tenNguoiDung || user.tenTaiKhoan}
+                  </p>
+                  <p className="dark:text-whiteSecondary text-blackPrimary">
+                    {user.vaiTro}
+                  </p>
+                  <p className="dark:text-whiteSecondary text-blackPrimary text-sm">
+                    Trạng thái: {user.trangThai}
+                  </p>
+                  <p className="dark:text-whiteSecondary text-blackPrimary text-sm">
+                    Ngày tạo: {user.ngayTao ? new Date(user.ngayTao).toLocaleDateString() : ''}
+                  </p>
+                  <p className="dark:text-whiteSecondary text-blackPrimary text-sm">
+                    Email: {user.email}
+                  </p>
+                </div>
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium dark:text-whiteSecondary text-blackPrimary">Thông tin tài khoản</h3>
-                  <InputWithLabel label="Tên đăng nhập">
-                    <SimpleInput
-                      name="tenTaiKhoan"
-                      type="text"
-                      value={taiKhoanData.tenTaiKhoan}
-                      onChange={handleTaiKhoanChange}
-                    />
-                  </InputWithLabel>
+            <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+              <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                <h2 className="text-lg font-medium mb-4 dark:text-whiteSecondary text-blackPrimary">
+                  Thông tin tài khoản
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InputWithLabel label="Email">
                     <SimpleInput
-                      name="email"
                       type="email"
+                      name="email"
                       value={taiKhoanData.email}
                       onChange={handleTaiKhoanChange}
+                      required
+                      disabled={true}
                     />
                   </InputWithLabel>
-                  <InputWithLabel label="Trạng thái">
-                    <select
-                      name="trangThai"
-                      value={taiKhoanData.trangThai}
+                  <InputWithLabel label="Tên tài khoản">
+                    <SimpleInput
+                      type="text"
+                      name="tenTaiKhoan"
+                      value={taiKhoanData.tenTaiKhoan}
                       onChange={handleTaiKhoanChange}
-                      className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    >
-                      <option value="Hoạt Động">Hoạt Động</option>
-                      <option value="Bị Khóa">Bị Khóa</option>
-                    </select>
+                      required
+                      disabled={true}
+                    />
                   </InputWithLabel>
                 </div>
+              </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium dark:text-whiteSecondary text-blackPrimary">Thông tin cá nhân</h3>
+              <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                <h2 className="text-lg font-medium mb-4 dark:text-whiteSecondary text-blackPrimary">
+                  Thông tin cá nhân
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InputWithLabel label="Họ và tên">
                     <SimpleInput
-                      name="tenNguoiDung"
                       type="text"
+                      name="tenNguoiDung"
                       value={nguoiDungData.tenNguoiDung}
                       onChange={handleNguoiDungChange}
+                      required
+                      disabled={true}
                     />
                   </InputWithLabel>
                   <InputWithLabel label="Giới tính">
-                    <select
+                    <SelectInput
+                      selectList={[
+                        { value: 'Nam', label: 'Nam' },
+                        { value: 'Nữ', label: 'Nữ' },
+                      ]}
                       name="gioiTinh"
                       value={nguoiDungData.gioiTinh}
                       onChange={handleNguoiDungChange}
-                      className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    >
-                      <option value="Nam">Nam</option>
-                      <option value="Nữ">Nữ</option>
-                      <option value="Khác">Khác</option>
-                    </select>
+                      disabled={true}
+                    />
                   </InputWithLabel>
                   <InputWithLabel label="Ngày sinh">
                     <SimpleInput
-                      name="ngaySinh"
                       type="date"
+                      name="ngaySinh"
                       value={nguoiDungData.ngaySinh.toISOString().split('T')[0]}
                       onChange={handleNguoiDungChange}
+                      required
+                      disabled={true}
                     />
                   </InputWithLabel>
                   <InputWithLabel label="CCCD">
                     <SimpleInput
-                      name="cccd"
                       type="text"
+                      name="cccd"
                       value={nguoiDungData.cccd}
                       onChange={handleNguoiDungChange}
+                      required
+                      disabled={true}
                     />
                   </InputWithLabel>
                   <InputWithLabel label="Số điện thoại">
                     <SimpleInput
-                      name="sdt"
                       type="tel"
+                      name="sdt"
                       value={nguoiDungData.sdt}
                       onChange={handleNguoiDungChange}
+                      required
+                      disabled={true}
                     />
                   </InputWithLabel>
                   <InputWithLabel label="Địa chỉ">
                     <SimpleInput
-                      name="diaChi"
                       type="text"
+                      name="diaChi"
                       value={nguoiDungData.diaChi}
                       onChange={handleNguoiDungChange}
+                      required
+                      disabled={true}
                     />
                   </InputWithLabel>
                 </div>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

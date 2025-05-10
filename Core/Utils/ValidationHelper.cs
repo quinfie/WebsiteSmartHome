@@ -52,18 +52,27 @@ namespace WebsiteSmartHome.Core.Utils
             }
         }
 
-        // Kiểm tra giới tính
         public static void ValidateGioiTinh(string? gioiTinh)
         {
+            // Nếu gioiTinh không phải null và không phải khoảng trắng
             if (!string.IsNullOrWhiteSpace(gioiTinh))
             {
-                var lower = gioiTinh.Trim().ToLower();
-                if (lower != "nam" && lower != "nữ")
+                var trimmedGender = gioiTinh.Trim();
+
+                // Kiểm tra xem giá trị có phải là "Nam" hoặc "Nữ" không, đúng định dạng
+                if (trimmedGender != "Nam" && trimmedGender != "Nữ")
                 {
                     throw new BaseException.BadRequestException("invalid_gender", "Giới tính chỉ được phép là 'Nam' hoặc 'Nữ'");
                 }
             }
+            else
+            {
+                // Nếu không nhập, có thể xử lý như lỗi hoặc giữ lại (tùy vào yêu cầu hệ thống của bạn)
+                throw new BaseException.BadRequestException("invalid_gender", "Giới tính không được để trống");
+            }
         }
+
+
 
         // Kiểm tra CCCD
         public static void ValidateCCCD(string? cccd)
@@ -72,7 +81,7 @@ namespace WebsiteSmartHome.Core.Utils
             {
                 if (cccd.Length != 12 || !cccd.All(char.IsDigit))
                 {
-                    throw new BaseException.ValidationException("invalid_cccd", "CCCD phải gồm đúng 10 chữ số");
+                    throw new BaseException.ValidationException("invalid_cccd", "CCCD phải gồm đúng 12 chữ số");
                 }
             }
         }

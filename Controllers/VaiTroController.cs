@@ -20,7 +20,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<IEnumerable<VaiTroDto>>>> GetAll()
         {
             var result = await _vaiTroService.GetVaiTroAsync();
@@ -28,7 +28,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<VaiTroDto>>> GetById(string id)
         {
             var result = await _vaiTroService.GetVaiTroByIdAsync(id);
@@ -36,7 +36,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<VaiTroDto>>> Create([FromBody] string tenVaiTro)
         {
             var result = await _vaiTroService.AddVaiTroAsync(tenVaiTro);
@@ -44,7 +44,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] string tenVaiTro)
         {
             var result = await _vaiTroService.UpdateVaiTroAsync(id, tenVaiTro);
@@ -52,7 +52,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             var result = await _vaiTroService.DeleteVaiTroAsync(id);
@@ -60,7 +60,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("search")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<IEnumerable<VaiTro>>>> Search([FromQuery] string? keyword)
         {
             var result = await _vaiTroService.SearchVaiTro(keyword);

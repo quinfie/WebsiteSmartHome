@@ -6,7 +6,7 @@ interface AuthContextType {
     user: TaiKhoanDto | null;
     token: string | null;
     isAuthenticated: boolean;
-    login: (username: string, password: string) => Promise<void>;
+    login: (username: string, password: string) => Promise<AuthResponseDto>;
     register: (data: any) => Promise<void>;
     logout: () => void;
     updateProfile: (taiKhoanData: UpdateTaiKhoanDto, nguoiDungData: UpdateNguoiDungDto) => Promise<void>;
@@ -50,21 +50,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const token = localStorage.getItem('token');
             const id = getUserIdFromToken(token || '');
 
-            let nguoiDung = null;
-            if (maNguoiDung) {
-                try {
-                    nguoiDung = await authService.getNguoiDungByTaiKhoanId(maNguoiDung);
-                } catch (err) {
-                    // Đã xóa log
-                }
-            }
-
             setUser({
                 ...profile,
                 id: id || '',
                 maNguoiDung,
                 vaiTro,
-                nguoiDung,
             });
             setIsAuthenticated(true);
         } catch (error) {
@@ -73,13 +63,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const login = async (username: string, password: string) => {
+    const login = async (username: string, password: string): Promise<AuthResponseDto> => {
         const response = await authService.login({ username, password });
         setToken(response.token);
         localStorage.setItem('token', response.token);
         localStorage.setItem('vaiTro', response.vaiTro);
         await fetchProfile();
         setIsAuthenticated(true);
+        return response;
     };
 
     const register = async (data: any) => {
@@ -97,22 +88,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const updateProfile = async (taiKhoanData: UpdateTaiKhoanDto, nguoiDungData: UpdateNguoiDungDto) => {
-        const token = localStorage.getItem('token');
-        const id = getUserIdFromToken(token || '');
-        if (!id || !user) {
-            throw new Error('Không tìm thấy thông tin tài khoản');
-        }
-
         try {
-            // Cập nhật tài khoản trước
-            await authService.updateTaiKhoan(id, taiKhoanData);
+            // Cập nhật tài khoản
+            await authService.updateTaiKhoan(taiKhoanData);
 
-            // Sau đó cập nhật thông tin người dùng
-            if (user.maNguoiDung) {
-                await authService.updateNguoiDung(user.maNguoiDung, nguoiDungData);
-            }
+            // Cập nhật thông tin người dùng
+            await authService.updateNguoiDung(nguoiDungData);
 
-            // Cuối cùng cập nhật lại thông tin profile
+            // Cập nhật lại thông tin profile
             await fetchProfile();
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Cập nhật thông tin thất bại';
@@ -121,7 +104,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const changePassword = async (currentPassword: string, newPassword: string) => {
-        await authService.changePassword({ matKhauCu: currentPassword, matKhauMoi: newPassword });
+        await authService.changePassword({
+            currentPassword,
+            newPassword,
+            confirmPassword: newPassword
+        });
     };
 
     const forgotPassword = async (email: string) => {

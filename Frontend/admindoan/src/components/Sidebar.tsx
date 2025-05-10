@@ -45,28 +45,6 @@ const Sidebar = () => {
             <HiOutlineHome className="text-xl" />
             <span className="text-lg">Trang tổng quan</span>
           </div>
-          {isLandingOpen && (
-            <div>
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  isActive ? navActiveClass : navInactiveClass
-                }
-              >
-                <HiOutlineHome className="text-xl" />
-                <span className="text-lg">Tổng quan v1</span>
-              </NavLink>
-              <NavLink
-                to="/landing-v2"
-                className={({ isActive }) =>
-                  isActive ? navActiveClass : navInactiveClass
-                }
-              >
-                <HiOutlineHome className="text-xl" />
-                <span className="text-lg">Tổng quan v2</span>
-              </NavLink>
-            </div>
-          )}
 
           {/* Các mục menu chính */}
           <NavLink
@@ -114,8 +92,9 @@ const Sidebar = () => {
             <HiOutlineClipboardList className="text-xl" />
             <span className="text-lg">Phân công dịch vụ</span>
           </NavLink>
+
           <NavLink
-            to="/users"
+            to="/dashboard/users"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -123,6 +102,7 @@ const Sidebar = () => {
             <HiOutlineUser className="text-xl" />
             <span className="text-lg">Người dùng</span>
           </NavLink>
+
           <NavLink
             to="/reviews"
             className={({ isActive }) =>
@@ -132,6 +112,7 @@ const Sidebar = () => {
             <HiOutlineStar className="text-xl" />
             <span className="text-lg">Đánh giá</span>
           </NavLink>
+
           <NavLink
             to="/yeucaudichvu"
             className={({ isActive }) =>

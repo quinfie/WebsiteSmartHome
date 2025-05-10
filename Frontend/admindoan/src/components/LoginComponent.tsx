@@ -1,20 +1,14 @@
-import { FaReact } from "react-icons/fa6";
-import { FaGoogle } from "react-icons/fa6";
-import { FaGithub } from "react-icons/fa6";
-import {
-  InputWithLabel,
-  SimpleInput,
-  ThirdPartyAuthButton,
-} from ".";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa6";
-import { useState } from "react";
+import { InputWithLabel, SimpleInput } from ".";
 
 interface LoginComponentProps {
   onLogin: (username: string, password: string) => Promise<void>;
+  error?: string;
 }
 
-const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin }) => {
+const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin, error: externalError }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -39,34 +33,26 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="w-[500px] h-[750px] dark:bg-gray-900 bg-white flex flex-col justify-between items-center py-10 max-sm:w-[400px] max-[420px]:w-[320px] max-sm:h-[750px]">
-      <div className="flex flex-col items-center gap-10">
-        <FaReact className="text-5xl dark:text-whiteSecondary text-blackPrimary hover:rotate-180 hover:duration-1000 hover:ease-in-out cursor-pointer max-sm:text-4xl" />
-        <h2 className="text-2xl dark:text-whiteSecondary text-blackPrimary font-medium max-sm:text-xl">
-          Chào mừng đến với trang quản trị!
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 py-8">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-10 space-y-8 border border-gray-100 dark:border-gray-700">
+        <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white">
+          Chào mừng trở lại
         </h2>
-        <div className="flex gap-5">
-          <ThirdPartyAuthButton>
-            <FaGoogle className="text-2xl max-sm:text-xl" />
-          </ThirdPartyAuthButton>
-          <ThirdPartyAuthButton>
-            <FaGithub className="text-2xl max-sm:text-xl" />
-          </ThirdPartyAuthButton>
-        </div>
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
+          Đăng nhập để tiếp tục
+        </p>
 
-        <p className="dark:text-gray-400 text-gray-700 text-xl max-sm:text-base">HOẶC</p>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative w-full" role="alert">
-            <span className="block sm:inline">{error}</span>
+        {(externalError || error) && (
+          <div className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded-md text-center">
+            {externalError || error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
-          <InputWithLabel label="Tên đăng nhập hoặc Email">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <InputWithLabel label="Tên đăng nhập">
             <SimpleInput
               type="text"
-              placeholder="Nhập tên đăng nhập hoặc email..."
+              placeholder="Nhập tên đăng nhập"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -76,34 +62,43 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin }) => {
           <InputWithLabel label="Mật khẩu">
             <SimpleInput
               type="password"
-              placeholder="Nhập mật khẩu..."
+              placeholder="Nhập mật khẩu"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </InputWithLabel>
 
-          <Link to="/forgot-password" className="dark:text-gray-400 text-gray-700 text-base dark:hover:text-gray-300 hover:text-gray-600 cursor-pointer transition-colors max-sm:text-sm">
-            Quên mật khẩu?
-          </Link>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400"> </span>
+            <Link to="/forgot-password" className="text-indigo-600 hover:underline">
+              Quên mật khẩu?
+            </Link>
+          </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isLoading ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+            className={`w-full py-2 rounded-md text-white font-medium transition-all ${isLoading
+              ? "bg-indigo-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
           >
-            {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
 
-        <p className="dark:text-gray-400 text-gray-700 text-base cursor-pointer transition-colors flex gap-1 items-center max-sm:text-sm">
-          Chưa có tài khoản?
-          <Link
-            to="/register"
-            className="dark:text-whiteSecondary text-blackPrimary hover:text-black flex gap-1 items-center dark:hover:text-white max-sm:text-sm hover:underline"
-          >
-            Đăng ký <FaArrowRight className="mt-[2px]" />
+        <div className="flex items-center justify-between">
+          <hr className="flex-1 border-t dark:border-gray-700" />
+          <span className="mx-4 text-sm text-gray-400">Hoặc</span>
+          <hr className="flex-1 border-t dark:border-gray-700" />
+        </div>
+
+
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+          Chưa có tài khoản?{" "}
+          <Link to="/register" className="text-indigo-600 hover:underline inline-flex items-center gap-1">
+            Đăng ký <FaArrowRight />
           </Link>
         </p>
       </div>

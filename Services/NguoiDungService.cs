@@ -12,10 +12,11 @@ namespace WebsiteSmartHome.Services
     public class NguoiDungService : INguoiDungService
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public NguoiDungService(IUnitOfWork unitOfWork)
+        private readonly IVaiTroService _vaiTroService;
+        public NguoiDungService(IUnitOfWork unitOfWork, IVaiTroService vaiTroService)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _vaiTroService = vaiTroService ?? throw new ArgumentNullException(nameof(vaiTroService));
         }
 
         public async Task<IEnumerable<NguoiDungDto>> GetAllNguoiDungAsync()
@@ -93,17 +94,7 @@ namespace WebsiteSmartHome.Services
             // Kiểm tra trùng CCCD, SĐT
             await CheckNguoiDungExistsAsync(dto);
 
-            // Kiểm tra vai trò tồn tại
-            if (!Guid.TryParse(dto.MaVaiTro, out Guid maVaiTro))
-            {
-                throw new BaseException.BadRequestException("invalid_role_id", "Mã vai trò không hợp lệ");
-            }
-
-            var vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(maVaiTro);
-            if (vaiTro == null)
-            {
-                throw new BaseException.NotFoundException("role_not_found", "Vai trò không tồn tại");
-            }
+            Guid? vaiTroId = await _vaiTroService.GetRoleIdByNameAsync(dto.TenVaiTro);
 
             NguoiDung nguoiDung = new NguoiDung
             {
@@ -113,7 +104,8 @@ namespace WebsiteSmartHome.Services
                 Cccd = dto.Cccd,
                 SoDienThoai = dto.Sdt,
                 DiaChi = dto.DiaChi,
-                MaVaiTro = maVaiTro
+                MaVaiTro = vaiTroId ?? throw new BaseException.NotFoundException("role_not_found", "Không tìm thấy vai trò được chỉ định"),
+                MaTaiKhoan = Guid.Parse(dto.MaTaiKhoan)
             };
 
             await _unitOfWork.GetRepository<NguoiDung>().InsertAsync(nguoiDung);
