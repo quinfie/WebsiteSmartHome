@@ -1,91 +1,84 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useNhaCungCap } from "../contexts/NhaCungCapContext";
-import { NhaCungCapCreateDto } from "../types/nhacungcap";
+import React from "react";
+import { Sidebar, InputWithLabel } from "../components";
+import { HiOutlineSave } from "react-icons/hi";
+import { Link, useNavigate } from "react-router-dom";
+import { AiOutlineSave } from "react-icons/ai";
+import SimpleInput from "../components/SimpleInput";
+import TextAreaInput from "../components/TextAreaInput";
 
 const CreateNhaCungCap = () => {
-  const [form, setForm] = useState<NhaCungCapCreateDto>({
-    tenNhaCungCap: "",
-    sdt: "",
-    email: "",
-    diaChi: "",
-  });
-
-  const [loading, setLoading] = useState(false);
-  const { createSupplier } = useNhaCungCap();
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.tenNhaCungCap || !form.sdt) {
-      alert("Vui lòng nhập tên và số điện thoại!");
-      return;
-    }
-    setLoading(true);
-    await createSupplier(form);
-    setLoading(false);
-    navigate("/dashboard/nha-cung-cap");
+    console.log("Tạo nhà cung cấp mới");
+    navigate("/nha-cung-cap");
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mt-8">
-      <h2 className="text-2xl font-semibold mb-6">Tạo nhà cung cấp</h2>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tên nhà cung cấp</label>
-          <input
-            name="tenNhaCungCap"
-            value={form.tenNhaCungCap}
-            onChange={handleChange}
-            placeholder="Tên nhà cung cấp"
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+    <div className="h-auto border-t border-blackSecondary flex dark:bg-blackPrimary bg-whiteSecondary">
+      <Sidebar />
+      <div className="w-full">
+        <div className="dark:bg-blackPrimary bg-whiteSecondary py-10">
+          <div className="px-4 sm:px-6 lg:px-8 pb-8 border-b border-gray-800 flex justify-between items-center max-sm:flex-col max-sm:gap-5">
+            <div className="flex flex-col gap-3">
+              <h2 className="text-3xl font-bold dark:text-whiteSecondary text-blackPrimary">
+                Thêm nhà cung cấp mới
+              </h2>
+            </div>
+            <div className="flex gap-x-2 max-[370px]:flex-col max-[370px]:gap-2 max-[370px]:items-center">
+              <button
+                type="button"
+                className="dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 w-48 py-2 text-lg dark:hover:border-gray-500 hover:border-gray-400 duration-200 flex items-center justify-center gap-x-2"
+              >
+                <AiOutlineSave className="dark:text-whiteSecondary text-blackPrimary text-xl" />
+                <span className="dark:text-whiteSecondary text-blackPrimary font-medium">
+                  Lưu nháp
+                </span>
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="dark:bg-whiteSecondary bg-blackPrimary w-48 py-2 text-lg dark:hover:bg-white hover:bg-black duration-200 flex items-center justify-center gap-x-2"
+              >
+                <HiOutlineSave className="dark:text-blackPrimary text-whiteSecondary text-xl" />
+                <span className="dark:text-blackPrimary text-whiteSecondary font-semibold">
+                  Lưu & Thoát
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="px-4 sm:px-6 lg:px-8 pt-8 grid grid-cols-2 gap-x-10 max-xl:grid-cols-1 max-xl:gap-y-10">
+              <div>
+                <h3 className="text-2xl font-bold dark:text-whiteSecondary text-blackPrimary">
+                  Thông tin nhà cung cấp
+                </h3>
+
+                <div className="mt-4 flex flex-col gap-5">
+                  <InputWithLabel label="Tên nhà cung cấp">
+                    <SimpleInput type="text" placeholder="Nhập tên..." />
+                  </InputWithLabel>
+
+                  <InputWithLabel label="Số điện thoại">
+                    <SimpleInput type="text" placeholder="Nhập số điện thoại..." />
+                  </InputWithLabel>
+
+                  <InputWithLabel label="Email">
+                    <SimpleInput type="email" placeholder="Nhập email..." />
+                  </InputWithLabel>
+
+                  <InputWithLabel label="Địa chỉ">
+                    <TextAreaInput placeholder="Nhập địa chỉ..." rows={3} cols={50} />
+                  </InputWithLabel>
+                </div>
+              </div>
+
+              
+            </div>
+          </form>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
-          <input
-            name="sdt"
-            value={form.sdt}
-            onChange={handleChange}
-            placeholder="Số điện thoại"
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            type="email"
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ</label>
-          <input
-            name="diaChi"
-            value={form.diaChi}
-            onChange={handleChange}
-            placeholder="Địa chỉ"
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded mt-4 disabled:opacity-50"
-        >
-          {loading ? "Đang tạo..." : "Tạo nhà cung cấp"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 };

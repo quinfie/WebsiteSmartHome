@@ -1,56 +1,81 @@
-import { usePhanCongDichVu } from "@/contexts/PhanCongDichVuContext";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Sidebar, InputWithLabel, SimpleInput, WhiteButton } from "../components";
 
 const EditPhanCongDichVu = () => {
-  const { updateTrangThai, hoanThanh } = usePhanCongDichVu();
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [data, setData] = useState({
+    MaYeuCau: "",
+    MaKyThuatVien: "",
+    NgayPhanCong: "",
+    TrangThaiPhanCong: "Đang chờ xử lý",
+  });
 
-  const [trangThai, setTrangThai] = useState("");
+  useEffect(() => {
+    // TODO: fetch GET /phan-cong-dich-vu/:id
+    // sau đó setData(...)
+  }, [id]);
 
-  const handleUpdate = async () => {
-    if (!id || !trangThai.trim()) return;
-    await updateTrangThai(id, trangThai);
-    navigate("/phan-cong");
-  };
-
-  const handleHoanThanh = async () => {
-    if (!id) return;
-    await hoanThanh(id);
-    navigate("/phan-cong");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: PUT /phan-cong-dich-vu/:id với `data`
+    console.log("Cập nhật phân công:", id, data);
+    navigate("/phan-cong-dich-vu");
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Cập nhật phân công</h2>
-
-      <div className="space-y-4">
-        <div>
-          <label className="block font-medium mb-1">Trạng thái mới</label>
-          <input
-            type="text"
-            className="w-full border border-gray-300 rounded px-3 py-2"
-            placeholder="Nhập trạng thái mới"
-            value={trangThai}
-            onChange={(e) => setTrangThai(e.target.value)}
-          />
+    <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
+      <Sidebar />
+      <form onSubmit={handleSubmit} className="w-full py-10 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold dark:text-whiteSecondary text-blackPrimary mb-6">
+          Chỉnh sửa phân công
+        </h2>
+        <div className="grid grid-cols-2 gap-6 max-xl:grid-cols-1">
+          <InputWithLabel label="Mã Yêu Cầu">
+            <SimpleInput
+              type="text"
+              value={data.MaYeuCau}
+              onChange={e => setData({ ...data, MaYeuCau: e.target.value })}
+            />
+          </InputWithLabel>
+          <InputWithLabel label="Mã Kỹ Thuật Viên">
+            <SimpleInput
+              type="text"
+              value={data.MaKyThuatVien}
+              onChange={e => setData({ ...data, MaKyThuatVien: e.target.value })}
+            />
+          </InputWithLabel>
+          <InputWithLabel label="Ngày Phân Công">
+            <SimpleInput
+              type="date"
+              value={data.NgayPhanCong}
+              onChange={e => setData({ ...data, NgayPhanCong: e.target.value })}
+            />
+          </InputWithLabel>
+          <InputWithLabel label="Trạng Thái">
+            <select
+              className="w-full h-10 border p-2"
+              value={data.TrangThaiPhanCong}
+              onChange={e => setData({ ...data, TrangThaiPhanCong: e.target.value })}
+            >
+              <option>Đang chờ xử lý</option>
+              <option>Đã tiếp nhận</option>
+              <option>Đang thực hiện</option>
+              <option>Hoàn thành</option>
+            </select>
+          </InputWithLabel>
         </div>
-
-        <button
-          onClick={handleUpdate}
-          className="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600 transition"
-        >
-          Cập nhật trạng thái
-        </button>
-
-        <button
-          onClick={handleHoanThanh}
-          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-        >
-          Đánh dấu hoàn thành
-        </button>
-      </div>
+        <div className="mt-8 flex gap-3">
+          <WhiteButton text="Hủy" width="32" py="2" textSize="lg" link="/phan-cong-dich-vu" />
+          <button
+            type="submit"
+            className="bg-blackPrimary dark:bg-whiteSecondary text-whiteSecondary dark:text-blackPrimary px-6 py-2 rounded-lg"
+          >
+            Cập nhật
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

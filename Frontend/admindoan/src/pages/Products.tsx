@@ -1,4 +1,4 @@
-import { Pagination, ProductTable, RowsPerPage, Sidebar, WhiteButton } from "@/components";
+import { Pagination, ProductTable, RowsPerPage, Sidebar, WhiteButton } from "../components";
 import { HiOutlinePlus, HiOutlineChevronRight, HiOutlineSearch } from "react-icons/hi";
 import { AiOutlineExport } from "react-icons/ai";
 
