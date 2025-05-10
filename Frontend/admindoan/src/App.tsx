@@ -71,7 +71,7 @@ const router = createBrowserRouter([
     path: "/dashboard/products/edit/:id",
     element: <EditProduct />,
   },
-  
+
   {
     path: "/nha-cung-cap",
     element: <Navigate to="/dashboard/nha-cung-cap" replace />,
@@ -93,7 +93,7 @@ const router = createBrowserRouter([
   {
     path: "/orders/create-order",
     element: <CreateOrder />,
-  },  
+  },
 
   {
     path: "/orders/edit/:id",
@@ -102,14 +102,14 @@ const router = createBrowserRouter([
   {
     path: "/categories",
     element: <Navigate to="/dashboard/categories" replace />,
-  },  
+  },
   {
     path: "/danh-muc/tao-moi",
     element: <CreateDanhMuc />,
-  },  
+  },
   {
     path: "/yeucaudichvu",
-    element:<Navigate to="/dashboard/yeu-cau-dich-vu" replace />,
+    element: <Navigate to="/dashboard/yeu-cau-dich-vu" replace />,
   },
   {
     path: "/danh-muc/sua/:id",
@@ -118,11 +118,11 @@ const router = createBrowserRouter([
   {
     path: "/phan-cong-dich-vu",
     element: <Navigate to="/dashboard/phan-cong-dich-vu" replace />,
-  }, 
+  },
   {
     path: "/phan-cong/create",
     element: <CreatePhanCongDichVu />,
-  },  
+  },
   {
     path: "/phan-cong-dich-vu/edit/:id",
     element: <EditPhanCongDichVu />,
@@ -130,19 +130,19 @@ const router = createBrowserRouter([
   {
     path: "/users",
     element: <Navigate to="/dashboard/users" replace />,
-  }, 
+  },
   {
     path: "/users/create-user",
     element: <CreateUser />,
-  },  
+  },
   {
     path: "/kho",
     element: <Navigate to="/dashboard/kho" replace />,
-  }, 
+  },
   {
     path: "/kho/create",
     element: <CreateKho />,
-  }, 
+  },
   {
     path: "/users/edit/:id",
     element: <EditUser />,
@@ -150,7 +150,7 @@ const router = createBrowserRouter([
   {
     path: "/reviews",
     element: <Navigate to="/dashboard/reviews" replace />,
-  }, 
+  },
   {
     path: "/reviews/:id",
     element: <EditDanhGiaPage />,
@@ -296,7 +296,7 @@ const router = createBrowserRouter([
 
 import { SanPhamProvider } from "./contexts/SanPhamContext";
 import { NhaCungCapProvider } from "./contexts/NhaCungCapContext";
-import { DonHangProvider } from "./contexts/DonHangContext"; 
+import { DonHangProvider } from "./contexts/DonHangContext";
 import EditDanhMuc from "./pages/EditDanhMuc";
 import CreateDanhMuc from "./pages/CreateDanhMuc";
 import { DanhMucProvider } from "./contexts/DanhMucContexts";
@@ -305,7 +305,7 @@ import { PhanCongDichVuProvider } from '@/contexts/PhanCongDichVuContext';
 import { NguoiDungProvider } from '@/contexts/NguoiDungContext';
 import { KhoProvider } from "./contexts/KhoContext";
 import EditDanhGiaPage from "./pages/EditDanhGia";
-import {DanhGiaProvider} from "./contexts/DanhGiaContext";
+import { DanhGiaProvider } from "./contexts/DanhGiaContext";
 import DanhGiaPage from "./pages/DanhGiaPage";
 
 function App() {
@@ -313,20 +313,23 @@ function App() {
     <SanPhamProvider>
       <NhaCungCapProvider>
         <DanhMucProvider>
-        <DonHangProvider> 
-          < PhanCongDichVuProvider>
-            <NguoiDungProvider>
-              <KhoProvider>
-                <DanhGiaProvider>
-          <RouterProvider router={router} />
-          </DanhGiaProvider>
-          </KhoProvider>
-          </NguoiDungProvider>
-          </PhanCongDichVuProvider>
-        </DonHangProvider>
+          <DonHangProvider>
+            < PhanCongDichVuProvider>
+              <NguoiDungProvider>
+                <KhoProvider>
+                  <DanhGiaProvider>
+                    <RouterProvider router={router} />
+                  </DanhGiaProvider>
+                </KhoProvider>
+              </NguoiDungProvider>
+            </PhanCongDichVuProvider>
+          </DonHangProvider>
         </DanhMucProvider>
       </NhaCungCapProvider>
     </SanPhamProvider>
   );
 }
 export default App;
+
+
+
