@@ -1,58 +1,80 @@
-// src/pages/Kho.tsx
-import React from "react";
-import { HiOutlinePlus, HiOutlineChevronRight, HiOutlineSearch } from "react-icons/hi";
+import { HiOutlineChevronRight, HiOutlineSearch, HiOutlinePlus } from "react-icons/hi";
 import { AiOutlineExport } from "react-icons/ai";
-import { Sidebar, WhiteButton, Pagination, RowsPerPage } from "../components";
+import { Sidebar, Pagination, RowsPerPage, WhiteButton } from "@/components";
 import KhoTable from "../components/KhoTable";
+import { useEffect } from "react";
+import { useKho } from "../contexts/KhoContext";
+import { useNavigate } from "react-router-dom";
 
-const Kho = () => (
-  <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
-    <Sidebar />
-    <div className="w-full py-10">
-      <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold dark:text-whiteSecondary text-blackPrimary">Kho</h2>
-          <p className="text-base flex items-center dark:text-whiteSecondary text-blackPrimary">
-            Bảng điều khiển <HiOutlineChevronRight className="mx-2" /> Kho
-          </p>
+const KhoPage = () => {
+  const { fetchAllKho } = useKho();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchAllKho();
+  }, []);
+
+  return (
+    <div className="h-auto border-t dark:border-blackSecondary border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
+      <Sidebar />
+      <div className="dark:bg-blackPrimary bg-whiteSecondary w-full">
+        <div className="dark:bg-blackPrimary bg-whiteSecondary py-10">
+          <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center max-sm:flex-col max-sm:gap-5">
+            <div className="flex flex-col gap-3">
+              <h2 className="text-3xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
+                Danh sách kho
+              </h2>
+              <p className="dark:text-whiteSecondary text-blackPrimary text-base font-normal flex items-center">
+                <span>Bảng điều khiển</span>{" "}
+                <HiOutlineChevronRight className="text-lg" />{" "}
+                <span>Kho</span>
+              </p>
+            </div>
+            <div className="flex gap-x-2 max-[370px]:flex-col max-[370px]:gap-2 max-[370px]:items-center">
+              <button className="dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 w-32 py-2 text-lg hover:border-gray-500 duration-200 flex items-center justify-center gap-x-2">
+                <AiOutlineExport className="dark:text-whiteSecondary text-blackPrimary text-base" />
+                <span className="dark:text-whiteSecondary text-blackPrimary font-medium">Xuất</span>
+              </button>
+              <WhiteButton link="/kho/create" text="Thêm kho" textSize="lg" py="2" width="48">
+                <HiOutlinePlus className="dark:text-blackPrimary text-whiteSecondary" />
+              </WhiteButton>
+            </div>
+          </div>
+
+          <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center mt-5 max-sm:flex-col max-sm:gap-2">
+            <div className="relative">
+              <HiOutlineSearch className="text-gray-400 text-lg absolute top-3 left-3" />
+              <input
+                type="text"
+                className="w-60 h-10 border dark:bg-blackPrimary bg-white border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 indent-10 focus:border-gray-500"
+                placeholder="Tìm kiếm kho..."
+              />
+            </div>
+            <div>
+              <select
+                className="w-60 h-10 dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 pl-3 pr-8 cursor-pointer hover:border-gray-500"
+                name="sort"
+                id="sort"
+              >
+                <option value="default">Sắp xếp theo</option>
+                <option value="az">Tăng dần</option>
+                <option value="za">Giảm dần</option>
+                <option value="newest">Mới nhất</option>
+                <option value="oldest">Cũ nhất</option>
+              </select>
+            </div>
+          </div>
+
+          <KhoTable />
+
+          <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-sm:flex-col gap-4 max-sm:pt-6 max-sm:pb-0">
+            <RowsPerPage />
+            <Pagination />
+          </div>
         </div>
-        <div className="flex gap-x-2">
-          <button className="bg-whiteSecondary dark:bg-blackPrimary border border-gray-600 w-32 py-2 hover:border-gray-500 flex items-center justify-center gap-x-2">
-            <AiOutlineExport className="text-base dark:text-whiteSecondary text-blackPrimary" />
-            <span className="font-medium dark:text-whiteSecondary text-blackPrimary">Xuất</span>
-          </button>
-          <WhiteButton link="/kho/create" text="Thêm Kho" width="48" py="2" textSize="lg">
-            <HiOutlinePlus className="dark:text-blackPrimary text-whiteSecondary text-xl" />
-          </WhiteButton>
-        </div>
-      </div>
-
-      <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center mt-5">
-        <div className="relative">
-          <HiOutlineSearch className="absolute top-3 left-3 text-gray-400 text-lg" />
-          <input
-            type="text"
-            className="w-60 h-10 pl-10 border dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary outline-none"
-            placeholder="Tìm kiếm kho..."
-          />
-        </div>
-        <select className="w-60 h-10 border dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary px-3">
-          <option value="default">Sắp xếp theo</option>
-          <option value="az">Tên A-Z</option>
-          <option value="za">Tên Z-A</option>
-        </select>
-      </div>
-
-      <div className="mt-6 px-4 sm:px-6 lg:px-8">
-        <KhoTable />
-      </div>
-
-      <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6">
-        <RowsPerPage />
-        <Pagination />
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-export default Kho;
+export default KhoPage;

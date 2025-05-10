@@ -1,20 +1,25 @@
-// src/pages/CreateKho.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar, InputWithLabel, SimpleInput, WhiteButton } from "../components";
+import { useKho } from "../contexts/KhoContext";
 
 const CreateKho = () => {
   const navigate = useNavigate();
+  const { createKho } = useKho();
   const [data, setData] = useState({
-    TenKho: "",
-    DiaChi: "",
-    SoDienThoai: "",
+    tenKho: "",
+    diaChi: "",
+    soDienThoai: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Tạo kho mới:", data);
-    navigate("/kho");
+    try {
+      await createKho(data);
+      navigate("/kho");
+    } catch (error) {
+      console.error("Tạo kho thất bại:", error);
+    }
   };
 
   return (
@@ -29,24 +34,24 @@ const CreateKho = () => {
             <SimpleInput
               type="text"
               placeholder="Nhập tên kho..."
-              value={data.TenKho}
-              onChange={e => setData({ ...data, TenKho: e.target.value })}
+              value={data.tenKho}
+              onChange={e => setData({ ...data, tenKho: e.target.value })}
             />
           </InputWithLabel>
           <InputWithLabel label="Địa Chỉ">
             <SimpleInput
               type="text"
               placeholder="Nhập địa chỉ..."
-              value={data.DiaChi}
-              onChange={e => setData({ ...data, DiaChi: e.target.value })}
+              value={data.diaChi}
+              onChange={e => setData({ ...data, diaChi: e.target.value })}
             />
           </InputWithLabel>
           <InputWithLabel label="Số Điện Thoại">
             <SimpleInput
               type="text"
               placeholder="Nhập số điện thoại..."
-              value={data.SoDienThoai}
-              onChange={e => setData({ ...data, SoDienThoai: e.target.value })}
+              value={data.soDienThoai}
+              onChange={e => setData({ ...data, soDienThoai: e.target.value })}
             />
           </InputWithLabel>
         </div>
