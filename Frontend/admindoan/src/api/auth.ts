@@ -1,4 +1,4 @@
-import { LoginRequestDto, RegisterRequestDto, AuthResponseDto, ChangePasswordDto, ForgotPasswordDto, TaiKhoanDto, UpdateTaiKhoanDto, UpdateNguoiDungDto } from '../types/auth';
+import { LoginRequestDto, RegisterRequestDto, AuthResponseDto, TaiKhoanDto, UpdateTaiKhoanDto, UpdateNguoiDungDto, ChangePasswordDto, ForgotPasswordDto } from '../types/auth';
 import api from './axios.config';
 
 export const authService = {
@@ -33,16 +33,19 @@ export const authService = {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
+      if (!response.data || !response.data.data) {
+        throw new Error('Không tìm thấy thông tin tài khoản');
+      }
       return response.data.data;
     } catch (error) {
       console.error('Get profile error:', error);
-      throw error;
+      throw new Error('Không thể lấy thông tin tài khoản');
     }
   },
 
-  updateTaiKhoan: async (data: UpdateTaiKhoanDto): Promise<boolean> => {
+  updateTaiKhoan: async (id: string, data: UpdateTaiKhoanDto): Promise<UpdateTaiKhoanDto> => {
     try {
-      const response = await api.put('/Auth/TaiKhoan', data, {
+      const response = await api.put(`/TaiKhoan/${id}`, data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -54,9 +57,9 @@ export const authService = {
     }
   },
 
-  updateNguoiDung: async (data: UpdateNguoiDungDto): Promise<boolean> => {
+  updateNguoiDung: async (id: string, data: UpdateNguoiDungDto): Promise<UpdateNguoiDungDto> => {
     try {
-      const response = await api.put('/Auth/NguoiDung', data, {
+      const response = await api.put(`/NguoiDung/${id}`, data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -88,6 +91,20 @@ export const authService = {
       return response.data.data;
     } catch (error) {
       console.error('Forgot password error:', error);
+      throw error;
+    }
+  },
+
+  getNguoiDungByTaiKhoanId: async (id: string) => {
+    try {
+      const response = await api.get(`/NguoiDung/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error('Get nguoi dung error:', error);
       throw error;
     }
   }

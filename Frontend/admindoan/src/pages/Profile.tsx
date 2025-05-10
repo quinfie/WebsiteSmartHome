@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { UpdateTaiKhoanDto, UpdateNguoiDungDto } from '../types/auth';
-import { HiOutlineSave, HiOutlineUpload, HiOutlineUser } from "react-icons/hi";
-import { InputWithLabel, Sidebar, SimpleInput, WhiteButton } from "../components";
+import { HiOutlineUser } from "react-icons/hi";
+import { InputWithLabel, Sidebar, SimpleInput } from "../components";
 import { authService } from '../api/auth';
 import SelectInput from '../components/SelectInput';
 import { nguoiDungService } from '../api/nguoiDungApi';

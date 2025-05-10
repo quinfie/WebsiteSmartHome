@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const changePassword = async (currentPassword: string, newPassword: string) => {
-    await authService.changePassword({ matKhauCu: currentPassword, matKhauMoi: newPassword });
+    await authService.changePassword({ currentPassword, newPassword, confirmPassword: newPassword });
   };
 
   const forgotPassword = async (email: string) => {

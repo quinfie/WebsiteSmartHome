@@ -1,4 +1,4 @@
-import { NguoiDungDto, NguoiDungCreateDto, NguoiDungUpdateDto } from '../types/nguoiDung';
+import { NguoiDungDto, NguoiDungCreateDto, NguoiDungUpdateDto } from '../types/nguoidung';
 import api from './axios.config';
 
 export const nguoiDungService = {

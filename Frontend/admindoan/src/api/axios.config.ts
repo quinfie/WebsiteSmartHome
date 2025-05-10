@@ -8,6 +8,16 @@ const api = axios.create({
   },
 });
 
+// Tự động thêm token nếu có
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  console.log("=== TOKEN GỬI ĐI ===", token);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {

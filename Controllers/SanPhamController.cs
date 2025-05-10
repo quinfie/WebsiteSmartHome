@@ -35,7 +35,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<SanPhamResponseDto>>> Create(
             [FromBody] SanPhamCreateDto request,
             [FromQuery] string maDanhMuc,
@@ -47,7 +47,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<SanPhamResponseDto>>> Update(string id, SanPhamUpdateDto request)
         {
             var result = await _sanPhamService.UpdateSanPhamAsync(id, request);
@@ -55,7 +55,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             var result = await _sanPhamService.DeleteSanPhamAsync(id);

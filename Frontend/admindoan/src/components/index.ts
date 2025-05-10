@@ -13,8 +13,8 @@ export { default as ProductTable } from "./ProductTable";
 export { default as SearchInput } from "./SearchInput";
 export { default as RowsPerPage } from "./RowsPerPage";
 export { default as Pagination } from "./Pagination";
-export { default as CategoryTable } from "./CategoryTable";
-export { default as OrderTable } from "./OrderTable";
+export { default as DanhMucTable } from "./DanhMucTable";
+export { default as DonHangTable } from "./DonHangTable";
 export { default as UserTable } from "./UserTable";
 export { default as ReviewsTable } from "./ReviewsTable";
 export { default as InputWithLabel } from "./InputWithLabel";
@@ -31,5 +31,5 @@ export { default as ThirdPartyAuthButton } from "./ThirdPartyAuthButton";
 export { default as LoginComponent } from "./LoginComponent";
 export { default as RegisterComponent } from "./RegisterComponent";
 export { default as PromotionTable } from "./PromotionTable";
-export { default as NhaCungCapTable } from "./NhaCungCapTable";
+//export { default as NhaCungCapTable } from "./NhaCungCapTable";
 

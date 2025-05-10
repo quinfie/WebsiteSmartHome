@@ -20,7 +20,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy tất cả lịch bảo trì
         [HttpGet]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetAll()
         {
             var lichBaoTris = await _lichBaoTriService.GetAllLichBaoTriAsync();
@@ -29,7 +29,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Tạo lịch bảo trì mới
         [HttpPost]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Create([FromBody] CreateLichBaoTriDto dto)
         {
             var result = await _lichBaoTriService.CreateLichBaoTriAsync(dto);
@@ -39,7 +39,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Cập nhật lịch bảo trì theo ID
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Update(string id, [FromBody] LichBaoTriDto lichBaoTriDto)
         {
 
@@ -49,7 +49,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Xóa lịch bảo trì theo ID
         [HttpDelete("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             var result = await _lichBaoTriService.DeleteLichBaoTriAsync(Guid.Parse(id));
@@ -58,7 +58,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy lịch bảo trì theo ID
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireCustomerRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<LichBaoTriDto>>> GetById(string id)
         {
             var lichBaoTri = await _lichBaoTriService.GetLichBaoTriByIdAsync(Guid.Parse(id));
@@ -67,7 +67,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Tìm kiếm lịch bảo trì theo mã đơn hàng
         [HttpGet("search")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> SearchByOrder([FromQuery] string maDonHang)
         {
             var lichBaoTris = await _lichBaoTriService.SearchLichBaoTriByOrderAsync(Guid.Parse(maDonHang));

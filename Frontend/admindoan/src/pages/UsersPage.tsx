@@ -15,7 +15,7 @@ import { AiOutlineExport } from "react-icons/ai";
 import { nguoiDungService } from "../api/nguoiDungApi";
 import { taiKhoanService } from "../api/taiKhoanApi";
 import { useNavigate } from "react-router-dom";
-import { NguoiDungDto } from "../types/nguoiDung";
+import { NguoiDungDto } from "../types/nguoidung";
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<NguoiDungDto[]>([]);

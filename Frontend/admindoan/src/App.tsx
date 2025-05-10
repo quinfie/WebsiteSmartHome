@@ -1,43 +1,24 @@
 import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom"
 import {
-  CreateOrder,
-  CreateReview,
-  CreateUser,
-  EditOrder,
-  EditReview,
-  EditUser,
-  HelpDesk,
   HomeLayout,
-  Categories,
-  EditCategory,
-  CreateCategory,
-  //Landing,
-  LandingV2,
-  Login,
-  Notifications,
-  Orders,
-  Products,
-  CreateProduct,
-  EditProduct,
-  Promotions,
-  CreatePromotion,
-  EditPromotion,
+  User,
   Profile,
-  NhaCungCap,
-  CreateNhaCungCap,
-  EditNhaCungCap,
-  PhanCongDichVu,
-  CreatePhanCongDichVu,
-  EditPhanCongDichVu,
-  YeuCauDichVu,
-  CreateYeuCauDichVu,
-  EditYeuCauDichVu,
+  Login,
   Register,
-  Kho,
-  CreateKho,
-  //EditKho,
-  Reviews,
-  Users,
+  Product,
+  Order,
+  Category,
+  Review,
+  ChangePassword,
+  Promotion,
+  RequestService,
+  AssignRequest,
+  Supplier,
+  Storage,
+  Landing,
+  LandingV2,
+  HelpDesk,
+  Notifications,
 } from "./pages";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -57,103 +38,39 @@ const router = createBrowserRouter([
   },
   {
     path: "/products",
-    element: <Navigate to="/dashboard/products" replace />,
+    element: <Product />,
   },
   {
-    path: "products/create-product",
-    element: <CreateProduct />,
+    path: "/suppliers",
+    element: <Supplier />,
   },
-  {
-    path: "products/edit-product",
-    element: <EditProduct />,
-  },
-  {
-    path: "/dashboard/products/edit/:id",
-    element: <EditProduct />,
-  },
-
-  {
-    path: "/nha-cung-cap",
-    element: <Navigate to="/dashboard/nha-cung-cap" replace />,
-  },
-  {
-    path: "/suppliers/create-supplier",
-    element: <CreateNhaCungCap />,
-  },
-  {
-    path: "/suppliers/edit/:id",
-    element: <EditNhaCungCap />,
-  },
-
-
   {
     path: "/orders",
-    element: <Navigate to="/dashboard/orders" replace />,
-  },
-  {
-    path: "/orders/create-order",
-    element: <CreateOrder />,
-  },
-
-  {
-    path: "/orders/edit/:id",
-    element: <EditOrder />,
+    element: <Order />,
   },
   {
     path: "/categories",
-    element: <Navigate to="/dashboard/categories" replace />,
+    element: <Category />,
   },
   {
-    path: "/danh-muc/tao-moi",
-    element: <CreateDanhMuc />,
+    path: "/requestservice",
+    element: <RequestService />,
   },
   {
-    path: "/yeucaudichvu",
-    element: <Navigate to="/dashboard/yeu-cau-dich-vu" replace />,
-  },
-  {
-    path: "/danh-muc/sua/:id",
-    element: <EditDanhMuc />,
-  },
-  {
-    path: "/phan-cong-dich-vu",
-    element: <Navigate to="/dashboard/phan-cong-dich-vu" replace />,
-  },
-  {
-    path: "/phan-cong/create",
-    element: <CreatePhanCongDichVu />,
-  },
-  {
-    path: "/phan-cong-dich-vu/edit/:id",
-    element: <EditPhanCongDichVu />,
+    path: "/assignrequest",
+    element: <AssignRequest />,
   },
   {
     path: "/users",
-    element: <Navigate to="/dashboard/users" replace />,
+    element: <User />,
   },
   {
-    path: "/users/create-user",
-    element: <CreateUser />,
-  },
-  {
-    path: "/kho",
-    element: <Navigate to="/dashboard/kho" replace />,
-  },
-  {
-    path: "/kho/create",
-    element: <CreateKho />,
-  },
-  {
-    path: "/users/edit/:id",
-    element: <EditUser />,
+    path: "/storages",
+    element: <Storage />,
   },
   {
     path: "/reviews",
-    element: <Navigate to="/dashboard/reviews" replace />,
-  },
-  {
-    path: "/reviews/:id",
-    element: <EditDanhGiaPage />,
+    element: <Review />,
   },
   {
     path: "/dashboard",
@@ -165,131 +82,56 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <LandingV2 />,
+        element: <HomeLayout />,
       },
       {
-        path: "profile",
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/profile",
         element: <Profile />,
       },
-      { path: "categories", element: <DanhMuc /> },
-      { path: "categories/create", element: <CreateDanhMuc /> },
-      { path: "danh-muc/sua/:id", element: <EditDanhMuc /> },
       {
-        path: "products",
-        element: <Products />,
+        path: "/register",
+        element: <Register />,
       },
       {
-        path: "products/create",
-        element: <CreateProduct />,
+        path: "/products",
+        element: <Product />,
       },
       {
-        path: "products/:id/edit",
-        element: <EditProduct />,
+        path: "/suppliers",
+        element: <Supplier />,
       },
       {
-        path: "orders",
-        element: <Orders />,
+        path: "/orders",
+        element: <Order />,
       },
       {
-        path: "orders/create",
-        element: <CreateOrder />,
+        path: "/categories",
+        element: <Category />,
       },
       {
-        path: "orders/edit/:id",
-        element: <EditOrder />,
+        path: "/requestservice",
+        element: <RequestService />,
       },
       {
-        path: "users",
-        element: <Users />,
+        path: "/assignrequest",
+        element: <AssignRequest />,
       },
       {
-        path: "users/create-user",
-        element: <CreateUser />,
+        path: "/users",
+        element: <User />,
       },
       {
-        path: "users/edit/:id",
-        element: <EditUser />,
+        path: "/storages",
+        element: <Storage />,
       },
       {
-        path: "reviews",
-        element: <DanhGiaPage />,
+        path: "/reviews",
+        element: <Review />,
       },
-      {
-        path: "reviews/create",
-        element: <CreateReview />,
-      },
-      {
-        path: "reviews/:id",
-        element: <EditDanhGiaPage />,
-      },
-      {
-        path: "promotions",
-        element: <Promotions />,
-      },
-      {
-        path: "promotions/create",
-        element: <CreatePromotion />,
-      },
-      {
-        path: "promotions/:id/edit",
-        element: <EditPromotion />,
-      },
-      {
-        path: "notifications",
-        element: <Notifications />,
-      },
-      {
-        path: "help-desk",
-        element: <HelpDesk />,
-      },
-      {
-        path: "nha-cung-cap",
-        element: <NhaCungCap />,
-      },
-      {
-        path: "nha-cung-cap/create",
-        element: <CreateNhaCungCap />,
-      },
-      {
-        path: "nha-cung-cap/:id/edit",
-        element: <EditNhaCungCap />,
-      },
-      {
-        path: "phan-cong-dich-vu",
-        element: <PhanCongDichVu />,
-      },
-      {
-        path: "phan-cong/create",
-        element: <CreatePhanCongDichVu />,
-      },
-      {
-        path: "phan-cong-dich-vu/edit/:id",
-        element: <EditPhanCongDichVu />,
-      },
-      {
-        path: "yeu-cau-dich-vu",
-        element: <YeuCauDichVu />,
-      },
-      {
-        path: "yeu-cau-dich-vu/create",
-        element: <CreateYeuCauDichVu />,
-      },
-      {
-        path: "yeu-cau-dich-vu/:id/edit",
-        element: <EditYeuCauDichVu />,
-      },
-      {
-        path: "kho",
-        element: <Kho />,
-      },
-      {
-        path: "kho/create",
-        element: <CreateKho />,
-      },
-      /*{
-        path: "kho/:id/edit",
-        element: <EditKho />,
-      },*/
     ],
   },
 ]);
@@ -300,9 +142,9 @@ import { DonHangProvider } from "./contexts/DonHangContext";
 import EditDanhMuc from "./pages/EditDanhMuc";
 import CreateDanhMuc from "./pages/CreateDanhMuc";
 import { DanhMucProvider } from "./contexts/DanhMucContexts";
-import DanhMuc from "./pages/DanhMuc";
-import { PhanCongDichVuProvider } from '@/contexts/PhanCongDichVuContext';
-import { NguoiDungProvider } from '@/contexts/NguoiDungContext';
+import DanhMuc from "./pages/DanhMucPage";
+import { PhanCongDichVuProvider } from './contexts/PhanCongDichVuContext';
+import { NguoiDungProvider } from './contexts/NguoiDungContext';
 import { KhoProvider } from "./contexts/KhoContext";
 import EditDanhGiaPage from "./pages/EditDanhGia";
 import { DanhGiaProvider } from "./contexts/DanhGiaContext";

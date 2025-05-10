@@ -1,4 +1,4 @@
-import { OrderTable, Pagination, RowsPerPage, Sidebar } from "../components";
+import { DonHangTable, Pagination, RowsPerPage, Sidebar } from "../components";
 import { HiOutlinePlus, HiOutlineChevronRight, HiOutlineSearch } from "react-icons/hi";
 import { AiOutlineExport } from "react-icons/ai";
 import { Link } from "react-router-dom";
@@ -61,7 +61,7 @@ const Orders = () => {
             </div>
           </div>
 
-          <OrderTable />
+          <DonHangTable />
 
           <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-sm:flex-col gap-4 max-sm:pt-6 max-sm:pb-0">
             <RowsPerPage />

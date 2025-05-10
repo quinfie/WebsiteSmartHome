@@ -19,7 +19,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<List<NhaCungCapDto>>>> GetAll()
         {
             var result = await _nhaCungCapService.GetAllNhaCungCapAsync();
@@ -27,7 +27,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<NhaCungCapDto>>> GetById(string id)
         {
             var result = await _nhaCungCapService.GetNhaCungCapByIdAsync(id);
@@ -59,7 +59,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("search")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<List<NhaCungCapDto>>>> Search([FromQuery] string keyword)
         {
             var result = await _nhaCungCapService.SearchNhaCungCapAsync(keyword);

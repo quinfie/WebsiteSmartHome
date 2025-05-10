@@ -40,7 +40,7 @@ namespace WebsiteSmartHome.Controllers
         /// <param name="trangThai">Trạng thái mới</param>
         /// <returns>Thông tin phân công đã được cập nhật</returns>
         [HttpPut("trang-thai/{id}")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<BaseResponse<PhanCongDichVuDto>> UpdateTrangThai(string id, [FromBody] string trangThai)
         {
             var result = await _service.UpdateTrangThaiAsync(id, trangThai);
@@ -53,7 +53,7 @@ namespace WebsiteSmartHome.Controllers
         /// <param name="id">ID phân công</param>
         /// <returns>Thông tin phân công đã được cập nhật</returns>
         [HttpPost("hoan-thanh/{id}")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<BaseResponse<PhanCongDichVuDto>> HoanThanh(string id)
         {
             var result = await _service.HoanThanhAsync(id);

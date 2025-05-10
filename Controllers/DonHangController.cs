@@ -53,7 +53,7 @@ namespace WebsiteSmartHome.Controllers
 
         // PUT: api/DonHang/{id}
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireStaffRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> UpdateDonHang(string id, RequestUpdateDonHangDto dto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
