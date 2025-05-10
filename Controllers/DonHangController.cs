@@ -43,7 +43,7 @@ namespace WebsiteSmartHome.Controllers
 
         // POST: api/DonHang
         [HttpPost]
-        [Authorize(Policy = "RequireCustomerRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> ThemDonHang(RequestCreateDonHangDto dto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -63,7 +63,7 @@ namespace WebsiteSmartHome.Controllers
 
         // DELETE: api/DonHang/{id}
         [HttpDelete("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> DeleteDonHang(string id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
