@@ -1,24 +1,24 @@
-import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom"
 import {
-  Categories,
-  CreateCategory,
   CreateOrder,
-  CreateProduct,
   CreateReview,
   CreateUser,
-  EditCategory,
   EditOrder,
-  EditProduct,
   EditReview,
   EditUser,
   HelpDesk,
   HomeLayout,
-  Landing,
+  Categories,
+  EditCategory,
+  CreateCategory,
+  //Landing,
   LandingV2,
   Login,
   Notifications,
   Orders,
   Products,
+  CreateProduct,
+  EditProduct,
   Promotions,
   CreatePromotion,
   EditPromotion,
@@ -35,11 +35,12 @@ import {
   Register,
   Kho,
   CreateKho,
-  EditKho,
+  //EditKho,
   Reviews,
   Users,
 } from "./pages";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,106 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/products",
+    element: <Navigate to="/dashboard/products" replace />,
+  },
+  {
+    path: "products/create-product",
+    element: <CreateProduct />,
+  },
+  {
+    path: "products/edit-product",
+    element: <EditProduct />,
+  },
+  {
+    path: "/dashboard/products/edit/:id",
+    element: <EditProduct />,
+  },
+  
+  {
+    path: "/nha-cung-cap",
+    element: <Navigate to="/dashboard/nha-cung-cap" replace />,
+  },
+  {
+    path: "/suppliers/create-supplier",
+    element: <CreateNhaCungCap />,
+  },
+  {
+    path: "/suppliers/edit/:id",
+    element: <EditNhaCungCap />,
+  },
+
+
+  {
+    path: "/orders",
+    element: <Navigate to="/dashboard/orders" replace />,
+  },
+  {
+    path: "/orders/create-order",
+    element: <CreateOrder />,
+  },  
+
+  {
+    path: "/orders/edit/:id",
+    element: <EditOrder />,
+  },
+  {
+    path: "/categories",
+    element: <Navigate to="/dashboard/categories" replace />,
+  },  
+  {
+    path: "/danh-muc/tao-moi",
+    element: <CreateDanhMuc />,
+  },  
+  {
+    path: "/yeucaudichvu",
+    element:<Navigate to="/dashboard/yeu-cau-dich-vu" replace />,
+  },
+  {
+    path: "/danh-muc/sua/:id",
+    element: <EditDanhMuc />,
+  },
+  {
+    path: "/phan-cong-dich-vu",
+    element: <Navigate to="/dashboard/phan-cong-dich-vu" replace />,
+  }, 
+  {
+    path: "/phan-cong/create",
+    element: <CreatePhanCongDichVu />,
+  },  
+  {
+    path: "/phan-cong-dich-vu/edit/:id",
+    element: <EditPhanCongDichVu />,
+  },
+  {
+    path: "/users",
+    element: <Navigate to="/dashboard/users" replace />,
+  }, 
+  {
+    path: "/users/create-user",
+    element: <CreateUser />,
+  },  
+  {
+    path: "/kho",
+    element: <Navigate to="/dashboard/kho" replace />,
+  }, 
+  {
+    path: "/kho/create",
+    element: <CreateKho />,
+  }, 
+  {
+    path: "/users/edit/:id",
+    element: <EditUser />,
+  },
+  {
+    path: "/reviews",
+    element: <Navigate to="/dashboard/reviews" replace />,
+  }, 
+  {
+    path: "/reviews/:id",
+    element: <EditDanhGiaPage />,
   },
   {
     path: "/dashboard",
@@ -70,18 +171,9 @@ const router = createBrowserRouter([
         path: "profile",
         element: <Profile />,
       },
-      {
-        path: "categories",
-        element: <Categories />,
-      },
-      {
-        path: "categories/create",
-        element: <CreateCategory />,
-      },
-      {
-        path: "categories/:id/edit",
-        element: <EditCategory />,
-      },
+      { path: "categories", element: <DanhMuc /> },
+      { path: "categories/create", element: <CreateDanhMuc /> },
+      { path: "danh-muc/sua/:id", element: <EditDanhMuc /> },
       {
         path: "products",
         element: <Products />,
@@ -103,7 +195,7 @@ const router = createBrowserRouter([
         element: <CreateOrder />,
       },
       {
-        path: "orders/:id/edit",
+        path: "orders/edit/:id",
         element: <EditOrder />,
       },
       {
@@ -111,24 +203,24 @@ const router = createBrowserRouter([
         element: <Users />,
       },
       {
-        path: "users/create",
+        path: "users/create-user",
         element: <CreateUser />,
       },
       {
-        path: "users/:id/edit",
+        path: "users/edit/:id",
         element: <EditUser />,
       },
       {
         path: "reviews",
-        element: <Reviews />,
+        element: <DanhGiaPage />,
       },
       {
         path: "reviews/create",
         element: <CreateReview />,
       },
       {
-        path: "reviews/:id/edit",
-        element: <EditReview />,
+        path: "reviews/:id",
+        element: <EditDanhGiaPage />,
       },
       {
         path: "promotions",
@@ -167,11 +259,11 @@ const router = createBrowserRouter([
         element: <PhanCongDichVu />,
       },
       {
-        path: "phan-cong-dich-vu/create",
+        path: "phan-cong/create",
         element: <CreatePhanCongDichVu />,
       },
       {
-        path: "phan-cong-dich-vu/:id/edit",
+        path: "phan-cong-dich-vu/edit/:id",
         element: <EditPhanCongDichVu />,
       },
       {
@@ -194,16 +286,47 @@ const router = createBrowserRouter([
         path: "kho/create",
         element: <CreateKho />,
       },
-      {
+      /*{
         path: "kho/:id/edit",
         element: <EditKho />,
-      },
+      },*/
     ],
   },
 ]);
 
-function App() {
-  return <RouterProvider router={router} />;
-}
+import { SanPhamProvider } from "./contexts/SanPhamContext";
+import { NhaCungCapProvider } from "./contexts/NhaCungCapContext";
+import { DonHangProvider } from "./contexts/DonHangContext"; 
+import EditDanhMuc from "./pages/EditDanhMuc";
+import CreateDanhMuc from "./pages/CreateDanhMuc";
+import { DanhMucProvider } from "./contexts/DanhMucContexts";
+import DanhMuc from "./pages/DanhMuc";
+import { PhanCongDichVuProvider } from '@/contexts/PhanCongDichVuContext';
+import { NguoiDungProvider } from '@/contexts/NguoiDungContext';
+import { KhoProvider } from "./contexts/KhoContext";
+import EditDanhGiaPage from "./pages/EditDanhGia";
+import {DanhGiaProvider} from "./contexts/DanhGiaContext";
+import DanhGiaPage from "./pages/DanhGiaPage";
 
+function App() {
+  return (
+    <SanPhamProvider>
+      <NhaCungCapProvider>
+        <DanhMucProvider>
+        <DonHangProvider> 
+          < PhanCongDichVuProvider>
+            <NguoiDungProvider>
+              <KhoProvider>
+                <DanhGiaProvider>
+          <RouterProvider router={router} />
+          </DanhGiaProvider>
+          </KhoProvider>
+          </NguoiDungProvider>
+          </PhanCongDichVuProvider>
+        </DonHangProvider>
+        </DanhMucProvider>
+      </NhaCungCapProvider>
+    </SanPhamProvider>
+  );
+}
 export default App;

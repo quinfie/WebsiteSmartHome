@@ -1,49 +1,98 @@
-import { nanoid } from "nanoid";
-import { Link } from "react-router-dom";
-import { HiOutlinePencil, HiOutlineTrash, HiOutlineEye } from "react-icons/hi";
-import { phanCongDichVuItems } from "../utils/data";
+import { useNavigate } from "react-router-dom";
+import { Eye, Pencil } from "lucide-react";
+import { PhanCongDichVuDto } from "@/types/phancongdichvu";
 
-const PhanCongDichVuTable = () => (
-  <div className="overflow-x-auto w-full">
-    <table className="mt-6 w-full table-auto text-left">
-      <thead className="border-b border-white/10 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-        <tr>
-          <th className="py-2 px-4 font-semibold">Mã Yêu Cầu</th>
-          <th className="py-2 px-4 font-semibold">Mã Kỹ Thuật Viên</th>
-          <th className="py-2 px-4 font-semibold">Ngày Phân Công</th>
-          <th className="py-2 px-4 font-semibold">Trạng Thái</th>
-          <th className="py-2 px-4 text-right font-semibold">Thao tác</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-white/5">
-        {phanCongDichVuItems.map((item) => (
-          <tr key={nanoid()}>
-            <td className="py-4 px-4 text-sm">{item.MaYeuCau}</td>
-            <td className="py-4 px-4 text-sm">{item.MaKyThuatVien}</td>
-            <td className="py-4 px-4 text-sm">{item.NgayPhanCong}</td>
-            <td className="py-4 px-4 text-sm">{item.TrangThaiPhanCong}</td>
-            <td className="py-4 px-4 text-right text-sm">
-              <div className="flex justify-end gap-x-2">
-                <Link to={`/phan-cong-dich-vu/edit/${item.Id}`} className="btn-icon" title="Chỉnh sửa">
-                  <HiOutlinePencil />
-                </Link>
-                <Link to={`/phan-cong-dich-vu/view/${item.Id}`} className="btn-icon" title="Xem">
-                  <HiOutlineEye />
-                </Link>
-                <button
-                  className="btn-icon"
-                  title="Xóa"
-                  onClick={() => alert(`Xóa phân công: ${item.Id}`)}
-                >
-                  <HiOutlineTrash />
-                </button>
-              </div>
-            </td>
+const fakeData: PhanCongDichVuDto[] = [
+  {
+    id: "1",
+    maYeuCau: "REQ001",
+    maKyThuatVien: "TECH001",
+    ngayPhanCong: new Date().toISOString(),
+    ngayHoanThanh: new Date().toISOString(),
+    trangThaiPhanCong: "Đang thực hiện",
+    ghiChu: "",
+  },
+  {
+    id: "2",
+    maYeuCau: "REQ002",
+    maKyThuatVien: "TECH002",
+    ngayPhanCong: new Date().toISOString(),
+    ngayHoanThanh: new Date().toISOString(),
+    trangThaiPhanCong: "Đã hoàn thành",
+    ghiChu: "",
+  },
+];
+
+const PhanCongDichVuTable = () => {
+  const navigate = useNavigate();
+  const phanCongList = fakeData; // ← Dùng dữ liệu mock tạm thời
+
+  return (
+    <div className="overflow-x-auto rounded border mt-6">
+      <table className="min-w-full text-sm text-left">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="p-3">Mã yêu cầu</th>
+            <th className="p-3">Kỹ thuật viên</th>
+            <th className="p-3">Ngày phân công</th>
+            <th className="p-3">Ngày hoàn thành</th>
+            <th className="p-3">Trạng thái</th>
+            <th className="p-3">Hành động</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+        </thead>
+        <tbody>
+          {phanCongList.map((item) => (
+            <tr key={item.id} className="border-t hover:bg-gray-50">
+              <td className="p-3">{item.maYeuCau}</td>
+              <td className="p-3">{item.maKyThuatVien}</td>
+              <td className="p-3">{new Date(item.ngayPhanCong).toLocaleDateString()}</td>
+              <td className="p-3">
+                {item.ngayHoanThanh
+                  ? new Date(item.ngayHoanThanh).toLocaleDateString()
+                  : "—"}
+              </td>
+              <td className="p-3">
+                <span
+                  className={`px-2 py-1 rounded text-white text-xs ${
+                    item.trangThaiPhanCong === "Đã hoàn thành"
+                      ? "bg-green-500"
+                      : item.trangThaiPhanCong === "Đang thực hiện"
+                      ? "bg-yellow-500"
+                      : "bg-gray-400"
+                  }`}
+                >
+                  {item.trangThaiPhanCong}
+                </span>
+              </td>
+              <td className="p-3 flex gap-2">
+                <button
+                  onClick={() => navigate(`/phan-cong/view/${item.id}`)}
+                  className="p-2 hover:bg-gray-200 rounded"
+                  title="Xem"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => navigate(`/phan-cong/edit/${item.id}`)}
+                  className="p-2 hover:bg-gray-200 rounded"
+                  title="Chỉnh sửa"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              </td>
+            </tr>
+          ))}
+          {phanCongList.length === 0 && (
+            <tr>
+              <td colSpan={6} className="text-center p-4 text-gray-500">
+                Không có phân công nào.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 export default PhanCongDichVuTable;

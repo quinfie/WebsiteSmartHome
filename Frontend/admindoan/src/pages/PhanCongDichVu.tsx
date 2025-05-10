@@ -1,57 +1,29 @@
-import React from "react";
-import { HiOutlinePlus, HiOutlineChevronRight, HiOutlineSearch } from "react-icons/hi";
-import { AiOutlineExport } from "react-icons/ai";
-import { Sidebar, WhiteButton, Pagination, RowsPerPage } from "../components";
-import PhanCongDichVuTable from "../components/PhanCongDichVuTable";
+import { useNavigate } from "react-router-dom";
 
-const PhanCongDichVu = () => (
-  <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
-    <Sidebar />
-    <div className="w-full py-10">
-      <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+const PhanCongDichVu = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-3xl font-bold dark:text-whiteSecondary text-blackPrimary">Phân công dịch vụ</h2>
-          <p className="text-base flex items-center dark:text-whiteSecondary text-blackPrimary">
-            Bảng điều khiển <HiOutlineChevronRight className="mx-2" /> Phân công DV
-          </p>
+          <h2 className="text-2xl font-bold">Phân công dịch vụ</h2>
+          <p className="text-sm text-gray-500">Bảng điều khiển &gt; Phân công</p>
         </div>
-        <div className="flex gap-x-2">
-          <button className="bg-whiteSecondary dark:bg-blackPrimary border border-gray-600 w-32 py-2 hover:border-gray-500 flex items-center justify-center gap-x-2">
-            <AiOutlineExport className="text-base dark:text-whiteSecondary text-blackPrimary" />
-            <span className="font-medium dark:text-whiteSecondary text-blackPrimary">Xuất</span>
-          </button>
-          <WhiteButton link="/phan-cong-dich-vu/create" text="Thêm mới" width="48" py="2" textSize="lg">
-            <HiOutlinePlus className="dark:text-blackPrimary text-whiteSecondary text-xl" />
-          </WhiteButton>
-        </div>
+        <button
+          onClick={() => navigate("/phan-cong/create")}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+        >
+          + Thêm phân công
+        </button>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center mt-5">
-        <div className="relative">
-          <HiOutlineSearch className="absolute top-3 left-3 text-gray-400 text-lg" />
-          <input
-            type="text"
-            className="w-60 h-10 pl-10 border dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary outline-none"
-            placeholder="Tìm kiếm..."
-          />
-        </div>
-        <select className="w-60 h-10 border dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary px-3">
-          <option value="default">Sắp xếp theo</option>
-          <option value="newest">Mới nhất</option>
-          <option value="oldest">Cũ nhất</option>
-        </select>
-      </div>
-
-      <div className="mt-6 px-4 sm:px-6 lg:px-8">
-        <PhanCongDichVuTable />
-      </div>
-
-      <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6">
-        <RowsPerPage />
-        <Pagination />
+      <div className="mt-10 text-gray-600 text-center">
+        Hiện tại hệ thống không hỗ trợ danh sách phân công.<br />
+        Vui lòng sử dụng chức năng <strong>Thêm, Cập nhật trạng thái</strong> hoặc <strong>Hoàn thành</strong> từ các trang chi tiết.
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default PhanCongDichVu;

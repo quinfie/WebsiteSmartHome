@@ -1,90 +1,82 @@
-import { nanoid } from "nanoid";
-import { Link } from "react-router-dom";
-import { HiOutlinePencil, HiOutlineTrash, HiOutlineEye } from "react-icons/hi";
-import { userAdminItems } from "../utils/data";
+import { useEffect } from "react";
+import { useNguoiDung } from "@/contexts/NguoiDungContext";
+import { formatDate } from "@/utils/formatDate";
 
 const UserTable = () => {
+  const {
+    users,
+    fetchUsers,
+    searchTerm,
+    deleteUser,
+    isLoading,
+    currentPage,
+    rowsPerPage,
+  } = useNguoiDung();
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers, searchTerm, currentPage, rowsPerPage]);
+
   return (
-    <table className="mt-6 w-full whitespace-nowrap text-left max-lg:block max-lg:overflow-x-scroll">
-      <colgroup>
-        <col className="w-full sm:w-2/12" />
-        <col className="sm:w-1/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-      </colgroup>
-      <thead className="border-b border-white/10 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-        <tr>
-          <th scope="col" className="py-2 pl-4 pr-4 font-semibold sm:pl-6 lg:pl-8">Tên người dùng</th>
-          <th scope="col" className="py-2 px-4 font-semibold">Giới tính</th>
-          <th scope="col" className="py-2 px-4 font-semibold">Ngày sinh</th>
-          <th scope="col" className="py-2 px-4 font-semibold">CCCD</th>
-          <th scope="col" className="py-2 px-4 font-semibold">SĐT</th>
-          <th scope="col" className="py-2 px-4 font-semibold">Địa chỉ</th>
-          <th scope="col" className="py-2 pl-0 pr-4 text-right font-semibold sm:pr-6 lg:pr-8">Hành động</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-white/5">
-        {userAdminItems.map((item) => (
-          <tr key={nanoid()}>
-            <td className="py-4 pl-4 pr-4 sm:pl-6 lg:pl-8">
-              <div className="flex items-center gap-x-4">
-                <img
-                  src={item.user.imageUrl}
-                  alt={item.user.name}
-                  className="h-8 w-8 rounded-full bg-gray-800"
-                />
-                <span className="truncate text-sm font-medium leading-6 dark:text-whiteSecondary text-blackPrimary">
-                  {item.user.name}
-                </span>
-              </div>
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.gioiTinh}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.ngaySinh}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.cccd}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.soDienThoai}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {item.diaChi}
-            </td>
-            <td className="py-4 pl-0 pr-4 text-right text-sm leading-6 dark:text-whiteSecondary text-blackPrimary sm:pr-6 lg:pr-8">
-              <div className="flex gap-x-1 justify-end">
-                <Link
-                  to={`/users/${item.id}`}
-                  className="dark:bg-blackPrimary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
-                  aria-label="Chỉnh sửa"
-                >
-                  <HiOutlinePencil className="text-lg" />
-                </Link>
-                <Link
-                  to={`/users/${item.id}`}
-                  className="dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
-                  aria-label="Xem"
-                >
-                  <HiOutlineEye className="text-lg" />
-                </Link>
-                <button
-                  className="dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
-                  aria-label="Xóa"
-                  onClick={() => console.log('Xóa người dùng', item.id)}
-                >
-                  <HiOutlineTrash className="text-lg" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="px-4 sm:px-6 lg:px-8 mt-5">
+      <div className="inline-block min-w-full align-middle">
+        <div className="overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-blackPrimary">
+              <tr>
+                <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Tên người dùng</th>
+                <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Số điện thoại</th>
+                <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Giới tính</th>
+                <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Ngày sinh</th>
+                <th className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">Hành động</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-blackSecondary">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-gray-500">
+                    Đang tải dữ liệu...
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-gray-500">
+                    Không có người dùng nào.
+                  </td>
+                </tr>
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-whiteSecondary">{user.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-whiteSecondary">{user.tenNguoiDung}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-whiteSecondary">{user.sdt}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-whiteSecondary">{user.gioiTinh}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-whiteSecondary">
+                      {user.ngaySinh ? formatDate(user.ngaySinh) : "—"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium flex gap-3 justify-end">
+                      <a
+                        href={`/users/edit-user/${user.id}`}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        Sửa
+                      </a>
+                      <button
+                        onClick={() => deleteUser((user.id))}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Xoá
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 };
 

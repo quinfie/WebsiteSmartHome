@@ -1,69 +1,103 @@
-// src/pages/EditKho.tsx
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Sidebar, InputWithLabel, SimpleInput, WhiteButton } from "../components";
-import { khoItems } from "../utils/data";
+/*import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+
+import { KhoCreateDto, KhoDto } from '../types/kho';
 
 const EditKho = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [data, setData] = useState({ TenKho: "", DiaChi: "", SoDienThoai: "" });
+
+  const [formData, setFormData] = useState<KhoCreateDto>({
+    tenKho: '',
+    diaChi: '',
+    soDienThoai:'',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const found = khoItems.find(x => x.Id === id);
-    if (found) {
-      setData({ TenKho: found.TenKho, DiaChi: found.DiaChi, SoDienThoai: found.SoDienThoai });
+    if (id) {
+      (async () => {
+        try {
+          const data: KhoDto = await getKhoById(id);
+          setFormData({
+            tenKho: data.tenKho,
+            diaChi: data.diaChi,
+            soDienThoai: data.soDienThoai,
+          });
+        } catch (err) {
+          console.error(err);
+          setMessage('❌ Không tìm thấy kho!');
+        }
+      })();
     }
-  }, [id]);
+  }, [id, getKhoById]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Cập nhật kho:", id, data);
-    navigate("/kho");
+    setLoading(true);
+    setMessage('');
+    try {
+      if (id) {
+        await updateKho(id, formData);
+        setMessage('✅ Cập nhật kho thành công!');
+        // navigate('/kho'); // Bỏ comment nếu muốn redirect sau khi cập nhật
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage('❌ Cập nhật thất bại!');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
-      <Sidebar />
-      <form onSubmit={handleSubmit} className="w-full py-10 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold dark:text-whiteSecondary text-blackPrimary mb-6">
-          Chỉnh sửa Kho
-        </h2>
-        <div className="grid grid-cols-2 gap-6 max-xl:grid-cols-1">
-          <InputWithLabel label="Tên Kho">
-            <SimpleInput
-              type="text"
-              value={data.TenKho}
-              onChange={e => setData({ ...data, TenKho: e.target.value })}
+    <div className="flex justify-center items-center mt-10">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-xl">
+        <h2 className="text-2xl font-semibold mb-6 text-center">Chỉnh sửa kho</h2>
+        {message && <p className="mb-4 text-center">{message}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block mb-1 font-medium">Tên kho</label>
+            <input
+              name="tenKho"
+              value={formData.tenKho}
+              onChange={handleChange}
+              required
+              className="w-full border rounded px-3 py-2"
             />
-          </InputWithLabel>
-          <InputWithLabel label="Địa Chỉ">
-            <SimpleInput
-              type="text"
-              value={data.DiaChi}
-              onChange={e => setData({ ...data, DiaChi: e.target.value })}
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">Địa chỉ</label>
+            <input
+              name="diaChi"
+              value={formData.diaChi}
+              onChange={handleChange}
+              required
+              className="w-full border rounded px-3 py-2"
             />
-          </InputWithLabel>
-          <InputWithLabel label="Số Điện Thoại">
-            <SimpleInput
-              type="text"
-              value={data.SoDienThoai}
-              onChange={e => setData({ ...data, SoDienThoai: e.target.value })}
-            />
-          </InputWithLabel>
-        </div>
-        <div className="mt-8 flex gap-3">
-          <WhiteButton link="/kho" text="Hủy" width="32" py="2" textSize="lg" />
+          </div>
           <button
             type="submit"
-            className="bg-blackPrimary dark:bg-whiteSecondary text-whiteSecondary dark:text-blackPrimary px-6 py-2 rounded-lg"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold"
           >
-            Cập nhật
+            {loading ? 'Đang cập nhật...' : 'Cập nhật kho'}
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
 
 export default EditKho;
+*/

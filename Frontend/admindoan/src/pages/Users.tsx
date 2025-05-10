@@ -11,8 +11,11 @@ import {
   WhiteButton,
 } from "../components";
 import { AiOutlineExport } from "react-icons/ai";
+import { useNguoiDung } from "../contexts/NguoiDungContext";
 
 const Users = () => {
+  const { searchTerm, setSearchTerm } = useNguoiDung();
+
   return (
     <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
       <Sidebar />
@@ -52,6 +55,8 @@ const Users = () => {
                 type="text"
                 className="w-60 h-10 border dark:bg-blackPrimary bg-white border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 indent-10 dark:focus:border-gray-500 focus:border-gray-400"
                 placeholder="Tìm kiếm người dùng..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div>
@@ -78,4 +83,5 @@ const Users = () => {
     </div>
   );
 };
+
 export default Users;

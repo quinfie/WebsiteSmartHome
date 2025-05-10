@@ -1,24 +1,23 @@
-import React from "react";
+import { Pagination, RowsPerPage, Sidebar, WhiteButton } from "@/components";
 import { HiOutlinePlus, HiOutlineChevronRight, HiOutlineSearch } from "react-icons/hi";
 import { AiOutlineExport } from "react-icons/ai";
-import { WhiteButton, Sidebar, Pagination, RowsPerPage } from "../components";
-// import NhaCungCapTable from "../components/NhaCungCapTable"; // nếu có component bảng riêng
+import NhaCungCapTable from "@/components/NhaCungCapTable"; // bảng nhà cung cấp
 
 const NhaCungCap = () => {
   return (
     <div className="h-auto border-t dark:border-blackSecondary border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
       <Sidebar />
-      <div className="dark:bg-blackPrimary bg-whiteSecondary w-full">
+      <div className="dark:bg-blackPrimary bg-whiteSecondary w-full ">
         <div className="dark:bg-blackPrimary bg-whiteSecondary py-10">
           <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center max-sm:flex-col max-sm:gap-5">
             <div className="flex flex-col gap-3">
               <h2 className="text-3xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
-                Danh sách Nhà Cung Cấp
+                Tất cả nhà cung cấp
               </h2>
               <p className="dark:text-whiteSecondary text-blackPrimary text-base font-normal flex items-center">
                 <span>Bảng điều khiển</span>
-                <HiOutlineChevronRight className="text-lg mx-2" />
-                <span>Nhà Cung Cấp</span>
+                <HiOutlineChevronRight className="text-lg" />
+                <span>Nhà cung cấp</span>
               </p>
             </div>
             <div className="flex gap-x-2 max-[370px]:flex-col max-[370px]:gap-2 max-[370px]:items-center">
@@ -26,7 +25,7 @@ const NhaCungCap = () => {
                 <AiOutlineExport className="dark:text-whiteSecondary text-blackPrimary text-base" />
                 <span className="dark:text-whiteSecondary text-blackPrimary font-medium">Xuất</span>
               </button>
-              <WhiteButton link="/nha-cung-cap/create" text="Thêm NCC" textSize="lg" py="2" width="48">
+              <WhiteButton link="/suppliers/create-supplier" text="Thêm nhà cung cấp" textSize="lg" py="2" width="60">
                 <HiOutlinePlus className="dark:text-blackPrimary text-whiteSecondary" />
               </WhiteButton>
             </div>
@@ -48,20 +47,15 @@ const NhaCungCap = () => {
                 id="sort"
               >
                 <option value="default">Sắp xếp theo</option>
-                <option value="az">Tên A-Z</option>
-                <option value="za">Tên Z-A</option>
+                <option value="az">Tăng dần</option>
+                <option value="za">Giảm dần</option>
                 <option value="newest">Mới nhất</option>
                 <option value="oldest">Cũ nhất</option>
               </select>
             </div>
           </div>
 
-          {/* TODO: Thay bằng <NhaCungCapTable /> nếu có component */}
-          <div className="mt-6 px-4 sm:px-6 lg:px-8">
-            <div className="bg-white dark:bg-blackSecondary rounded shadow p-6 text-blackPrimary dark:text-whiteSecondary">
-              <p>Chức năng đang được phát triển...</p>
-            </div>
-          </div>
+          <NhaCungCapTable />
 
           <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-sm:flex-col gap-4 max-sm:pt-6 max-sm:pb-0">
             <RowsPerPage />
