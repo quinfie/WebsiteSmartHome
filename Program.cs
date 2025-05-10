@@ -91,7 +91,7 @@ builder.Services.AddAuthorization(options =>
 {
     // Policy yêu cầu vai trò Khách Hàng
     options.AddPolicy("RequireCustomerRole", policy =>
-        policy.RequireRole("Khách Hàng"));
+        policy.RequireRole("Khách Hàng", "Nhân viên", "Quản trị viên"));
 
     // Policy yêu cầu vai trò Quản Trị Viên
     options.AddPolicy("RequireAdminRole", policy =>

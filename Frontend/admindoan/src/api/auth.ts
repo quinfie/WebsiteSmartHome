@@ -4,6 +4,10 @@ import api from './axios.config';
 export const authService = {
   login: async (data: LoginRequestDto): Promise<AuthResponseDto> => {
     try {
+      const payload = {
+        Username: data.username,
+        Password: data.password,
+      };
       const response = await api.post('/Auth/login', data);
       return response.data.data;
     } catch (error) {

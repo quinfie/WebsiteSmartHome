@@ -7,9 +7,9 @@ const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (username: string, password: string) => {
     try {
-      await login(email, password);
+      await login(username, password);
       navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);

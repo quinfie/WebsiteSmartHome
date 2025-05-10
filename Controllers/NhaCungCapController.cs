@@ -35,7 +35,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<NhaCungCapCreateDto>>> Create(NhaCungCapCreateDto request)
         {
             var result = await _nhaCungCapService.CreateNhaCungCapAsync(request);
@@ -43,7 +43,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<NhaCungCapCreateDto>>> Update(string id, NhaCungCapCreateDto request)
         {
             var result = await _nhaCungCapService.UpdateNhaCungCapAsync(id, request);

@@ -19,7 +19,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<IEnumerable<NguoiDungDto>>>> GetAll()
         {
             var result = await _nguoiDungService.GetAllNguoiDungAsync();

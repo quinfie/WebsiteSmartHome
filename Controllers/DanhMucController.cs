@@ -47,7 +47,7 @@ namespace WebsiteSmartHome.Controllers
         /// Thêm danh mục mới.
         /// </summary>
         [HttpPost]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<DanhMucCreateDto>>> Create(DanhMucCreateDto request)
         {
             var result = await _danhMucService.AddDanhMucAsync(request);
@@ -58,7 +58,7 @@ namespace WebsiteSmartHome.Controllers
         /// Cập nhật danh mục.
         /// </summary>
         [HttpPut]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Update(DanhMucDto request)
         {
             var result = await _danhMucService.UpdateDanhMucAsync(request);
@@ -69,7 +69,7 @@ namespace WebsiteSmartHome.Controllers
         /// Xóa danh mục theo ID.
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<bool>>> Delete(string id)
         {
             var result = await _danhMucService.DeleteDanhMucAsync(id);

@@ -99,5 +99,4 @@ const EditKho = () => {
   );
 };
 
-export default EditKho;
-*/
+export default EditKho;*/
