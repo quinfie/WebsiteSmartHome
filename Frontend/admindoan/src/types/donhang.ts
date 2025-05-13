@@ -6,6 +6,7 @@ export interface DonHangDto {
     ngayDat: string;
     tenKhuyenMai?: string;
     maKhuyenMai?:string;
+    chiTietSanPham?: ChiTietDonHangDto[];
   }
   
   export interface ViewResponseCreateDonHangDto extends DonHangDto {

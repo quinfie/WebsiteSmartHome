@@ -6,13 +6,15 @@ namespace WebsiteSmartHome.IServices
     public interface ILichBaoTriService
     {
         Task<List<LichBaoTriDto>> GetAllLichBaoTriAsync();
-        Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId);
+        Task<List<LichBaoTriDto>> GetLichBaoTriByChiTietIdAsync(int chiTietId);
+        Task<List<LichBaoTriDto>> GetLichBaoTriByDonHangIdAsync(string donHangId);
 
-        Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id);
+        Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(string id);
         Task<bool> CreateLichBaoTriAsync(CreateLichBaoTriDto lichBaoTriDto);//DTO RIENG
         Task<bool> UpdateLichBaoTriAsync(Guid id, LichBaoTriDto lichBaoTriDto);
         Task<bool> DeleteLichBaoTriAsync(Guid id);
+        Task<bool> UpdateTrangThaiLichBaoTriAsync(Guid id, string trangThai);
 
-        Task ThemLichBaoTriAsync(List<ChiTietDonHang> chiTietDonHangs);
+        Task TaoLichBaoTriTuDonHangAsync(Guid maDonHang);
     }
 }

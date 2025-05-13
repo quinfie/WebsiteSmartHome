@@ -3,7 +3,6 @@ export interface DanhMucDto {
     id: string;
     tenDanhMuc: string;
     moTa?: string;
-    hinhAnh?:string;
   }
   
   // Dùng khi tạo mới

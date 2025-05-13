@@ -36,10 +36,19 @@ export const KhoProvider = ({ children }: KhoProviderProps) => {
     }
   };
 
-
-
   useEffect(() => {
-    fetchAllKho();
+    let isMounted = true;
+    const loadData = async () => {
+      if (isMounted && khoList.length === 0) {
+        await fetchAllKho();
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -47,7 +56,6 @@ export const KhoProvider = ({ children }: KhoProviderProps) => {
       {children}
     </KhoContext.Provider>
   );
-
 
 };
 

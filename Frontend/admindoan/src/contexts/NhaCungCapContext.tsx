@@ -33,6 +33,8 @@ export const NhaCungCapProvider = ({ children }: { children: React.ReactNode }) 
     try {
       const res = await getAllNhaCungCap();
       setSuppliers(res.data.data);
+    } catch (error) {
+      console.error('Lỗi khi lấy nhà cung cấp:', error);
     } finally {
       setLoading(false);
     }
@@ -64,7 +66,18 @@ export const NhaCungCapProvider = ({ children }: { children: React.ReactNode }) 
   };
 
   useEffect(() => {
-    fetchSuppliers();
+    let isMounted = true;
+    const loadData = async () => {
+      if (isMounted && suppliers.length === 0) {
+        await fetchSuppliers();
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

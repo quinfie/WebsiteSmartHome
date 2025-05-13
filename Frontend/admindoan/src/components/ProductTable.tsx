@@ -1,119 +1,238 @@
-import { nanoid } from "nanoid";
 import { Link } from "react-router-dom";
-import { HiOutlinePencil, HiOutlineTrash, HiOutlineEye } from "react-icons/hi";
-import { productAdminItems } from "../utils/data";
-
-const inStockClass =
-  "text-green-400 bg-green-400/10 flex-none rounded-full p-1";
-const outOfStockClass =
-  "text-rose-400 bg-rose-400/10 flex-none rounded-full p-1";
+import { HiOutlinePencil, HiOutlineTrash, HiOutlineEye, HiOutlineCurrencyDollar, HiOutlineCube, HiOutlineHashtag, HiOutlineShieldCheck, HiOutlineCalendar, HiOutlineCog, HiOutlinePhotograph } from "react-icons/hi";
+import { useSanPham } from "../contexts/SanPhamContext";
+import { useState, useEffect } from "react";
+import React from "react";
 
 const ProductTable = () => {
+  const { products, loading, fetchProducts, deleteProduct } = useSanPham();
+  const [openDetailId, setOpenDetailId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Bạn có chắc muốn xóa sản phẩm này không?")) {
+      try {
+        await deleteProduct(id);
+        fetchProducts();
+      } catch (error) {
+        console.error("Lỗi khi xóa sản phẩm:", error);
+      }
+    }
+  };
+
+  const handleToggleDetail = (id: string) => {
+    setOpenDetailId(prev => (prev === id ? null : id));
+  };
+
+  // Hàm chuyển đổi đường dẫn ảnh từ DB sang đường dẫn thực tế
+  const getImagePath = (imgPath: string | null | undefined) => {
+    if (!imgPath) return '/placeholder-image.png';
+
+    try {
+      // Kiểm tra xem đường dẫn đã có http hoặc https chưa
+      if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
+        return imgPath;
+      }
+
+      // Nếu đường dẫn bắt đầu bằng 'public/'
+      if (imgPath.startsWith('public/')) {
+        // Đường dẫn tương đối trong src/assets
+        return `/src/assets/${imgPath}`;
+      }
+
+      // Nếu đường dẫn bắt đầu bằng '/'
+      if (imgPath.startsWith('/')) {
+        return imgPath;
+      }
+
+      return `/src/assets/${imgPath}`;
+    } catch (error) {
+      console.error("Lỗi khi xử lý đường dẫn ảnh:", error);
+      return '/placeholder-image.png';
+    }
+  };
+
   return (
-    <div className="overflow-x-auto w-full">
-      <table className="mt-6 w-full table-auto text-left">
-        <thead className="border-b border-white/10 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-          <tr>
-            <th className="py-2 px-4 font-semibold">Tên sản phẩm</th>
-            <th className="py-2 px-4 font-semibold">Giá</th>
-            <th className="py-2 px-4 font-semibold">Số lượng tồn</th>
-            <th className="py-2 px-4 font-semibold">Bảo hành (tháng)</th>
-            <th className="py-2 px-4 font-semibold">Mô tả</th>
-            <th className="py-2 px-4 font-semibold">Ngày sản xuất</th>
-            <th className="py-2 px-4 font-semibold">Danh mục</th>
-            <th className="py-2 px-4 font-semibold">Nhà cung cấp</th>
-            <th className="py-2 px-4 text-right font-semibold">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-white/5">
-          {productAdminItems.map((item) => (
-            <tr key={nanoid()}>
-              {/* Tên + ảnh */}
-              <td className="py-4 px-4">
-                <div className="flex items-center gap-x-3">
-                  <img
-                    src={item.imageUrl ?? "/default-image.png"}
-                    alt={item.TenSanPham}
-                    className="h-8 w-8 rounded-full object-cover bg-gray-200"
-                  />
-                  <span className="text-sm font-medium dark:text-whiteSecondary text-blackPrimary">
-                    {item.TenSanPham}
-                  </span>
-                </div>
-              </td>
-
-              {/* Giá */}
-              <td className="py-4 px-4 font-mono text-sm dark:text-whiteSecondary text-blackPrimary">
-                {item.Gia}
-              </td>
-
-              {/* Số lượng tồn */}
-              <td className="py-4 px-4 text-sm">
-                <div className="flex items-center gap-x-2">
-                  <span className={item.SoLuongTon > 0 ? inStockClass : outOfStockClass}>
-                    <span className="block h-1.5 w-1.5 rounded-full bg-current" />
-                  </span>
-                  <span className="dark:text-whiteSecondary text-blackPrimary">
-                    {item.SoLuongTon > 0 ? "Còn hàng" : "Hết hàng"}
-                  </span>
-                </div>
-              </td>
-
-              {/* Bảo hành */}
-              <td className="py-4 px-4 text-sm dark:text-whiteSecondary text-blackPrimary">
-                {item.ThoiGianBaoHanh}
-              </td>
-
-              {/* Mô tả */}
-              <td className="py-4 px-4 text-sm dark:text-whiteSecondary text-blackPrimary">
-                {item.MoTa}
-              </td>
-
-              {/* Ngày sản xuất */}
-              <td className="py-4 px-4 text-sm dark:text-whiteSecondary text-blackPrimary">
-                {item.NgaySanXuat}
-              </td>
-
-              {/* Danh mục */}
-              <td className="py-4 px-4 text-sm dark:text-whiteSecondary text-blackPrimary">
-                {item.MaDanhMuc}
-              </td>
-
-              {/* Nhà cung cấp */}
-              <td className="py-4 px-4 text-sm dark:text-whiteSecondary text-blackPrimary">
-                {item.MaNhaCungCap}
-              </td>
-
-              {/* Thao tác */}
-              <td className="py-4 px-4 text-right text-sm dark:text-whiteSecondary text-blackPrimary">
-                <div className="flex justify-end gap-x-2">
-                  <Link
-                    to={`/products/${item.MaKho}`}
-                    className="btn-icon"
-                    title="Chỉnh sửa"
-                  >
-                    <HiOutlinePencil />
-                  </Link>
-                  <Link
-                    to={`/products/${item.MaKho}`}
-                    className="btn-icon"
-                    title="Xem chi tiết"
-                  >
-                    <HiOutlineEye />
-                  </Link>
-                  <Link
-                    to="#"
-                    className="btn-icon"
-                    title="Xóa"
-                  >
-                    <HiOutlineTrash />
-                  </Link>
-                </div>
-              </td>
+    <div className="w-full mt-10 px-0">
+      {/* Table full width */}
+      <div className="overflow-x-auto w-full px-0">
+        <table className="w-full mt-2 table-auto text-left rounded-lg overflow-hidden shadow-md bg-[#181A20]">
+          <thead>
+            <tr className="bg-[#23272F] text-white">
+              <th className="py-3 px-4 font-bold text-left" style={{ width: '50%' }}>
+                <span className="inline-flex items-center gap-1">
+                  <HiOutlineCube className="text-blue-400 text-lg" /> Sản phẩm
+                </span>
+              </th>
+              <th className="py-3 px-4 font-bold text-left">
+                <span className="inline-flex items-center gap-1">
+                  <HiOutlineCurrencyDollar className="text-green-400 text-lg" /> Giá
+                </span>
+              </th>
+              <th className="py-3 px-4 font-bold text-left">
+                <span className="inline-flex items-center gap-1">
+                  <HiOutlineHashtag className="text-yellow-400 text-lg" /> Số lượng tồn
+                </span>
+              </th>
+              <th className="py-3 px-4 font-bold text-left">
+                <span className="inline-flex items-center gap-1">
+                  <HiOutlineCog className="text-cyan-400 text-lg" /> Thao tác
+                </span>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-6 text-white">Đang tải dữ liệu...</td>
+              </tr>
+            ) : products.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-6 text-white">Không có sản phẩm nào.</td>
+              </tr>
+            ) : (
+              products.map((item) => (
+                <React.Fragment key={item.id}>
+                  <tr className="hover:bg-[#23272F] transition-colors group">
+                    <td className="py-3 px-4 text-left text-white font-semibold">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gray-800 overflow-hidden flex-shrink-0 border border-gray-700 product-image-container">
+                          {item.img ? (
+                            <img
+                              src={getImagePath(item.img)}
+                              alt={item.tenSanPham}
+                              className="w-full h-full object-contain product-image"
+                              loading="lazy"
+                              onError={(e) => {
+                                console.error(`Failed to load image: ${item.img}`);
+                                (e.target as HTMLImageElement).onerror = null;
+                                (e.target as HTMLImageElement).src = '/placeholder-image.png';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-500">
+                              <HiOutlinePhotograph size={24} />
+                            </div>
+                          )}
+                        </div>
+                        <span>{item.tenSanPham}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-left font-mono text-green-400 font-bold">
+                      <span className="inline-flex items-center gap-1">
+                        <HiOutlineCurrencyDollar className="text-green-400 text-lg" />
+                        {item.donGia.toLocaleString()} đ
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-left">
+                      <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs font-semibold shadow ${item.soLuongTon > 0 ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                        {item.soLuongTon > 0 ? (
+                          <>
+                            <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                            {item.soLuongTon} Còn hàng
+                          </>
+                        ) : (
+                          <>
+                            <span className="w-2 h-2 rounded-full bg-red-400 inline-block"></span>
+                            Hết hàng
+                          </>
+                        )}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-left">
+                      <div className="flex justify-center gap-x-2">
+                        <Link to={`/dashboard/products/${item.id}/edit`} className="p-2 rounded hover:bg-blue-600 transition-colors text-blue-400 hover:text-white btn-hover-effect" title="Chỉnh sửa">
+                          <HiOutlinePencil size={18} />
+                        </Link>
+                        <button
+                          className={`p-2 rounded hover:bg-cyan-600 transition-colors text-cyan-400 hover:text-white btn-hover-effect ${openDetailId === item.id ? 'ring-2 ring-cyan-400' : ''}`}
+                          title={openDetailId === item.id ? "Đóng chi tiết" : "Xem chi tiết"}
+                          onClick={() => handleToggleDetail(item.id)}
+                        >
+                          <HiOutlineEye size={18} className={openDetailId === item.id ? 'text-cyan-400' : ''} />
+                        </button>
+                        <button
+                          className="p-2 rounded hover:bg-red-600 transition-colors text-red-400 hover:text-white btn-hover-effect"
+                          title="Xóa"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          <HiOutlineTrash size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {openDetailId === item.id && (
+                    <tr key={`${item.id}-details`}>
+                      <td colSpan={6} className="bg-gradient-to-r from-[#20232a] to-[#23272F] px-10 py-7 text-base rounded-b-xl shadow-lg border-b-2 border-blue-900 product-detail-animation">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="md:col-span-1">
+                            <div className="w-full h-48 md:h-64 rounded-lg overflow-hidden bg-gray-800 border border-gray-700 shadow-lg zoom-on-hover">
+                              {item.img ? (
+                                <img
+                                  src={getImagePath(item.img)}
+                                  alt={item.tenSanPham}
+                                  className="w-full h-full object-contain product-image"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    console.error(`Failed to load detail image: ${item.img}`);
+                                    (e.target as HTMLImageElement).onerror = null;
+                                    (e.target as HTMLImageElement).src = '/placeholder-image.png';
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-500">
+                                  <HiOutlinePhotograph size={48} />
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-400 mt-2 text-center">
+                              {item.img ? item.img : 'Không có hình ảnh'}
+                            </div>
+                          </div>
+                          <div className="md:col-span-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-white">
+                              <div className="flex items-center gap-2">
+                                <HiOutlineCube className="text-blue-400" />
+                                <span className="uppercase text-xs text-blue-300 font-bold tracking-wider">Tên sản phẩm:</span>
+                                <span className="ml-2 text-lg font-semibold text-white">{item.tenSanPham}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <HiOutlineCurrencyDollar className="text-green-400" />
+                                <span className="uppercase text-xs text-green-300 font-bold tracking-wider">Đơn giá:</span>
+                                <span className="ml-2 text-lg font-mono text-green-400">{item.donGia.toLocaleString()} đ</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-3 h-3 rounded-full bg-green-400 inline-block"></span>
+                                <span className="uppercase text-xs text-green-300 font-bold tracking-wider">Số lượng tồn:</span>
+                                <span className="ml-2 text-lg">{item.soLuongTon}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="uppercase text-xs text-cyan-300 font-bold tracking-wider">Bảo hành:</span>
+                                <span className="ml-2 text-lg">{item.thoiGianBaoHanh} tháng</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="uppercase text-xs text-yellow-300 font-bold tracking-wider">Ngày sản xuất:</span>
+                                <span className="ml-2 text-lg">{new Date(item.ngaySanXuat).toLocaleDateString("vi-VN")}</span>
+                              </div>
+                              <div className="sm:col-span-2 pt-2 border-t border-[#2d3340] mt-2">
+                                <span className="uppercase text-xs text-purple-300 font-bold tracking-wider">Mô tả:</span>
+                                <span className="ml-2 text-gray-300">{item.moTa}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

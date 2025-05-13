@@ -31,5 +31,6 @@ export { default as ThirdPartyAuthButton } from "./ThirdPartyAuthButton";
 export { default as LoginComponent } from "./LoginComponent";
 export { default as RegisterComponent } from "./RegisterComponent";
 export { default as PromotionTable } from "./PromotionTable";
+export { default as TableWrapper } from "./TableWrapper";
 //export { default as NhaCungCapTable } from "./NhaCungCapTable";
 

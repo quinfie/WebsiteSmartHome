@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace WebsiteSmartHome.Core.Data
 {
@@ -65,6 +67,8 @@ namespace WebsiteSmartHome.Core.Data
             modelBuilder.Entity<DanhGia>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__DanhGia__3214EC07D09015E8");
+
+                entity.ToTable("DanhGia");
 
                 entity.HasIndex(e => new { e.MaDonHang, e.MaSanPham }, "UC_DanhGia").IsUnique();
 
@@ -257,6 +261,7 @@ namespace WebsiteSmartHome.Core.Data
                 entity.Property(e => e.NgaySanXuat).HasColumnType("datetime");
                 entity.Property(e => e.SoLuongTon).HasDefaultValue(0);
                 entity.Property(e => e.TenSanPham).HasMaxLength(255);
+                entity.Property(e => e.img).HasMaxLength(255);
 
                 entity.HasOne(d => d.MaDanhMucNavigation).WithMany(p => p.SanPhams)
                     .HasForeignKey(d => d.MaDanhMuc)

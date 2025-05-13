@@ -11,23 +11,39 @@ const api = axios.create({
 // Tự động thêm token nếu có
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  console.log("=== TOKEN GỬI ĐI ===", token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Log request data
+  if (config.data) {
+    console.log('Request data:', JSON.stringify(config.data));
+  }
+  
   return config;
 });
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log đầy đủ thông tin lỗi để debug
+    console.error('API Error Details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+      }
+    });
+
     if (error.response) {
       const data = error.response.data;
 
       // Xử lý lỗi từ server
-      // Nếu có thông báo lỗi từ server thì sử dụng thông báo đó
       const message =
-        data?.errorMessage
+        data?.errorMessage ||
         data?.message ||
         data?.title ||
         data?.error ||
@@ -36,13 +52,27 @@ api.interceptors.response.use(
 
       const code = data?.errorCode ? `[${data.errorCode}] ` : '';
 
-      console.error('API Error:', data);
-      throw new Error(`${code}${message}`); // Trả lỗi rõ cho FE
+      // Log lỗi chi tiết
+      console.error('API Error:', {
+        code: data?.errorCode,
+        message: message,
+        data: data
+      });
+
+      throw new Error(`${code}${message}`);
     } else if (error.request) {
-      console.error('Network Error:', error.request);
+      // Log lỗi kết nối
+      console.error('Network Error:', {
+        request: error.request,
+        message: 'Không thể kết nối đến máy chủ'
+      });
       throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
     } else {
-      console.error('Request Setup Error:', error.message);
+      // Log lỗi cấu hình request
+      console.error('Request Setup Error:', {
+        message: error.message,
+        config: error.config
+      });
       throw new Error('Có lỗi xảy ra khi gửi yêu cầu');
     }
   }

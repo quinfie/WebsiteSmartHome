@@ -1,84 +1,277 @@
-import {
-  DanhMucTable,
-  Pagination,
-  RowsPerPage,
-  Sidebar,
-  WhiteButton,
-} from "../components";
+import { Sidebar, TableWrapper } from "../components";
 import {
   HiOutlinePlus,
   HiOutlineChevronRight,
   HiOutlineSearch,
+  HiOutlineFilter,
+  HiOutlineX,
+  HiOutlinePencil,
+  HiOutlineTrash,
+  HiOutlineFolder,
+  HiOutlineViewGrid,
+  HiOutlineEye
 } from "react-icons/hi";
 import { AiOutlineExport } from "react-icons/ai";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useDanhMuc } from "../contexts/DanhMucContexts";
+import React from "react";
+import { DanhMucDto } from "../types/danhmuc";
 
-const DanhMuc = () => {
+// Extended DanhMucDto to include soSanPham property for the table display
+interface ExtendedDanhMucDto extends DanhMucDto {
+  soSanPham?: number;
+}
+
+// Custom DanhMucTable component with props
+const CustomDanhMucTable: React.FC<{ categories: ExtendedDanhMucDto[], isLoading: boolean, onViewProducts: (id: string) => void }> =
+  ({ categories, isLoading, onViewProducts }) => {
+    const { remove: deleteCategory, fetchDanhMucs: fetchCategories } = useDanhMuc();
+    const [openDetailId, setOpenDetailId] = useState<string | null>(null);
+    const navigate = useNavigate();
+
+    const handleDelete = async (id: string) => {
+      if (window.confirm("Bạn có chắc muốn xóa danh mục này không?")) {
+        try {
+          await deleteCategory(id);
+          fetchCategories();
+        } catch (error) {
+          console.error("Lỗi khi xóa danh mục:", error);
+        }
+      }
+    };
+
+    const handleEdit = (id: string) => {
+      navigate(`/dashboard/categories/${id}/edit`);
+    };
+
+    const handleToggleDetail = (id: string) => {
+      setOpenDetailId(prev => prev === id ? null : id);
+    };
+
+    return (
+      <div className="w-full px-0">
+        <div className="overflow-x-auto w-full px-0">
+          <table className="w-full table-auto text-left">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-800/50">
+                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1">
+                    <HiOutlineFolder className="text-blue-500" /> Tên danh mục
+                  </span>
+                </th>
+                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1">
+                    <HiOutlineViewGrid className="text-green-500" /> Số sản phẩm
+                  </span>
+                </th>
+                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1">
+                    <HiOutlineFilter className="text-purple-500" /> Thao tác
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={3} className="text-center py-6 dark:text-white text-gray-700">Đang tải dữ liệu...</td>
+                </tr>
+              ) : categories.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="text-center py-6 dark:text-white text-gray-700">Không có danh mục nào.</td>
+                </tr>
+              ) : (
+                categories.map((item) => (
+                  <React.Fragment key={item.id}>
+                    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <td className="py-4 px-4 font-medium dark:text-white text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <HiOutlineFolder className="text-blue-500 dark:text-blue-400" />
+                          {item.tenDanhMuc}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 dark:text-white text-gray-700">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                          {item.soSanPham || 0} sản phẩm
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            className="p-1.5 rounded-full text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/40 transition-colors"
+                            title="Chỉnh sửa"
+                            onClick={() => handleEdit(item.id)}
+                          >
+                            <HiOutlinePencil size={18} />
+                          </button>
+                          <button
+                            className="p-1.5 rounded-full text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors"
+                            title="Xóa"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            <HiOutlineTrash size={18} />
+                          </button>
+                          <button
+                            className="p-1.5 rounded-full text-green-600 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/40 transition-colors"
+                            title="Xem sản phẩm"
+                            onClick={() => onViewProducts(item.id)}
+                          >
+                            <HiOutlineViewGrid size={18} />
+                          </button>
+                          <button
+                            className={`p-1.5 rounded-full ${openDetailId === item.id
+                              ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400"
+                              : "text-indigo-600 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:bg-indigo-900/40"
+                              } transition-colors`}
+                            title={openDetailId === item.id ? "Đóng chi tiết" : "Xem chi tiết"}
+                            onClick={() => handleToggleDetail(item.id)}
+                          >
+                            <HiOutlineEye size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {openDetailId === item.id && (
+                      <tr>
+                        <td colSpan={3} className="py-0">
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-6 py-4 shadow-inner border-t border-b border-blue-100 dark:border-blue-900">
+                            <h4 className="font-medium text-gray-800 dark:text-white mb-3">Mô tả danh mục</h4>
+                            <p className="text-gray-600 dark:text-gray-300">{item.moTa || 'Không có mô tả'}</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+const Categories = () => {
+  const navigate = useNavigate();
+  const {
+    danhMucs: categories,
+    loading,
+    filterOptions,
+    setFilterOptions,
+    sortOptions,
+    handleSortOptionsChange,
+    searchAndSortCategories,
+    paginationInfo,
+    fetchDanhMucs: fetchCategories
+  } = useDanhMuc();
+
+  const [keyword, setKeyword] = useState(filterOptions.keyword || '');
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  const handleSearch = (searchKeyword: string) => {
+    setFilterOptions({
+      ...filterOptions,
+      keyword: searchKeyword
+    });
+    searchAndSortCategories();
+  };
+
+  const handleSort = (value: string) => {
+    let newSortOptions;
+
+    // Xử lý các tùy chọn sắp xếp
+    switch (value) {
+      case 'az':
+        newSortOptions = { sortBy: 'tenDanhMuc', ascending: true };
+        break;
+      case 'za':
+        newSortOptions = { sortBy: 'tenDanhMuc', ascending: false };
+        break;
+      case 'moTaasc':
+        newSortOptions = { sortBy: 'moTa', ascending: true };
+        break;
+      case 'moTadesc':
+        newSortOptions = { sortBy: 'moTa', ascending: false };
+        break;
+      default:
+        newSortOptions = { sortBy: 'tenDanhMuc', ascending: true };
+    }
+
+    // Cập nhật sortOptions và gọi API
+    handleSortOptionsChange(newSortOptions);
+  };
+
+  const getCurrentSortOption = () => {
+    const { sortBy, ascending } = sortOptions;
+
+    if (sortBy === 'tenDanhMuc' && ascending) return 'az';
+    if (sortBy === 'tenDanhMuc' && !ascending) return 'za';
+    if (sortBy === 'moTa' && ascending) return 'moTaasc';
+    if (sortBy === 'moTa' && !ascending) return 'moTadesc';
+
+    return '';
+  };
+
+  const handleViewProducts = (categoryId: string) => {
+    navigate(`/dashboard/categories/${categoryId}/products`);
+  };
+
+  // Prepare sort options for TableWrapper
+  const sortOptionItems = [
+    { value: 'az', label: 'Tên A-Z' },
+    { value: 'za', label: 'Tên Z-A' },
+    { value: 'moTaasc', label: 'Mô tả A-Z' },
+    { value: 'moTadesc', label: 'Mô tả Z-A' }
+  ];
+
+  // Prepare stat cards for TableWrapper  
+  const statCards = [
+    {
+      title: 'Tổng danh mục',
+      value: paginationInfo.totalItems,
+      icon: <HiOutlineFolder className="text-blue-500 dark:text-blue-400 text-xl" />,
+      color: 'bg-blue-100 dark:bg-blue-900'
+    },
+    {
+      title: 'Có sản phẩm',
+      value: categories.filter((c: ExtendedDanhMucDto) => c.soSanPham && c.soSanPham > 0).length,
+      icon: <HiOutlineViewGrid className="text-green-500 dark:text-green-400 text-xl" />,
+      color: 'bg-green-100 dark:bg-green-900'
+    }
+  ];
+
   return (
     <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
       <Sidebar />
-      <div className="dark:bg-blackPrimary bg-whiteSecondary w-full">
-        <div className="dark:bg-blackPrimary bg-whiteSecondary py-10">
-          {/* Header */}
-          <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center max-sm:flex-col max-sm:gap-5">
-            <div className="flex flex-col gap-3">
-              <h2 className="text-3xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
-                Tất cả danh mục
-              </h2>
-              <p className="dark:text-whiteSecondary text-blackPrimary text-base font-normal flex items-center">
-                <span>Bảng điều khiển</span>{" "}
-                <HiOutlineChevronRight className="text-lg mx-1" />{" "}
-                <span>Tất cả danh mục</span>
-              </p>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-x-2 max-[370px]:flex-col max-[370px]:gap-2 max-[370px]:items-center">
-              <button className="dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 w-32 py-2 text-lg hover:border-gray-500 duration-200 flex items-center justify-center gap-x-2">
-                <AiOutlineExport className="dark:text-whiteSecondary text-blackPrimary text-base" />
-                <span className="dark:text-whiteSecondary text-blackPrimary font-medium">Xuất</span>
-              </button>
-              <WhiteButton link="/danh-muc/tao-moi" text="Thêm danh mục" textSize="lg" py="2" width="48">
-                <HiOutlinePlus className="dark:text-blackPrimary text-whiteSecondary" />
-              </WhiteButton>
-            </div>
-          </div>
-
-          {/* Search + Sort */}
-          <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center mt-5 max-sm:flex-col max-sm:gap-2">
-            <div className="relative">
-              <HiOutlineSearch className="text-gray-400 text-lg absolute top-3 left-3" />
-              <input
-                type="text"
-                className="w-60 h-10 border dark:bg-blackPrimary border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 indent-10 dark:focus:border-gray-500 focus:border-gray-400"
-                placeholder="Tìm danh mục..."
-              />
-            </div>
-            <div>
-              <select
-                className="w-60 h-10 dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 pl-3 pr-8 cursor-pointer dark:hover:border-gray-500 hover:border-gray-400"
-                name="sort"
-              >
-                <option value="default">Sắp xếp</option>
-                <option value="az">A-Z</option>
-                <option value="za">Z-A</option>
-                <option value="newest">Mới nhất</option>
-                <option value="oldest">Cũ nhất</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Table */}
-          <DanhMucTable />
-
-          {/* Pagination */}
-          <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-sm:flex-col gap-4 max-sm:pt-6 max-sm:pb-0">
-            <RowsPerPage />
-            <Pagination />
-          </div>
-        </div>
-      </div>
+      <TableWrapper
+        title="Quản lý danh mục"
+        subtitle="Tất cả danh mục"
+        addButtonLink="/dashboard/categories/create"
+        addButtonLabel="Thêm danh mục"
+        onSearch={handleSearch}
+        searchPlaceholder="Tìm kiếm danh mục..."
+        onSort={handleSort}
+        sortOptions={sortOptionItems}
+        currentSortOption={getCurrentSortOption()}
+        contextType="sanpham"
+        itemLabel="danh mục"
+        statCards={statCards}
+        isLoading={loading}
+        hasData={categories.length > 0}
+        emptyStateMessage="Không có danh mục nào"
+      >
+        <CustomDanhMucTable
+          categories={categories}
+          isLoading={loading}
+          onViewProducts={handleViewProducts}
+        />
+      </TableWrapper>
     </div>
   );
 };
 
-export default DanhMuc;
+export default Categories;

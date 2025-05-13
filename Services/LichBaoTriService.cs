@@ -35,14 +35,11 @@ namespace WebsiteSmartHome.Services
             }).ToList();
         }
 
-        // 2. Tìm theo MaChiTietDonHang
-        public async Task<List<LichBaoTriDto>> SearchLichBaoTriByOrderAsync(Guid orderId)
+        // 2. Lấy lịch bảo trì theo mã chi tiết đơn hàng
+        public async Task<List<LichBaoTriDto>> GetLichBaoTriByChiTietIdAsync(int chiTietId)
         {
             var items = await _unitOfWork.GetRepository<LichBaoTri>()
-                .GetEntitiesWithCondition(
-                    lb => lb.MaChiTietDonHangNavigation.MaDonHang == orderId,
-                    lb => lb.MaChiTietDonHangNavigation
-                )
+                .GetEntitiesWithCondition(lb => lb.MaChiTietDonHang == chiTietId)
                 .ToListAsync();
 
             return items.Select(e => new LichBaoTriDto
@@ -50,18 +47,64 @@ namespace WebsiteSmartHome.Services
                 Id = e.Id.ToString(),
                 MaChiTietDonHang = e.MaChiTietDonHang,
                 NgayBaoTri = e.NgayBaoTri,
-                LoaiBaoTri = GetDesriptionHelper.GetDescription(e.LoaiBaoTri, typeof(TypeServiceHelper)),
-                TrangThai = GetDesriptionHelper.GetDescription(e.TrangThai, typeof(TrangThaiLichBaoTri)),
+                LoaiBaoTri = GetDesriptionHelper.GetDescription(
+                    GetDesriptionHelper.GetEnumNameByDescription<TypeServiceHelper>(e.LoaiBaoTri) ?? e.LoaiBaoTri,
+                    typeof(TypeServiceHelper)
+                ),
+                TrangThai = GetDesriptionHelper.GetDescription(
+                    GetDesriptionHelper.GetEnumNameByDescription<TrangThaiLichBaoTri>(e.TrangThai) ?? e.TrangThai,
+                    typeof(TrangThaiLichBaoTri)
+                ),
                 NguonPhatSinh = e.NguonPhatSinh,
                 MaYeuCauDichVu = e.MaYeuCauDichVu?.ToString()
             }).ToList();
         }
 
+        // 2.1 Lấy lịch bảo trì theo mã đơn hàng
+        public async Task<List<LichBaoTriDto>> GetLichBaoTriByDonHangIdAsync(string donHangId)
+        {
+            // Lấy tất cả chi tiết đơn hàng thuộc đơn hàng này
+            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .GetEntitiesWithCondition(ct => ct.MaDonHang.ToString() == donHangId)
+                .ToListAsync();
+
+            if (!chiTietDonHangs.Any())
+                return new List<LichBaoTriDto>();
+
+            // Lấy IDs của các chi tiết đơn hàng
+            var chiTietIds = chiTietDonHangs.Select(ct => ct.Id).ToList();
+
+            // Lấy tất cả lịch bảo trì liên quan đến các chi tiết đơn hàng này
+            var lichBaoTris = await _unitOfWork.GetRepository<LichBaoTri>()
+                .GetEntitiesWithCondition(lb => chiTietIds.Contains(lb.MaChiTietDonHang))
+                .Include(lb => lb.MaChiTietDonHangNavigation)
+                    .ThenInclude(ct => ct.MaSanPhamNavigation)
+                .ToListAsync();
+
+            return lichBaoTris.Select(e => new LichBaoTriDto
+            {
+                Id = e.Id.ToString(),
+                MaChiTietDonHang = e.MaChiTietDonHang,
+                NgayBaoTri = e.NgayBaoTri,
+                LoaiBaoTri = GetDesriptionHelper.GetDescription(
+                    GetDesriptionHelper.GetEnumNameByDescription<TypeServiceHelper>(e.LoaiBaoTri) ?? e.LoaiBaoTri,
+                    typeof(TypeServiceHelper)
+                ),
+                TrangThai = GetDesriptionHelper.GetDescription(
+                    GetDesriptionHelper.GetEnumNameByDescription<TrangThaiLichBaoTri>(e.TrangThai) ?? e.TrangThai,
+                    typeof(TrangThaiLichBaoTri)
+                ),
+                NguonPhatSinh = e.NguonPhatSinh,
+                MaYeuCauDichVu = e.MaYeuCauDichVu?.ToString(),
+                TenSanPham = e.MaChiTietDonHangNavigation?.MaSanPhamNavigation?.TenSanPham ?? "Không xác định"
+            }).ToList();
+        }
+
         // 3. Lấy theo Id
-        public async Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(Guid id)
+        public async Task<LichBaoTriDto?> GetLichBaoTriByIdAsync(string id)
         {
             var e = await _unitOfWork.GetRepository<LichBaoTri>()
-                                 .GetByIdAsync(id);
+                                 .GetByIdAsync(Guid.Parse(id));
             if (e == null) return null;
 
             return new LichBaoTriDto
@@ -154,63 +197,42 @@ namespace WebsiteSmartHome.Services
             return true;
         }
 
-        // 7. Thêm lịch bảo trì tự động 
-        public async Task ThemLichBaoTriAsync(List<ChiTietDonHang> chiTietDonHangs)
+        public async Task TaoLichBaoTriTuDonHangAsync(Guid maDonHang)
         {
-            foreach (var chiTietDonHang in chiTietDonHangs)
+            var donHang = await _unitOfWork.GetRepository<DonHang>().GetByIdAsync(maDonHang);
+            if (donHang == null || donHang.TrangThaiDonHang != "Hoàn thành")
+                return;
+
+            var chiTietDonHangs = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .GetEntitiesWithCondition(ct => ct.MaDonHang == maDonHang)
+                .ToListAsync();
+
+            foreach (var chiTiet in chiTietDonHangs)
             {
-                // Lấy thông tin đơn hàng
-                var donHang = await _unitOfWork.GetRepository<DonHang>()
-                    .FindByConditionAsync(x => x.Id == chiTietDonHang.MaDonHang);
-
-                if (donHang == null)
-                {
-                    throw new BaseException.NotFoundException("not_found", $"Không tìm thấy đơn hàng với Id {chiTietDonHang.MaDonHang}");
-                }
-
-                // Chỉ tạo lịch bảo trì khi đơn hàng đã hoàn thành
-                if (donHang.TrangThaiDonHang != OrderStatusHelper.HoanThanh.ToString().GetDescription(typeof(OrderStatusHelper)))
-                {
+                var sanPham = await _unitOfWork.GetRepository<SanPham>().GetByIdAsync(chiTiet.MaSanPham);
+                if (sanPham == null || sanPham.ThoiGianBaoHanh <= 0)
                     continue;
-                }
 
-                var maSanPham = chiTietDonHang.MaSanPham;
+                int soDotBaoTri = sanPham.ThoiGianBaoHanh / 6;
 
-                // Lấy thông tin sản phẩm từ bảng SanPham
-                var sanPham = await _unitOfWork.GetRepository<SanPham>()
-                    .FindByConditionAsync(x => x.Id == maSanPham);
-
-                if (sanPham == null)
+                for (int i = 1; i <= soDotBaoTri; i++)
                 {
-                    throw new BaseException.NotFoundException("not_found", $"Không tìm thấy sản phẩm với Id {chiTietDonHang.MaSanPham}");
-                }
-
-                // Lấy thời gian bảo hành của sản phẩm
-                var thoiGianBaoHanh = sanPham.ThoiGianBaoHanh;
-
-                // Tạo các bản ghi lịch bảo trì
-                for (int i = 1; i <= thoiGianBaoHanh / 6; i++)  // Mỗi lần 6 tháng
-                {
-                    // Tính ngày bảo trì (Ngày mua hàng + 6 tháng * i)
-                    var ngayBaoTri = DateTime.Now.AddMonths(i * 6);
-
-                    // Tạo lịch bảo trì
-                    var lichBaoTri = new LichBaoTri
+                    var lich = new LichBaoTri
                     {
-                        MaChiTietDonHang = chiTietDonHang.Id,
-                        NgayBaoTri = ngayBaoTri,
-                        LoaiBaoTri = TypeServiceHelper.BaoTri.ToString().GetDescription(typeof(TypeServiceHelper)),
-                        TrangThai = TrangThaiLichBaoTri.ChuaThongBao.ToString().GetDescription(typeof(TrangThaiLichBaoTri)),
+                        MaChiTietDonHang = chiTiet.Id,
+                        NgayBaoTri = donHang.NgayDat.AddMonths(i * 6),
+                        LoaiBaoTri = "Bảo trì",
+                        TrangThai = "Chưa thông báo",
+                        NguonPhatSinh = "Tự động",
                         MaYeuCauDichVu = null
                     };
 
-                    // Lưu vào cơ sở dữ liệu
-                    await _unitOfWork.GetRepository<LichBaoTri>().InsertAsync(lichBaoTri);
+                    await _unitOfWork.GetRepository<LichBaoTri>().InsertAsync(lich);
                 }
             }
+
             await _unitOfWork.SaveAsync();
         }
-
         public async Task<bool> TaoLichBaoTriTuYeuCauAsync(string maYeuCau)
         {
             // Lấy yêu cầu dịch vụ
@@ -292,6 +314,49 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.SaveAsync();
 
             return true;
+        }
+
+        // Cập nhật trạng thái lịch bảo trì
+        public async Task<bool> UpdateTrangThaiLichBaoTriAsync(Guid id, string trangThai)
+        {
+            var lichBaoTri = await _unitOfWork.GetRepository<LichBaoTri>()
+                                 .GetByIdAsync(id);
+
+            if (lichBaoTri == null) return false;
+
+            try
+            {
+                // Xác định giá trị hiển thị hợp lệ để lưu vào database
+                string displayValue;
+
+                // Nếu đầu vào là giá trị hiển thị, sử dụng trực tiếp
+                if (trangThai == "Đã thông báo" || trangThai == "Chưa thông báo")
+                {
+                    displayValue = trangThai;
+                }
+                // Nếu đầu vào là tên enum, chuyển đổi thành giá trị hiển thị
+                else if (Enum.TryParse<TrangThaiLichBaoTri>(trangThai, out var enumValue))
+                {
+                    displayValue = trangThai.GetDescription(typeof(TrangThaiLichBaoTri));
+                }
+                // Nếu không phải giá trị hợp lệ, báo lỗi
+                else
+                {
+                    throw new BaseException.ValidationException("invalid_status", $"Trạng thái '{trangThai}' không hợp lệ");
+                }
+
+                // Cập nhật trường trạng thái với giá trị hiển thị
+                lichBaoTri.TrangThai = displayValue;
+
+                _unitOfWork.GetRepository<LichBaoTri>().Update(lichBaoTri);
+                await _unitOfWork.SaveAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi cập nhật trạng thái: {ex.Message}");
+                throw;
+            }
         }
     }
 }

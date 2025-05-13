@@ -26,7 +26,7 @@ namespace WebsiteSmartHome.Core.Utils
         // Kiểm tra trạng thái tài khoản hợp lệ
         public static void ValidateTrangThai<TEnum>(string trangThai) where TEnum : Enum
         {
-            var match = GetDesriptionHelper.GetEnumNameByDescription<AccountStatus>(trangThai);
+            var match = GetDesriptionHelper.GetEnumNameByDescription<TEnum>(trangThai);
             if (match == null)
             {
                 throw new BaseException.ValidationException("invalid_status", $"Trạng thái '{trangThai}' không hợp lệ");

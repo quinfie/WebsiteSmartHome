@@ -61,17 +61,43 @@ namespace WebsiteSmartHome.Controllers
         [Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<LichBaoTriDto>>> GetById(string id)
         {
-            var lichBaoTri = await _lichBaoTriService.GetLichBaoTriByIdAsync(Guid.Parse(id));
+            var lichBaoTri = await _lichBaoTriService.GetLichBaoTriByIdAsync(id);
             return BaseResponse<LichBaoTriDto>.OkResponse(lichBaoTri, "Lấy lịch bảo trì thành công");
         }
 
-        // Tìm kiếm lịch bảo trì theo mã đơn hàng
-        [HttpGet("search")]
+        [HttpGet("by-chitiet")]
         [Authorize(Policy = "RequireManageRole")]
-        public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> SearchByOrder([FromQuery] string maDonHang)
+        public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetByChiTietId([FromQuery] int chiTietId)
         {
-            var lichBaoTris = await _lichBaoTriService.SearchLichBaoTriByOrderAsync(Guid.Parse(maDonHang));
-            return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris, "Tìm kiếm lịch bảo trì thành công");
+            var lichBaoTris = await _lichBaoTriService.GetLichBaoTriByChiTietIdAsync(chiTietId);
+            return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris, "Lấy lịch bảo trì theo chi tiết đơn hàng thành công");
+        }
+
+        // Lấy lịch bảo trì theo mã đơn hàng
+        [HttpGet("donhang/{donHangId}")]
+        [Authorize(Policy = "RequireManageRole")]
+        public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetByDonHangId(string donHangId)
+        {
+            var lichBaoTris = await _lichBaoTriService.GetLichBaoTriByDonHangIdAsync(donHangId);
+            return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris, "Lấy lịch bảo trì theo đơn hàng thành công");
+        }
+
+        // Lấy lịch bảo trì theo mã chi tiết đơn hàng
+        [HttpGet("chitietdonhang/{chiTietDonHangId}")]
+        [Authorize(Policy = "RequireManageRole")]
+        public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetByChiTietDonHangId(int chiTietDonHangId)
+        {
+            var lichBaoTris = await _lichBaoTriService.GetLichBaoTriByChiTietIdAsync(chiTietDonHangId);
+            return BaseResponse<List<LichBaoTriDto>>.OkResponse(lichBaoTris, "Lấy lịch bảo trì theo chi tiết đơn hàng thành công");
+        }
+
+        // Cập nhật trạng thái lịch bảo trì
+        [HttpPut("{id}/trang-thai")]
+        [Authorize(Policy = "RequireManageRole")]
+        public async Task<ActionResult<BaseResponse<bool>>> UpdateTrangThai(string id, [FromBody] UpdateTrangThaiDto dto)
+        {
+            var result = await _lichBaoTriService.UpdateTrangThaiLichBaoTriAsync(Guid.Parse(id), dto.TrangThai);
+            return BaseResponse<bool>.OkResponse(result, "Cập nhật trạng thái lịch bảo trì thành công");
         }
     }
 }

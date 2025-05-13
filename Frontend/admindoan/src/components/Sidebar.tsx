@@ -41,14 +41,19 @@ const Sidebar = () => {
         {/* Cuộn phần nội dung menu */}
         <div className="flex-1 overflow-y-auto">
           {/* Landing section */}
-          <div onClick={toggleLanding} className={navInactiveClass}>
+          <NavLink
+            to="/dashboard/tongquan"
+            className={({ isActive }) =>
+              isActive ? navActiveClass : navInactiveClass
+            }
+          >
             <HiOutlineHome className="text-xl" />
-            <span className="text-lg">Trang tổng quan</span>
-          </div>
+            <span className="text-lg">Tổng quan</span>
+          </NavLink>
 
           {/* Các mục menu chính */}
           <NavLink
-            to="/products"
+            to="/dashboard/products"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -57,7 +62,7 @@ const Sidebar = () => {
             <span className="text-lg">Sản phẩm</span>
           </NavLink>
           <NavLink
-            to="/categories"
+            to="/dashboard/categories"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -66,7 +71,7 @@ const Sidebar = () => {
             <span className="text-lg">Danh mục</span>
           </NavLink>
           <NavLink
-            to="/nha-cung-cap"
+            to="/dashboard/suppliers"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -75,7 +80,7 @@ const Sidebar = () => {
             <span className="text-lg">Nhà cung cấp</span>
           </NavLink>
           <NavLink
-            to="/orders"
+            to="/dashboard/orders"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -84,7 +89,7 @@ const Sidebar = () => {
             <span className="text-lg">Đơn hàng</span>
           </NavLink>
           <NavLink
-            to="/phan-cong-dich-vu"
+            to="/dashboard/assignrequest"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -104,7 +109,7 @@ const Sidebar = () => {
           </NavLink>
 
           <NavLink
-            to="/reviews"
+            to="/dashboard/reviews"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -114,7 +119,7 @@ const Sidebar = () => {
           </NavLink>
 
           <NavLink
-            to="/yeucaudichvu"
+            to="/dashboard/requestservice"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -123,7 +128,7 @@ const Sidebar = () => {
             <span className="text-lg">Yêu cầu dịch vụ</span>
           </NavLink>
           <NavLink
-            to="/promotions"
+            to="/dashboard/promotions"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -132,7 +137,7 @@ const Sidebar = () => {
             <span className="text-lg">Khuyến mãi</span>
           </NavLink>
           <NavLink
-            to="/kho"
+            to="/dashboard/storages"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }
@@ -173,7 +178,7 @@ const Sidebar = () => {
         {/* Help section cố định dưới đáy */}
         <div className="border-t border-blackSecondary dark:border-blackSecondary">
           <NavLink
-            to="/help-desk"
+            to="/dashboard/helpdesk"
             className={({ isActive }) =>
               isActive ? navActiveClass : navInactiveClass
             }

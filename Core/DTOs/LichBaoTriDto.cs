@@ -9,6 +9,7 @@
         public string TrangThai { get; set; } = string.Empty;
         public string NguonPhatSinh { get; set; } = string.Empty;
         public string? MaYeuCauDichVu { get; set; }
+        public string? TenSanPham { get; set; }
     }
 
     public class CreateLichBaoTriDto
@@ -25,6 +26,11 @@
     {
         public DateTime NgayBaoTri { get; set; }
         public string LoaiBaoTri { get; set; } = string.Empty;
+        public string TrangThai { get; set; } = string.Empty;
+    }
+
+    public class UpdateTrangThaiDto
+    {
         public string TrangThai { get; set; } = string.Empty;
     }
 }

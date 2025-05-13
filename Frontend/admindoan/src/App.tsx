@@ -1,4 +1,5 @@
-import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom"
+import { RouterProvider, createBrowserRouter, Navigate, useParams, useLocation } from "react-router-dom"
+import { ReactNode } from "react";
 import {
   HomeLayout,
   User,
@@ -19,9 +20,75 @@ import {
   LandingV2,
   HelpDesk,
   Notifications,
+  // Create components
+  CreateProduct,
+  CreateCategory,
+  CreateOrder,
+  CreateUser,
+  CreateReview,
+  CreatePromotion,
+  CreateSupplier,
+  CreateStorage,
+  CreateRequestService,
+  CreateAssignRequest,
+  // Edit components
+  EditProduct,
+  EditCategory,
+  EditOrder,
+  EditReview,
+  EditPromotion,
+  EditSupplier,
+  EditRequestService,
+  EditAssignRequest,
+  LichBaoTriPage,
+  EditUser,
 } from "./pages";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { SanPhamProvider } from "./contexts/SanPhamContext";
+import { NhaCungCapProvider } from "./contexts/NhaCungCapContext";
+import { DonHangProvider } from "./contexts/DonHangContext";
+import { DanhMucProvider } from "./contexts/DanhMucContexts";
+import { PhanCongDichVuProvider } from './contexts/PhanCongDichVuContext';
+import { NguoiDungProvider } from './contexts/NguoiDungContext';
+import { KhoProvider } from "./contexts/KhoContext";
+import { DanhGiaProvider } from "./contexts/DanhGiaContext";
+import CategoryProductsPage from "./pages/CategoryProductsPage";
+import TongQuanPage from "./pages/TongQuanPage";
 
+// Redirect component for old routes
+const OldRouteRedirect = () => {
+  const { id } = useParams();
+  const location = useLocation();
+
+  // Check if this is a path to view products
+  if (location.pathname.includes('/san-pham')) {
+    return <Navigate to={`/dashboard/categories/${id}/products`} replace />;
+  }
+
+  // Default to edit path
+  return <Navigate to={`/dashboard/categories/${id}/edit`} replace />;
+};
+
+// Combine all providers into a single component
+const AppProviders = ({ children }: { children: ReactNode }) => (
+  <SanPhamProvider>
+    <NhaCungCapProvider>
+      <DanhMucProvider>
+        <DonHangProvider>
+          <PhanCongDichVuProvider>
+            <NguoiDungProvider>
+              <KhoProvider>
+                <DanhGiaProvider>
+                  {children}
+                </DanhGiaProvider>
+              </KhoProvider>
+            </NguoiDungProvider>
+          </PhanCongDichVuProvider>
+        </DonHangProvider>
+      </DanhMucProvider>
+    </NhaCungCapProvider>
+  </SanPhamProvider>
+);
 
 const router = createBrowserRouter([
   {
@@ -36,41 +103,14 @@ const router = createBrowserRouter([
     path: "/register",
     element: <Register />,
   },
+  // Add redirects for old routes
   {
-    path: "/products",
-    element: <Product />,
+    path: "/danh-muc/tao-moi",
+    element: <Navigate to="/dashboard/categories/create" replace />,
   },
   {
-    path: "/suppliers",
-    element: <Supplier />,
-  },
-  {
-    path: "/orders",
-    element: <Order />,
-  },
-  {
-    path: "/categories",
-    element: <Category />,
-  },
-  {
-    path: "/requestservice",
-    element: <RequestService />,
-  },
-  {
-    path: "/assignrequest",
-    element: <AssignRequest />,
-  },
-  {
-    path: "/users",
-    element: <User />,
-  },
-  {
-    path: "/storages",
-    element: <Storage />,
-  },
-  {
-    path: "/reviews",
-    element: <Review />,
+    path: "/danh-muc/:id/*",
+    element: <OldRouteRedirect />,
   },
   {
     path: "/dashboard",
@@ -82,95 +122,229 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomeLayout />,
+        element: <Navigate to="/dashboard/products" replace />,
       },
       {
-        path: "/login",
-        element: <Login />,
-      },
-      {
-        path: "/profile",
+        path: "profile",
         element: <Profile />,
       },
       {
-        path: "/register",
-        element: <Register />,
+        path: "change-password",
+        element: <ChangePassword />,
+      },
+      // Products routes
+      {
+        path: "products",
+        children: [
+          {
+            index: true,
+            element: <Product />,
+          },
+          {
+            path: "create",
+            element: <CreateProduct />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditProduct />,
+          },
+        ],
+      },
+      // Suppliers routes
+      {
+        path: "suppliers",
+        children: [
+          {
+            index: true,
+            element: <Supplier />,
+          },
+          {
+            path: "create",
+            element: <CreateSupplier />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditSupplier />,
+          },
+        ],
+      },
+      // Orders routes
+      {
+        path: "orders",
+        children: [
+          {
+            index: true,
+            element: <Order />,
+          },
+          {
+            path: "create",
+            element: <CreateOrder />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditOrder />,
+          },
+        ],
+      },
+      // Categories routes
+      {
+        path: "categories",
+        children: [
+          {
+            index: true,
+            element: <Category />,
+          },
+          {
+            path: "create",
+            element: <CreateCategory />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditCategory />,
+          },
+          {
+            path: ":categoryId/products",
+            element: <CategoryProductsPage />,
+          },
+        ],
+      },
+      // Request Service routes
+      {
+        path: "requestservice",
+        children: [
+          {
+            index: true,
+            element: <RequestService />,
+          },
+          {
+            path: "create",
+            element: <CreateRequestService />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditRequestService />,
+          },
+        ],
+      },
+      // Assign Request routes
+      {
+        path: "assignrequest",
+        children: [
+          {
+            index: true,
+            element: <AssignRequest />,
+          },
+          {
+            path: "create",
+            element: <CreateAssignRequest />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditAssignRequest />,
+          },
+        ],
+      },
+      // Users routes
+      {
+        path: "users",
+        children: [
+          {
+            index: true,
+            element: <User />,
+          },
+          {
+            path: "create",
+            element: <CreateUser />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditUser />,
+          }
+        ],
+      },
+      // Storage routes
+      {
+        path: "storages",
+        children: [
+          {
+            index: true,
+            element: <Storage />,
+          },
+          {
+            path: "create",
+            element: <CreateStorage />,
+          },
+        ],
+      },
+      // Reviews routes
+      {
+        path: "reviews",
+        children: [
+          {
+            index: true,
+            element: <Review />,
+          },
+          {
+            path: "create",
+            element: <CreateReview />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditReview />,
+          },
+        ],
+      },
+      // Promotions routes
+      {
+        path: "promotions",
+        children: [
+          {
+            index: true,
+            element: <Promotion />,
+          },
+          {
+            path: "create",
+            element: <CreatePromotion />,
+          },
+          {
+            path: ":id/edit",
+            element: <EditPromotion />,
+          },
+        ],
       },
       {
-        path: "/products",
-        element: <Product />,
+        path: "helpdesk",
+        element: <HelpDesk />,
       },
       {
-        path: "/suppliers",
-        element: <Supplier />,
+        path: "notifications",
+        element: <Notifications />,
       },
       {
-        path: "/orders",
-        element: <Order />,
+        path: "lich-bao-tri/:donHangId",
+        element: <LichBaoTriPage />,
       },
       {
-        path: "/categories",
-        element: <Category />,
-      },
-      {
-        path: "/requestservice",
-        element: <RequestService />,
-      },
-      {
-        path: "/assignrequest",
-        element: <AssignRequest />,
-      },
-      {
-        path: "/users",
-        element: <User />,
-      },
-      {
-        path: "/storages",
-        element: <Storage />,
-      },
-      {
-        path: "/reviews",
-        element: <Review />,
+        path: "tongquan",
+        element: <TongQuanPage />,
       },
     ],
   },
+  // Catch all other routes
+  {
+    path: "*",
+    element: <Navigate to="/dashboard" replace />,
+  }
 ]);
-
-import { SanPhamProvider } from "./contexts/SanPhamContext";
-import { NhaCungCapProvider } from "./contexts/NhaCungCapContext";
-import { DonHangProvider } from "./contexts/DonHangContext";
-import EditDanhMuc from "./pages/EditDanhMuc";
-import CreateDanhMuc from "./pages/CreateDanhMuc";
-import { DanhMucProvider } from "./contexts/DanhMucContexts";
-import DanhMuc from "./pages/DanhMucPage";
-import { PhanCongDichVuProvider } from './contexts/PhanCongDichVuContext';
-import { NguoiDungProvider } from './contexts/NguoiDungContext';
-import { KhoProvider } from "./contexts/KhoContext";
-import EditDanhGiaPage from "./pages/EditDanhGia";
-import { DanhGiaProvider } from "./contexts/DanhGiaContext";
-import DanhGiaPage from "./pages/DanhGiaPage";
 
 function App() {
   return (
-    <SanPhamProvider>
-      <NhaCungCapProvider>
-        <DanhMucProvider>
-          <DonHangProvider>
-            < PhanCongDichVuProvider>
-              <NguoiDungProvider>
-                <KhoProvider>
-                  <DanhGiaProvider>
-                    <RouterProvider router={router} />
-                  </DanhGiaProvider>
-                </KhoProvider>
-              </NguoiDungProvider>
-            </PhanCongDichVuProvider>
-          </DonHangProvider>
-        </DanhMucProvider>
-      </NhaCungCapProvider>
-    </SanPhamProvider>
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>
   );
 }
+
 export default App;
 
 

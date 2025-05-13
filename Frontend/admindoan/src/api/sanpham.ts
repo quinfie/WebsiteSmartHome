@@ -71,4 +71,41 @@ export const sanPhamService = {
     });
     return response.data.data;
   },
+  
+  upload: async (file: File): Promise<string> => {
+    try {
+      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Sử dụng POST
+      const response = await api.post('/SanPham/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      console.log('Upload response:', response.data);
+      const imagePath = response.data.data;
+      return imagePath;
+    } catch (error) {
+      console.error('Upload error details:', error);
+      throw error;
+    }
+  },
+
+  getByDanhMucId: async (maDanhMuc: string): Promise<SanPhamResponseDto[]> => {
+    const response = await api.get('/SanPham/search', {
+      params: { maDanhMuc, pageSize: 1 },
+    });
+    return response.data.data.items;
+  },
+
+  getByNhaCungCapId: async (maNhaCungCap: string): Promise<SanPhamResponseDto[]> => {
+    const response = await api.get('/SanPham/search', {
+      params: { maNhaCungCap, pageSize: 1 },
+    });
+    return response.data.data.items;
+  },
 };

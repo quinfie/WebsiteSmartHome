@@ -13,42 +13,32 @@ export { default as RequestService } from "./YeuCauDichVuPage";
 export { default as AssignRequest } from "./PhanCongDichVuPage";
 export { default as Supplier } from "./NhaCungCapPage";
 export { default as Storage } from "./KhoPage";
-
-
+export { default as LichBaoTriPage } from './LichBaoTriPage';
 export { default as Landing } from "./Landing";
 export { default as LandingV2 } from "./LandingV2";
 export { default as HelpDesk } from "./HelpDesk";
 export { default as Notifications } from "./Notifications";
+export { default as EditUser } from "./EditUser";
 
+// Create components
+export { default as CreateProduct } from "./CreateSanPham";
+export { default as CreateCategory } from "./CreateDanhMuc";
+export { default as CreateOrder } from "./CreateDonHang";
+export { default as CreateUser } from "./CreateTaiKhoanNguoiDung";
+export { default as CreateReview } from "./CreateDanhGia";
+export { default as CreatePromotion } from "./CreateKhuyenMai";
+export { default as CreateSupplier } from "./CreateNhaCungCap";
+export { default as CreateStorage } from "./CreateKho";
+export { default as CreateRequestService } from "./CreateYeuCauDichVu";
+export { default as CreateAssignRequest } from "./CreatePhanCongDichVu";
 
-
-
-// export { default as CreateProduct } from "./CreateProduct";
-// export { default as CreateCategory } from "./CreateCategory";
-// export { default as CreateOrder } from "./CreateOrder";
-// export { default as CreateUser } from "./CreateUser";
-// export { default as CreateReview } from "./CreateReview";
-// export { default as EditProduct } from "./EditProduct";
-// export { default as EditCategory } from "./EditCategory";
-// export { default as EditOrder } from "./EditOrder";
-// export { default as EditUser } from "./EditUser";
-// export { default as EditReview } from "./EditReview";
-
-
-
-
-
-// export { default as CreatePromotion } from "./CreatePromotion";
-// export { default as EditPromotion } from "./EditPromotion";
-
-// export { default as CreateNhaCungCap } from "./CreateNhaCungCap";
-// export { default as EditNhaCungCap } from "./EditNhaCungCap";
-
-// export { default as CreatePhanCongDichVu } from "./CreatePhanCongDichVu";
-// export { default as EditPhanCongDichVu } from "./EditPhanCongDichVu";
-
-// export { default as CreateKho } from "./CreateKho";
-// //export { default as EditKho } from "./EditKho";
-
-// export { default as CreateYeuCauDichVu } from "./CreateYeuCauDichVu";
-// export { default as EditYeuCauDichVu } from "./EditYeuCauDichVu";
+// Edit components
+export { default as EditProduct } from "./EditSanPham";
+export { default as EditCategory } from "./EditDanhMuc";
+export { default as EditOrder } from "./EditDonHang";
+export { default as EditReview } from "./EditDanhGia";
+export { default as EditPromotion } from "./EditPromotion";
+export { default as EditSupplier } from "./EditNhaCungCap";
+//export { default as EditStorage } from "./EditKho";
+export { default as EditRequestService } from "./EditYeuCauDichVu";
+export { default as EditAssignRequest } from "./EditPhanCongDichVu";

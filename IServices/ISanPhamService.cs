@@ -22,6 +22,8 @@ namespace WebsiteSmartHome.IServices
             bool ascending = true,
             int page = 1,
             int pageSize = 10);
+
+        Task<string> UploadImageAsync(IFormFile file);
     }
 
 }

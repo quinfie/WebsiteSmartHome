@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 interface WhiteButtonProps {
   link?: string;
@@ -8,6 +9,7 @@ interface WhiteButtonProps {
   textSize: string;
   onClick?: () => void;
   children?: React.ReactNode;
+  className?: string;
 }
 
 const WhiteButton: React.FC<WhiteButtonProps> = ({
@@ -18,18 +20,21 @@ const WhiteButton: React.FC<WhiteButtonProps> = ({
   textSize,
   onClick,
   children,
+  className = "",
 }) => {
+  const buttonClass = `dark:bg-whiteSecondary bg-blackPrimary w-${width} py-${py} text-${textSize} dark:hover:bg-white hover:bg-gray-800 bg-blackPrimary duration-200 flex items-center justify-center gap-x-2 ${className}`;
+
   if (link) {
     return (
-      <a
-        href={link}
-        className={`dark:bg-whiteSecondary bg-blackPrimary w-${width} py-${py} text-${textSize} dark:hover:bg-white hover:bg-gray-800 bg-blackPrimary duration-200 flex items-center justify-center gap-x-2`}
+      <NavLink
+        to={link}
+        className={buttonClass}
       >
         {children}
         <span className="dark:text-blackPrimary text-whiteSecondary font-semibold">
           {text}
         </span>
-      </a>
+      </NavLink>
     );
   }
 
@@ -37,7 +42,7 @@ const WhiteButton: React.FC<WhiteButtonProps> = ({
     <button
       onClick={onClick}
       type="button"
-      className={`dark:bg-whiteSecondary bg-blackPrimary w-${width} py-${py} text-${textSize} dark:hover:bg-white hover:bg-gray-800 bg-blackPrimary duration-200 flex items-center justify-center gap-x-2`}
+      className={buttonClass}
     >
       {children}
       <span className="dark:text-blackPrimary text-whiteSecondary font-semibold">

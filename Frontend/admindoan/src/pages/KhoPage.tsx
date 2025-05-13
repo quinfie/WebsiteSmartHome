@@ -1,78 +1,266 @@
-import { HiOutlineChevronRight, HiOutlineSearch, HiOutlinePlus } from "react-icons/hi";
+import React, { useState, useEffect } from "react";
+import {
+  HiOutlineChevronRight,
+  HiOutlineSearch,
+  HiOutlinePlus,
+  HiOutlinePencil,
+  HiOutlineTrash,
+  HiOutlineEye,
+  HiOutlineLocationMarker,
+  HiOutlineOfficeBuilding,
+  HiOutlinePhone
+} from "react-icons/hi";
 import { AiOutlineExport } from "react-icons/ai";
-import { Sidebar, Pagination, RowsPerPage, WhiteButton } from "../components";
-import KhoTable from "../components/KhoTable";
-import { useEffect } from "react";
+import { Sidebar, TableWrapper } from "../components";
 import { useKho } from "../contexts/KhoContext";
 import { useNavigate } from "react-router-dom";
+import { KhoDto } from "../types/kho";
 
-const KhoPage = () => {
-  const { fetchAllKho } = useKho();
-  const navigate = useNavigate();
+// Custom KhoTable component
+const CustomKhoTable: React.FC<{ warehouses: KhoDto[], isLoading: boolean }> =
+  ({ warehouses, isLoading }) => {
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchAllKho();
-  }, []);
+    const handleDelete = (id: number) => {
+      if (window.confirm("Bạn có chắc muốn xóa kho này không?")) {
+        // Handle delete logic here
+        alert(`Xóa kho: ${id}`);
+      }
+    };
 
-  return (
-    <div className="h-auto border-t dark:border-blackSecondary border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
-      <Sidebar />
-      <div className="dark:bg-blackPrimary bg-whiteSecondary w-full">
-        <div className="dark:bg-blackPrimary bg-whiteSecondary py-10">
-          <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center max-sm:flex-col max-sm:gap-5">
-            <div className="flex flex-col gap-3">
-              <h2 className="text-3xl font-bold leading-7 dark:text-whiteSecondary text-blackPrimary">
-                Danh sách kho
-              </h2>
-              <p className="dark:text-whiteSecondary text-blackPrimary text-base font-normal flex items-center">
-                <span>Bảng điều khiển</span>{" "}
-                <HiOutlineChevronRight className="text-lg" />{" "}
-                <span>Kho</span>
-              </p>
-            </div>
-            <div className="flex gap-x-2 max-[370px]:flex-col max-[370px]:gap-2 max-[370px]:items-center">
-              <button className="dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 w-32 py-2 text-lg hover:border-gray-500 duration-200 flex items-center justify-center gap-x-2">
-                <AiOutlineExport className="dark:text-whiteSecondary text-blackPrimary text-base" />
-                <span className="dark:text-whiteSecondary text-blackPrimary font-medium">Xuất</span>
-              </button>
-              <WhiteButton link="/kho/create" text="Thêm kho" textSize="lg" py="2" width="48">
-                <HiOutlinePlus className="dark:text-blackPrimary text-whiteSecondary" />
-              </WhiteButton>
-            </div>
-          </div>
+    const handleEdit = (id: number) => {
+      navigate(`/kho/edit/${id}`);
+    };
 
-          <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center mt-5 max-sm:flex-col max-sm:gap-2">
-            <div className="relative">
-              <HiOutlineSearch className="text-gray-400 text-lg absolute top-3 left-3" />
-              <input
-                type="text"
-                className="w-60 h-10 border dark:bg-blackPrimary bg-white border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 indent-10 focus:border-gray-500"
-                placeholder="Tìm kiếm kho..."
-              />
-            </div>
-            <div>
-              <select
-                className="w-60 h-10 dark:bg-blackPrimary bg-whiteSecondary border border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 pl-3 pr-8 cursor-pointer hover:border-gray-500"
-                name="sort"
-                id="sort"
-              >
-                <option value="default">Sắp xếp theo</option>
-                <option value="az">Tăng dần</option>
-                <option value="za">Giảm dần</option>
-                <option value="newest">Mới nhất</option>
-                <option value="oldest">Cũ nhất</option>
-              </select>
-            </div>
-          </div>
+    const handleView = (id: number) => {
+      navigate(`/kho/view/${id}`);
+    };
 
-          <KhoTable />
-
-          <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-sm:flex-col gap-4 max-sm:pt-6 max-sm:pb-0">
-            <RowsPerPage />
-            <Pagination />
-          </div>
+    return (
+      <div className="w-full px-0">
+        <div className="overflow-x-auto w-full px-0">
+          <table className="w-full table-auto text-left">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-800/50">
+                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1">
+                    <HiOutlineOfficeBuilding className="text-blue-500" /> Tên Kho
+                  </span>
+                </th>
+                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1">
+                    <HiOutlineLocationMarker className="text-green-500" /> Địa Chỉ
+                  </span>
+                </th>
+                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1">
+                    <HiOutlinePhone className="text-purple-500" /> Số Điện Thoại
+                  </span>
+                </th>
+                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300 text-right">
+                  <span className="inline-flex items-center gap-1">
+                    Thao tác
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-6 dark:text-white text-gray-700">Đang tải dữ liệu...</td>
+                </tr>
+              ) : warehouses.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-6 dark:text-white text-gray-700">Không có kho nào.</td>
+                </tr>
+              ) : (
+                warehouses.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td className="py-4 px-4 font-medium dark:text-white text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <HiOutlineOfficeBuilding className="text-blue-500 dark:text-blue-400" />
+                        {item.tenKho}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 dark:text-white text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <HiOutlineLocationMarker className="text-green-500 dark:text-green-400" />
+                        {item.diaChi}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 dark:text-white text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <HiOutlinePhone className="text-purple-500 dark:text-purple-400" />
+                        {item.soDienThoai}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          className="p-1.5 rounded-full text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/40 transition-colors"
+                          title="Chỉnh sửa"
+                          onClick={() => handleEdit(item.id)}
+                        >
+                          <HiOutlinePencil size={18} />
+                        </button>
+                        <button
+                          className="p-1.5 rounded-full text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/40 transition-colors"
+                          title="Xem chi tiết"
+                          onClick={() => handleView(item.id)}
+                        >
+                          <HiOutlineEye size={18} />
+                        </button>
+                        <button
+                          className="p-1.5 rounded-full text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors"
+                          title="Xóa"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          <HiOutlineTrash size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
+    );
+  };
+
+const KhoPage = () => {
+  const { khoList, fetchAllKho } = useKho();
+  const [loading, setLoading] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [sortOption, setSortOption] = useState("");
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [displayedWarehouses, setDisplayedWarehouses] = useState<KhoDto[]>([]);
+  const navigate = useNavigate();
+
+  // Load data only once when component mounts
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!initialLoadDone) {
+      setLoading(true);
+      fetchAllKho()
+        .then(() => {
+          if (isMounted) {
+            setInitialLoadDone(true);
+            setLoading(false);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching warehouses:", error);
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchAllKho, initialLoadDone]);
+
+  // Update displayed warehouses when the khoList from context changes
+  useEffect(() => {
+    setDisplayedWarehouses(khoList);
+  }, [khoList]);
+
+  const handleSearch = (keyword: string) => {
+    if (searchKeyword === keyword) return;
+
+    setSearchKeyword(keyword);
+
+    if (keyword.trim()) {
+      const filtered = khoList.filter(
+        item =>
+          item.tenKho.toLowerCase().includes(keyword.toLowerCase()) ||
+          item.diaChi.toLowerCase().includes(keyword.toLowerCase()) ||
+          item.soDienThoai.includes(keyword)
+      );
+      setDisplayedWarehouses(filtered);
+    } else {
+      setDisplayedWarehouses(khoList);
+    }
+  };
+
+  const handleSort = (value: string) => {
+    if (sortOption === value) return;
+
+    setSortOption(value);
+
+    // Sort the warehouses based on the selected option
+    let sortedWarehouses = [...displayedWarehouses];
+
+    switch (value) {
+      case 'az':
+        sortedWarehouses.sort((a, b) => a.tenKho.localeCompare(b.tenKho));
+        break;
+      case 'za':
+        sortedWarehouses.sort((a, b) => b.tenKho.localeCompare(a.tenKho));
+        break;
+      // For newest and oldest, we would need creation date fields
+      // Adding them just as placeholders
+      case 'newest':
+      case 'oldest':
+      default:
+        // Keep default order if no valid sort option
+        break;
+    }
+
+    setDisplayedWarehouses(sortedWarehouses);
+  };
+
+  // Prepare sort options for TableWrapper
+  const sortOptionItems = [
+    { value: 'az', label: 'Tên kho A-Z' },
+    { value: 'za', label: 'Tên kho Z-A' }
+  ];
+
+  // Prepare stat cards for TableWrapper
+  const statCards = [
+    {
+      title: 'Tổng số kho',
+      value: khoList.length,
+      icon: <HiOutlineOfficeBuilding className="text-blue-500 dark:text-blue-400 text-xl" />,
+      color: 'bg-blue-100 dark:bg-blue-900'
+    },
+    {
+      title: 'Địa điểm',
+      value: Array.from(new Set(khoList.map(k => k.diaChi.split(',').pop()?.trim()))).length,
+      icon: <HiOutlineLocationMarker className="text-green-500 dark:text-green-400 text-xl" />,
+      color: 'bg-green-100 dark:bg-green-900'
+    }
+  ];
+
+  return (
+    <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
+      <Sidebar />
+      <TableWrapper
+        title="Quản lý kho"
+        subtitle="Danh sách kho"
+        addButtonLink="/kho/create"
+        addButtonLabel="Thêm kho"
+        onSearch={handleSearch}
+        searchPlaceholder="Tìm kiếm kho..."
+        onSort={handleSort}
+        sortOptions={sortOptionItems}
+        currentSortOption={sortOption}
+        contextType="sanpham"
+        itemLabel="kho"
+        statCards={statCards}
+        isLoading={loading}
+        hasData={displayedWarehouses.length > 0}
+        emptyStateMessage="Không có kho nào"
+      >
+        <CustomKhoTable
+          warehouses={displayedWarehouses}
+          isLoading={loading}
+        />
+      </TableWrapper>
     </div>
   );
 };

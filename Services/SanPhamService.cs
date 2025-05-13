@@ -4,16 +4,19 @@ using WebsiteSmartHome.UnitOfWork;
 using WebsiteSmartHome.IServices;
 using Microsoft.EntityFrameworkCore;
 using WebsiteSmartHome.Core;
+using Microsoft.AspNetCore.Http;
 
 namespace WebsiteSmartHome.Services
 {
     public class SanPhamService : ISanPhamService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public SanPhamService(IUnitOfWork unitOfWork)
+        public SanPhamService(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork)); ;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _webHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
         }
 
         public async Task<PagedResult<SanPhamDto>> GetAllAsync(int page, int pageSize)
@@ -37,7 +40,8 @@ namespace WebsiteSmartHome.Services
                 SoLuongTon = sp.SoLuongTon,
                 ThoiGianBaoHanh = sp.ThoiGianBaoHanh,
                 NgaySanXuat = sp.NgaySanXuat,
-                MoTa = sp.MoTa!
+                MoTa = sp.MoTa!,
+                img = sp.img
             });
 
             return new PagedResult<SanPhamDto>
@@ -75,7 +79,8 @@ namespace WebsiteSmartHome.Services
                 MoTa = sanPham.MoTa ?? string.Empty,
                 TenDanhMuc = sanPham.MaDanhMucNavigation?.TenDanhMuc ?? string.Empty,
                 TenNhaCungCap = sanPham.MaNhaCungCapNavigation?.TenNhaCungCap ?? string.Empty,
-                TenKho = sanPham.MaKhoNavigation?.TenKho ?? string.Empty
+                TenKho = sanPham.MaKhoNavigation?.TenKho ?? string.Empty,
+                img = sanPham.img
             };
         }
 
@@ -99,11 +104,12 @@ namespace WebsiteSmartHome.Services
                 Gia = dto.DonGia,
                 SoLuongTon = dto.SoLuongTon,
                 ThoiGianBaoHanh = dto.ThoiGianBaoHanh,
-                NgaySanXuat = System.DateTime.Now,
+                NgaySanXuat = dto.NgaySanXuat,
                 MoTa = dto.MoTa,
                 MaDanhMuc = danhMucId,
                 MaNhaCungCap = nhaCungCapId,
-                MaKho = khoId
+                MaKho = khoId,
+                img = dto.img
             };
 
             await _unitOfWork.GetRepository<SanPham>().InsertAsync(sanPham);
@@ -136,6 +142,12 @@ namespace WebsiteSmartHome.Services
             sanPham.MaDanhMuc = danhMucId;
             sanPham.MaNhaCungCap = nhaCungCapId;
             sanPham.MaKho = khoId;
+
+            // Cập nhật đường dẫn hình ảnh nếu có
+            if (!string.IsNullOrEmpty(dto.img))
+            {
+                sanPham.img = dto.img;
+            }
 
             await _unitOfWork.GetRepository<SanPham>().UpdateAsync(sanPham);
             await _unitOfWork.SaveAsync();
@@ -224,7 +236,8 @@ namespace WebsiteSmartHome.Services
                     MoTa = sp.MoTa ?? string.Empty,
                     TenDanhMuc = sp.MaDanhMucNavigation.TenDanhMuc,
                     TenNhaCungCap = sp.MaNhaCungCapNavigation.TenNhaCungCap,
-                    TenKho = sp.MaKhoNavigation.TenKho
+                    TenKho = sp.MaKhoNavigation.TenKho,
+                    img = sp.img
                 })
                 .ToListAsync();
 
@@ -265,9 +278,49 @@ namespace WebsiteSmartHome.Services
                 MoTa = sp.MoTa ?? string.Empty,
                 TenDanhMuc = sp.MaDanhMucNavigation?.TenDanhMuc ?? "",
                 TenNhaCungCap = sp.MaNhaCungCapNavigation?.TenNhaCungCap ?? "",
-                TenKho = sp.MaKhoNavigation?.TenKho ?? ""
+                TenKho = sp.MaKhoNavigation?.TenKho ?? "",
+                img = sp.img
             };
         }
 
+        public async Task<string> UploadImageAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new BaseException.BadRequestException("invalid_file", "File không hợp lệ");
+            }
+
+            // Kiểm tra định dạng file
+            string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+            string fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new BaseException.BadRequestException("invalid_file_type", "Chỉ hỗ trợ tải lên ảnh có định dạng JPG, JPEG, PNG hoặc GIF");
+            }
+
+            // Tạo tên file mới để tránh trùng lặp
+            string fileName = $"{Guid.NewGuid()}{fileExtension}";
+
+            // Đường dẫn lưu trữ
+            string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "assets");
+
+            // Tạo thư mục nếu chưa tồn tại
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
+            string filePath = Path.Combine(uploadFolder, fileName);
+
+            // Lưu file vào thư mục
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Trả về đường dẫn lưu trong DB
+            return $"public/{fileName}";
+        }
     }
 }

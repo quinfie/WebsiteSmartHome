@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
 using WebsiteSmartHome.IServices;
@@ -78,6 +79,14 @@ namespace WebsiteSmartHome.Controllers
         {
             var result = await _sanPhamService.SearchSanPhamAsync(keyword, maDanhMuc, maNhaCungCap, maKho, minPrice, maxPrice, sortBy, ascending, page, pageSize);
             return BaseResponse<PagedResult<SanPhamResponseDto>>.OkResponse(result, "Tìm kiếm sản phẩm thành công");
+        }
+
+        [HttpPost("upload")]
+        [AllowAnonymous] // Tạm thời cho phép upload không cần xác thực trong quá trình phát triển
+        public async Task<ActionResult<BaseResponse<string>>> UploadImage(IFormFile file)
+        {
+            var imagePath = await _sanPhamService.UploadImageAsync(file);
+            return BaseResponse<string>.OkResponse(imagePath, "Upload ảnh thành công");
         }
     }
 }

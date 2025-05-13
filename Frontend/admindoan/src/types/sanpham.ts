@@ -8,7 +8,7 @@ export interface SanPhamDto {
     thoiGianBaoHanh: number; // tháng
     ngaySanXuat: Date;
     moTa: string;
-    hinhAnh?: string;
+    img?: string;
   }
   
   export interface SanPhamResponseDto extends SanPhamDto {
@@ -27,6 +27,7 @@ export interface SanPhamDto {
     thoiGianBaoHanh: number;
     ngaySanXuat: Date;
     moTa?: string;
+    img?: string;
   }
   
   export interface SanPhamUpdateDto {
@@ -39,5 +40,6 @@ export interface SanPhamDto {
     maDanhMuc: string;
     maNhaCungCap: string;
     maKho: string;
+    img?: string;
   }
   

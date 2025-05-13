@@ -1,5 +1,4 @@
-﻿
-namespace WebsiteSmartHome.Core.Data
+﻿namespace WebsiteSmartHome.Core.Data
 {
     public partial class SanPham
     {
@@ -22,6 +21,8 @@ namespace WebsiteSmartHome.Core.Data
         public Guid MaNhaCungCap { get; set; }
 
         public Guid MaKho { get; set; }
+
+        public string? img { get; set; }
 
         public virtual ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
 
