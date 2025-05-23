@@ -5,7 +5,7 @@ namespace WebsiteSmartHome.Core.Utils
     public enum TrangThaiPhanCong
     {
         [Description("Đang chờ xử lý")]
-        ChoXuLy,
+        DangChoXuLy,
 
         [Description("Đã tiếp nhận")]
         DaTiepNhan,

@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
+using Core.Configs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,11 @@ builder.Services.AddScoped<IDanhGiaService, DanhGiaService>();
 builder.Services.AddScoped<IDonHangService, DonHangService>();
 builder.Services.AddScoped<IChiTietDonHangService, ChiTietDonHangService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IKhuyenMaiService, KhuyenMaiService>();
+
+// Add VNPAY configuration
+builder.Services.Configure<VNPayConfig>(builder.Configuration.GetSection(VNPayConfig.ConfigName));
+builder.Services.AddScoped<IVNPayService, VNPayService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -99,7 +105,7 @@ builder.Services.AddAuthorization(options =>
 {
     // Policy yêu cầu vai trò Khách Hàng
     options.AddPolicy("RequireCustomerRole", policy =>
-        policy.RequireRole("Khách Hàng", "Nhân viên", "Quản trị viên"));
+        policy.RequireRole("Khách Hàng", "Nhân Viên", "Quản Trị Viên"));
 
     // Policy yêu cầu vai trò Quản Trị Viên
     options.AddPolicy("RequireAdminRole", policy =>

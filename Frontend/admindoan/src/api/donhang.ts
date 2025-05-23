@@ -6,26 +6,27 @@ import {
   RequestUpdateDonHangDto,
   ResponseCreateDonHangDto,
 } from '../types/donhang';
+import { BaseResponse } from '../types/common';
 
 export const getAllDonHang = async (): Promise<DonHangDto[]> => {
   const res = await axios.get('/DonHang');
   return res.data.data;
 };
 
-export const getDonHangById = async (id: string): Promise<ViewResponseCreateDonHangDto> => {
+export const getDonHangById = async (id: string): Promise<BaseResponse<ViewResponseCreateDonHangDto>> => {
   const res = await axios.get(`/DonHang/${id}`);
-  return res.data.data;
+  return res.data;
 };
 
-export const createDonHang = async (dto: RequestCreateDonHangDto): Promise<ResponseCreateDonHangDto> => {
+export const createDonHang = async (dto: RequestCreateDonHangDto): Promise<BaseResponse<ResponseCreateDonHangDto>> => {
   const res = await axios.post('/DonHang', dto);
-  return res.data.data;
+  return res.data;
 };
 
 export const updateDonHang = async (
   id: string,
   dto: RequestUpdateDonHangDto
-): Promise<ResponseCreateDonHangDto> => {
+): Promise<BaseResponse<ResponseCreateDonHangDto>> => {
   try {
     // Validate số lượng và đơn giá nếu có chiTietDonHangs
     if (dto.chiTietDonHangs && dto.chiTietDonHangs.length > 0) {
@@ -43,7 +44,7 @@ export const updateDonHang = async (
     console.log(`Sending update request to /DonHang/${id}`, dto);
     
     const res = await axios.put(`/DonHang/${id}`, dto);
-    return res.data.data;
+    return res.data;
   } catch (error: any) {
     console.error('Error in updateDonHang:', error);
     
@@ -69,12 +70,57 @@ export const updateDonHang = async (
   }
 };
 
-export const deleteDonHang = async (id: string): Promise<boolean> => {
+export const deleteDonHang = async (id: string): Promise<BaseResponse<boolean>> => {
   const res = await axios.delete(`/DonHang/${id}`);
-  return res.data.data;
+  return res.data;
 };
 
-export const getCurrentUserDonHang = async (): Promise<ViewResponseCreateDonHangDto[]> => {
+export const cancelUserOrder = async (id: string): Promise<BaseResponse<boolean>> => {
+  try {
+    // Đầu tiên, kiểm tra trạng thái đơn hàng
+    const orderDetails = await getDonHangById(id);
+    
+    // Nếu đơn hàng không phải trạng thái "Chờ xác nhận", không cho phép hủy
+    if (!orderDetails.data || orderDetails.data.trangThaiDonHang !== 'Chờ xác nhận') {
+      throw new Error('Chỉ có thể hủy đơn hàng ở trạng thái Chờ xác nhận');
+    }
+    
+    // Thực hiện hủy đơn hàng bằng cách cập nhật trạng thái
+    const updateData: RequestUpdateDonHangDto = {
+      trangThaiDonHang: 'Đã hủy',
+      maKhuyenMai: orderDetails.data.maKhuyenMai,
+      chiTietDonHangs: orderDetails.data.chiTietDonHangs?.map(item => ({
+        maSanPham: item.maSanPham,
+        soLuongMua: item.soLuong,
+        donGiaMua: item.donGia
+      })) || []
+    };
+    
+    const res = await axios.put(`/DonHang/${id}`, updateData);
+    return res.data;
+  } catch (error: any) {
+    console.error('Error canceling order:', error);
+    throw error;
+  }
+};
+
+export const getCurrentUserDonHang = async (): Promise<BaseResponse<ViewResponseCreateDonHangDto[]>> => {
   const res = await axios.get(`/DonHang/current-user`);
-  return res.data.data;
+  return res.data;
+};
+
+export const getCompletedOrders = async (): Promise<BaseResponse<ViewResponseCreateDonHangDto[]>> => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Không tìm thấy token xác thực');
+    }
+
+    const response = await axios.get(`/DonHang/completed`);
+    //console.log('Completed orders response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching completed orders:', error);
+    throw error;
+  }
 };

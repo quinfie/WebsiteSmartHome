@@ -1,11 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import {
   getAllNhaCungCap,
   createNhaCungCap,
   updateNhaCungCap,
   deleteNhaCungCap,
   getNhaCungCapById,
-  searchNhaCungCap,
 } from '../api/nhacungcap';
 import { NhaCungCapDto, NhaCungCapCreateDto } from '../types/nhacungcap';
 import { useAuth } from './AuthContext';
@@ -13,12 +12,12 @@ import { useAuth } from './AuthContext';
 interface NhaCungCapContextType {
   suppliers: NhaCungCapDto[];
   loading: boolean;
+  error: string | null;
   fetchSuppliers: () => Promise<void>;
   createSupplier: (data: NhaCungCapCreateDto) => Promise<void>;
   updateSupplier: (id: string, data: NhaCungCapCreateDto) => Promise<void>;
   deleteSupplier: (id: string) => Promise<void>;
   getSupplierById: (id: string) => Promise<NhaCungCapDto>;
-  searchSuppliers: (keyword: string) => Promise<NhaCungCapDto[]>;
 }
 
 const NhaCungCapContext = createContext<NhaCungCapContextType | undefined>(undefined);
@@ -26,71 +25,121 @@ const NhaCungCapContext = createContext<NhaCungCapContextType | undefined>(undef
 export const NhaCungCapProvider = ({ children }: { children: React.ReactNode }) => {
   const [suppliers, setSuppliers] = useState<NhaCungCapDto[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const { token } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
-  const fetchSuppliers = async () => {
-    setLoading(true);
+  const isAdmin = user?.vaiTro === 'Quản Trị Viên';
+
+  const checkAdminAccess = () => {
+    if (!isAdmin) {
+      throw new Error('Bạn không có quyền thực hiện thao tác này');
+    }
+  };
+
+  const fetchSuppliers = useCallback(async () => {
     try {
-      const res = await getAllNhaCungCap();
-      setSuppliers(res.data.data);
-    } catch (error) {
-      console.error('Lỗi khi lấy nhà cung cấp:', error);
+      setLoading(true);
+      setError(null);
+      const response = await getAllNhaCungCap();
+
+      if (response.code === 'OK' && Array.isArray(response.data)) {
+        setSuppliers(response.data);
+      } else {
+        throw new Error(response.message || 'Không thể lấy danh sách nhà cung cấp');
+      }
+    } catch (error: any) {
+      setError(error.message || 'Đã xảy ra lỗi khi tải danh sách nhà cung cấp');
+      setSuppliers([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createSupplier = async (data: NhaCungCapCreateDto) => {
+    checkAdminAccess();
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await createNhaCungCap(data);
+      if (response.code === 'Success') {
+        await fetchSuppliers();
+      } else {
+        throw new Error(response.message || 'Không thể tạo nhà cung cấp');
+      }
+    } catch (error: any) {
+      setError(error.message || 'Đã xảy ra lỗi khi tạo nhà cung cấp');
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const createSupplier = async (data: NhaCungCapCreateDto) => {
-    await createNhaCungCap(data);
-    await fetchSuppliers();
-  };
-
   const updateSupplier = async (id: string, data: NhaCungCapCreateDto) => {
-    await updateNhaCungCap(id, data);
-    await fetchSuppliers();
+    checkAdminAccess();
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await updateNhaCungCap(id, data);
+      if (response.code === 'Success') {
+        await fetchSuppliers();
+      } else {
+        throw new Error(response.message || 'Không thể cập nhật nhà cung cấp');
+      }
+    } catch (error: any) {
+      setError(error.message || 'Đã xảy ra lỗi khi cập nhật nhà cung cấp');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deleteSupplier = async (id: string) => {
-    await deleteNhaCungCap(id);
-    await fetchSuppliers();
+    checkAdminAccess();
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await deleteNhaCungCap(id);
+      if (response.code === 'Success') {
+        await fetchSuppliers();
+      } else {
+        throw new Error(response.message || 'Không thể xóa nhà cung cấp');
+      }
+    } catch (error: any) {
+      setError(error.message || 'Đã xảy ra lỗi khi xóa nhà cung cấp');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getSupplierById = async (id: string) => {
-    const res = await getNhaCungCapById(id);
-    return res.data.data;
-  };
-
-  const searchSuppliers = async (keyword: string) => {
-    const res = await searchNhaCungCap(keyword);
-    return res.data.data;
-  };
-
-  useEffect(() => {
-    let isMounted = true;
-    const loadData = async () => {
-      if (isMounted && suppliers.length === 0) {
-        await fetchSuppliers();
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getNhaCungCapById(id);
+      if (response.code === 'Success') {
+        return response.data;
       }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      throw new Error(response.message || 'Không thể lấy thông tin nhà cung cấp');
+    } catch (error: any) {
+      setError(error.message || 'Đã xảy ra lỗi khi lấy thông tin nhà cung cấp');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <NhaCungCapContext.Provider
       value={{
         suppliers,
         loading,
+        error,
         fetchSuppliers,
         createSupplier,
         updateSupplier,
         deleteSupplier,
         getSupplierById,
-        searchSuppliers,
       }}
     >
       {children}
@@ -100,6 +149,8 @@ export const NhaCungCapProvider = ({ children }: { children: React.ReactNode }) 
 
 export const useNhaCungCap = () => {
   const context = useContext(NhaCungCapContext);
-  if (!context) throw new Error('useNhaCungCap must be used within NhaCungCapProvider');
+  if (!context) {
+    throw new Error('useNhaCungCap must be used within NhaCungCapProvider');
+  }
   return context;
 };

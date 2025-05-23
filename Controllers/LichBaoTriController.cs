@@ -75,7 +75,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy lịch bảo trì theo mã đơn hàng
         [HttpGet("donhang/{donHangId}")]
-        [Authorize(Policy = "RequireManageRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetByDonHangId(string donHangId)
         {
             var lichBaoTris = await _lichBaoTriService.GetLichBaoTriByDonHangIdAsync(donHangId);
@@ -84,7 +84,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy lịch bảo trì theo mã chi tiết đơn hàng
         [HttpGet("chitietdonhang/{chiTietDonHangId}")]
-        [Authorize(Policy = "RequireManageRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetByChiTietDonHangId(int chiTietDonHangId)
         {
             var lichBaoTris = await _lichBaoTriService.GetLichBaoTriByChiTietIdAsync(chiTietDonHangId);

@@ -74,3 +74,4 @@ export interface ChangePasswordDto {
 export interface ForgotPasswordDto {
   email: string;
 } 
+

@@ -23,5 +23,20 @@ namespace WebsiteSmartHome.IServices
         /// Lấy danh sách đơn hàng và chi tiết của người dùng hiện tại
         /// </summary>
         Task<List<ViewResponseCreateDonHangDto>> GetDonHangByCurrentUserAsync(string userId);
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng đã hoàn thành của người dùng hiện tại
+        /// </summary>
+        Task<List<ViewResponseCreateDonHangDto>> GetCompletedOrdersAsync(string userId);
+
+        /// <summary>
+        /// Cập nhật trạng thái đơn hàng
+        /// </summary>
+        Task UpdateOrderStatusAsync(string orderId, string newStatus);
+
+        /// <summary>
+        /// Lấy thông tin đơn hàng theo ID
+        /// </summary>
+        Task<DonHangDto> GetDonHangByIdAsync(string id);
     }
 }

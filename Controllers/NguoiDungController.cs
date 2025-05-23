@@ -64,5 +64,13 @@ namespace WebsiteSmartHome.Controllers
             var result = await _nguoiDungService.SearchNguoiDungAsync(keyword);
             return Ok(BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Tìm kiếm người dùng thành công"));
         }
+
+        [HttpGet("ky-thuat-vien")]
+        [Authorize(Policy = "RequireManageRole")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<NguoiDungDto>>>> GetKyThuatVien()
+        {
+            var result = await _nguoiDungService.GetKyThuatVienAsync();
+            return Ok(BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Lấy danh sách kỹ thuật viên thành công"));
+        }
     }
 }

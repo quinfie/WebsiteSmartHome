@@ -154,12 +154,6 @@ const TongQuanPage = () => {
                     getMonthlyNewUsers()
                 ]);
 
-                console.log("Stats Data:", statsData);
-                console.log("Revenue Data:", revenueDataResponse);
-                console.log("Order Status Data:", orderStatusDataResponse);
-                console.log("Top Products:", topProductsResponse);
-                console.log("Users Data:", usersDataResponse);
-
                 setStats(statsData);
                 setRevenueData(revenueDataResponse);
                 setOrderStatusData(orderStatusDataResponse);

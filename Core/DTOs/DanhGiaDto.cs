@@ -21,8 +21,21 @@
 
     public class UpdateDanhGiaDto
     {
-        //Không cần truyền lại MaDonHang và MaSanPham vì sẽ lấy từ route (URL) để xác định duy nhất bản ghi đánh giá cần sửa.
-        public int SoSao { get; set; }              // Cho phép cập nhật số sao
-        public string NoiDung { get; set; } = "";   // Cho phép chỉnh sửa nội dung đánh giá
+        public int SoSao { get; set; }
+        public string NoiDung { get; set; } = "";
+    }
+
+    public class DanhGiaDetailDto
+    {
+        public string? Id { get; set; }
+        public string? MaDonHang { get; set; }
+        public string? MaSanPham { get; set; }
+        public string? MaNguoiDung { get; set; }
+        public int SoSao { get; set; }
+        public string? NoiDung { get; set; }
+        public DateTime? NgayDanhGia { get; set; }
+        public string? TenNguoiDung { get; set; }
+        public string? TenSanPham { get; set; }
+        public DateTime? NgayDatHang { get; set; }
     }
 }

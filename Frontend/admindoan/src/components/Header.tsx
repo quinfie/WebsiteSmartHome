@@ -9,21 +9,6 @@ import { toggleDarkMode } from "../features/darkMode/darkModeSlice";
 import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 
-// Hàm ánh xạ vai trò sang tên tiếng Việt
-const getTenVaiTro = (vaiTro?: string) => {
-  switch (vaiTro) {
-    case "Admin":
-      return "Quản trị viên";
-    case "Customer":
-      return "Khách hàng";
-    case "Worker":
-      return "Nhân viên";
-    case "Manager":
-      return "Quản lý";
-    default:
-      return vaiTro || "Vai trò";
-  }
-};
 
 const Header = () => {
   const dispatch = useAppDispatch();
@@ -72,7 +57,7 @@ const Header = () => {
                 {user?.nguoiDung?.tenNguoiDung || user?.tenTaiKhoan || 'Người dùng'}
               </p>
               <p className="dark:text-whiteSecondary text-blackPrimary text-sm max-xl:text-xs">
-                {getTenVaiTro(user?.vaiTro)}
+                {user?.vaiTro}
               </p>
             </div>
             <button
@@ -104,7 +89,7 @@ const Header = () => {
                   <h2 className="text-xl font-semibold dark:text-whiteSecondary text-blackPrimary">
                     {user?.nguoiDung?.tenNguoiDung || 'Người dùng'}
                   </h2>
-                  <p className="text-sm dark:text-gray-400 text-gray-700">{getTenVaiTro(user?.vaiTro)}</p>
+                  <p className="text-sm dark:text-gray-400 text-gray-700">{user?.vaiTro}</p>
                 </div>
               </div>
 

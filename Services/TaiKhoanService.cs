@@ -116,7 +116,7 @@ namespace WebsiteSmartHome.Services
             {
                 Email = taiKhoanDto.Email,
                 TenTaiKhoan = taiKhoanDto.TenTaiKhoan,
-                MatKhau = taiKhoanDto.MatKhau,
+                MatKhau = PasswordHelper.HashPassword(taiKhoanDto.MatKhau),
                 TrangThai = taiKhoanDto.TrangThai,
                 NgayTao = DateTime.Now
             };

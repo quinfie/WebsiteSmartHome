@@ -22,5 +22,17 @@ namespace WebsiteSmartHome.Core.DTOs
         public DateTime NgayPhanCong { get; set; } = System.DateTime.Now;
         public DateTime? NgayHoanThanh { get; set; }
         public required string TrangThaiPhanCong { get; set; }
+
+        // Add nested YeuCauDichVu DTO
+        public YeuCauDichVuDetailDto? yeuCauDichVu { get; set; }
+
+        public class YeuCauDichVuDetailDto
+        {
+            public string id { get; set; } = string.Empty;
+            public string? tieuDe { get; set; }
+            public string? moTa { get; set; }
+            public string? trangThaiYeuCau { get; set; }
+            public string? loaiDichVu { get; set; }
+        }
     }
 }

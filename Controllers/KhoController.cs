@@ -19,7 +19,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireManageRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<BaseResponse<List<KhoDto>>>> GetAll()
         {
             var result = await _khoService.GetAllKhoAsync();
@@ -27,7 +27,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireManageRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<BaseResponse<KhoDto>>> GetById(string id)
         {
             var result = await _khoService.GetKhoByIdAsync(id);
@@ -35,7 +35,7 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireManageRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<BaseResponse<KhoCreateDto>>> Create(KhoCreateDto request)
         {
             var result = await _khoService.CreateKhoAsync(request);

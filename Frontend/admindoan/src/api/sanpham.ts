@@ -61,6 +61,7 @@ export const sanPhamService = {
     maKho?: string;
     minPrice?: number;
     maxPrice?: number;
+    minStock?: number;
     sortBy?: string;
     ascending?: boolean;
     page?: number;
@@ -69,13 +70,12 @@ export const sanPhamService = {
     const response = await api.get('/SanPham/search', {
       params,
     });
+    
     return response.data.data;
   },
   
   upload: async (file: File): Promise<string> => {
     try {
-      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
-      
       const formData = new FormData();
       formData.append('file', file);
       
@@ -86,11 +86,9 @@ export const sanPhamService = {
         },
       });
       
-      console.log('Upload response:', response.data);
       const imagePath = response.data.data;
       return imagePath;
     } catch (error) {
-      console.error('Upload error details:', error);
       throw error;
     }
   },

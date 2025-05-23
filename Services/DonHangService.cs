@@ -85,6 +85,7 @@ namespace WebsiteSmartHome.Services
                 TongTien = donHang.TongTien,
                 TrangThaiDonHang = donHang.TrangThaiDonHang,
                 TenKhuyenMai = donHang.MaKhuyenMaiNavigation?.TenKhuyenMai,
+                MaKhuyenMai = donHang.MaKhuyenMai?.ToString(),
                 NgayDat = donHang.NgayDat,
                 ChiTietDonHangs = chiTietDonHangs
             };
@@ -169,6 +170,7 @@ namespace WebsiteSmartHome.Services
         {
             return new ResponseCreateDonHangDto
             {
+                Id = donHang.Id.ToString(),
                 MaNguoiDung = donHang.MaNguoiDung.ToString(),
                 TongTien = tongTien,
                 TrangThaiDonHang = donHang.TrangThaiDonHang,
@@ -280,12 +282,12 @@ namespace WebsiteSmartHome.Services
                     if (!newMaSanPhamList.Contains(chiTietCu.MaSanPham.ToString()))
                     {
                         // Xóa chi tiết đơn hàng và lịch bảo trì liên quan
-                        var lichBaoTriList = await _unitOfWork.GetRepository<LichBaoTri>()
-                            .GetEntitiesWithCondition(lb => lb.MaChiTietDonHang == chiTietCu.Id)
+                        var lichBaoTris = await _unitOfWork.GetRepository<LichBaoTri>()
+                            .GetEntitiesWithCondition(lbt => lbt.MaChiTietDonHang == chiTietCu.Id)
                             .ToListAsync();
-                        foreach (var lichBaoTri in lichBaoTriList)
+                        foreach (var lichBaoTri in lichBaoTris)
                         {
-                            await _unitOfWork.GetRepository<LichBaoTri>().DeleteAsync(lichBaoTri);
+                            await _unitOfWork.GetRepository<LichBaoTri>().DeleteAsync(lichBaoTri.Id);
                         }
                         await _unitOfWork.GetRepository<ChiTietDonHang>().DeleteAsync(chiTietCu.Id);
                     }
@@ -511,6 +513,116 @@ namespace WebsiteSmartHome.Services
                     DonGia = ct.DonGia
                 }).ToList()
             }).ToList();
+        }
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng đã hoàn thành của người dùng hiện tại
+        /// </summary>
+        public async Task<List<ViewResponseCreateDonHangDto>> GetCompletedOrdersAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new BaseException.ValidationException("invalid_user", "Thông tin người dùng không hợp lệ");
+            }
+
+            var donHangs = await _unitOfWork.GetRepository<DonHang>()
+                .GetEntitiesWithCondition(dh =>
+                    dh.MaNguoiDungNavigation.MaTaiKhoanNavigation.Id.ToString() == userId &&
+                    dh.TrangThaiDonHang == "Hoàn thành")
+                .Include(dh => dh.MaNguoiDungNavigation)
+                .Include(dh => dh.MaKhuyenMaiNavigation)
+                .Include(dh => dh.ChiTietDonHangs)
+                    .ThenInclude(ct => ct.MaSanPhamNavigation)
+                .OrderByDescending(dh => dh.NgayDat)
+                .ToListAsync();
+
+            return donHangs.Select(dh => new ViewResponseCreateDonHangDto
+            {
+                Id = dh.Id.ToString(),
+                TenNguoiDung = dh.MaNguoiDungNavigation?.TenNguoiDung ?? "Không xác định",
+                TongTien = dh.TongTien,
+                TrangThaiDonHang = dh.TrangThaiDonHang,
+                NgayDat = dh.NgayDat,
+                TenKhuyenMai = dh.MaKhuyenMaiNavigation?.TenKhuyenMai,
+                ChiTietDonHangs = dh.ChiTietDonHangs.Select(ct => new ChiTietDonHangDto
+                {
+                    Id = ct.Id.ToString(),
+                    MaDonHang = ct.MaDonHang.ToString(),
+                    MaSanPham = ct.MaSanPham.ToString(),
+                    TenSanPham = ct.MaSanPhamNavigation?.TenSanPham ?? "Không xác định",
+                    SoLuong = ct.SoLuong,
+                    DonGia = ct.DonGia
+                }).ToList()
+            }).ToList();
+        }
+
+        /// <summary>
+        /// Cập nhật trạng thái đơn hàng
+        /// </summary>
+        public async Task UpdateOrderStatusAsync(string orderId, string newStatus)
+        {
+            if (!Guid.TryParse(orderId, out Guid donHangId))
+            {
+                _logger.LogError($"Invalid orderId format for status update: {orderId}");
+                return; // Or throw an exception, depending on desired behavior
+            }
+
+            var donHang = await _unitOfWork.GetRepository<DonHang>()
+                .GetEntitiesWithCondition(dh => dh.Id == donHangId)
+                .FirstOrDefaultAsync();
+
+            if (donHang == null)
+            {
+                _logger.LogWarning($"Order not found for status update: {orderId}");
+                return; // Or throw an exception
+            }
+
+            // Validate the new status (optional but recommended)
+            try
+            {
+                ValidateTrangThaiDonHang(newStatus);
+            }
+            catch (BaseException.ValidationException ex)
+            {
+                _logger.LogError($"Invalid status provided for order {orderId}: {newStatus} - {ex.Message}");
+                return; // Or handle as appropriate
+            }
+
+            donHang.TrangThaiDonHang = newStatus;
+
+            await _unitOfWork.GetRepository<DonHang>().UpdateAsync(donHang);
+            await _unitOfWork.GetRepository<DonHang>().SaveAsync();
+
+            _logger.LogInformation($"Order {orderId} status updated to {newStatus}");
+        }
+
+        public async Task<DonHangDto> GetDonHangByIdAsync(string id)
+        {
+            if (!Guid.TryParse(id, out Guid donHangId))
+            {
+                throw new BaseException.BadRequestException("invalid_id", "ID đơn hàng không hợp lệ");
+            }
+
+            var donHang = await _unitOfWork.GetRepository<DonHang>()
+                .GetEntitiesWithCondition(dh => dh.Id == donHangId)
+                .Include(dh => dh.MaNguoiDungNavigation)
+                .Include(dh => dh.MaKhuyenMaiNavigation)
+                .FirstOrDefaultAsync();
+
+            if (donHang == null)
+            {
+                throw new BaseException.NotFoundException("not_found", "Đơn hàng không tồn tại");
+            }
+
+            return new DonHangDto
+            {
+                Id = donHang.Id.ToString(),
+                TenNguoiDung = donHang.MaNguoiDungNavigation?.TenNguoiDung ?? "Không xác định",
+                TongTien = donHang.TongTien,
+                TrangThaiDonHang = donHang.TrangThaiDonHang,
+                NgayDat = donHang.NgayDat,
+                TenKhuyenMai = donHang.MaKhuyenMaiNavigation?.TenKhuyenMai
+            };
         }
     }
 }

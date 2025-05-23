@@ -239,5 +239,24 @@ namespace WebsiteSmartHome.Services
             });
         }
 
+        public async Task<IEnumerable<NguoiDungDto>> GetKyThuatVienAsync()
+        {
+            var query = _unitOfWork.GetRepository<NguoiDung>().Entities
+                .Include(x => x.MaVaiTroNavigation)
+                .Where(x => x.MaVaiTroNavigation.TenVaiTro == "Nhân viên");
+
+            var kyThuatVien = await query.ToListAsync();
+
+            return kyThuatVien.Select(x => new NguoiDungDto
+            {
+                Id = x.Id.ToString(),
+                TenNguoiDung = x.TenNguoiDung,
+                GioiTinh = x.GioiTinh!,
+                NgaySinh = x.NgaySinh,
+                Cccd = x.Cccd!,
+                Sdt = x.SoDienThoai!,
+                DiaChi = x.DiaChi
+            });
+        }
     }
 }

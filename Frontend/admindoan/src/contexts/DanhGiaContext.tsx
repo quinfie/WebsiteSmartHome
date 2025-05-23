@@ -1,11 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { DanhGiaDto, CreateDanhGiaDto, UpdateDanhGiaDto } from "../types/danhgia";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { DanhGiaDto, CreateDanhGiaDto, UpdateDanhGiaDto, DanhGiaDetailDto } from "../types/danhgia";
 import danhGiaService from "../api/danhgia";
 
 interface DanhGiaContextProps {
   danhGiaList: DanhGiaDto[];
-  fetchAllDanhGia: () => Promise<void>;
-  getDanhGiaById: (id: string) => Promise<DanhGiaDto | null>;
+  fetchAllDanhGia: () => Promise<DanhGiaDto[]>;
   createDanhGia: (data: CreateDanhGiaDto) => Promise<boolean>;
   updateDanhGia: (
     maDonHang: string,
@@ -15,7 +14,7 @@ interface DanhGiaContextProps {
   deleteDanhGia: (id: string) => Promise<boolean>;
   searchDanhGia: (noiDung: string) => Promise<DanhGiaDto[]>;
   selectedDanhGia?: DanhGiaDto | null;
-  getById: (id: string) => Promise<void>;
+  getDetailById: (id: string) => Promise<DanhGiaDetailDto>;
 }
 
 const DanhGiaContext = createContext<DanhGiaContextProps | undefined>(undefined);
@@ -23,34 +22,19 @@ const DanhGiaContext = createContext<DanhGiaContextProps | undefined>(undefined)
 export const DanhGiaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [danhGiaList, setDanhGiaList] = useState<DanhGiaDto[]>([]);
 
-  const fetchAllDanhGia = async () => {
+  const fetchAllDanhGia = async (): Promise<DanhGiaDto[]> => {
     try {
-      const data = await danhGiaService.getAll();
-      setDanhGiaList(data);
+      const response = await danhGiaService.getAll();
+      setDanhGiaList(response);
+      return response;
     } catch (error) {
       console.error("Lỗi khi fetch danh sách đánh giá:", error);
+      return [];
     }
   };
 
-  const getDanhGiaById = async (id: string) => {
-    try {
-      return await danhGiaService.getById(id);
-    } catch (error) {
-      console.error("Lỗi khi lấy đánh giá:", error);
-      return null;
-    }
-  };
+  const [selectedDanhGia] = useState<DanhGiaDto | null>(null);
 
-  const [selectedDanhGia, setSelectedDanhGia] = useState<DanhGiaDto | null>(null);
-
-  const getById = async (id: string) => {
-    try {
-      const data = await danhGiaService.getById(id);
-      setSelectedDanhGia(data);
-    } catch (error) {
-      console.error("Lỗi khi lấy đánh giá:", error);
-    }
-  };
   const createDanhGia = async (data: CreateDanhGiaDto) => {
     try {
       return await danhGiaService.create(data);
@@ -82,17 +66,22 @@ export const DanhGiaProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const searchDanhGia = async (noiDung: string) => {
+  const searchDanhGia = async (noiDung: string): Promise<DanhGiaDto[]> => {
     try {
-      return await danhGiaService.search(noiDung);
+      const response = await danhGiaService.search(noiDung);
+      return response;
     } catch (error) {
       console.error("Lỗi khi tìm kiếm đánh giá:", error);
       return [];
     }
   };
 
+  const getDetailById = useCallback(async (id: string): Promise<DanhGiaDetailDto> => {
+    return await danhGiaService.getDetailById(id);
+  }, []);
+
   useEffect(() => {
-    fetchAllDanhGia();
+    fetchAllDanhGia(); // Load all data by default
   }, []);
 
   return (
@@ -100,13 +89,12 @@ export const DanhGiaProvider: React.FC<{ children: React.ReactNode }> = ({ child
       value={{
         danhGiaList,
         fetchAllDanhGia,
-        getDanhGiaById,
         createDanhGia,
         updateDanhGia,
         deleteDanhGia,
         searchDanhGia,
         selectedDanhGia,
-        getById,
+        getDetailById,
       }}
     >
       {children}

@@ -50,15 +50,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const profile = await authService.getProfile();
       const userId = getUserIdFromToken(token || '');
 
-      const vaiTro = profile.vaiTro || localStorage.getItem('vaiTro') || 'Khách hàng';
+      let vaiTro = profile.vaiTro || localStorage.getItem('vaiTro') || 'Khách hàng';
+
+      localStorage.setItem('vaiTro', vaiTro);
+
       const maNguoiDung = profile.maNguoiDung ?? '';
 
       let nguoiDung = null;
       if (maNguoiDung) {
         try {
           nguoiDung = await authService.getNguoiDungByTaiKhoanId(maNguoiDung);
-        } catch {
-          // Không có hoặc lỗi khi lấy thông tin người dùng → bỏ qua
+        } catch (err) {
+          console.error('Không thể lấy thông tin người dùng:', err);
         }
       }
 
@@ -70,25 +73,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         nguoiDung,
       });
       setIsAuthenticated(true);
-    } catch {
+    } catch (error) {
+      console.error('Error fetching profile:', error);
       alert('Không thể lấy thông tin tài khoản. Vui lòng đăng nhập lại.');
       logout();
     }
   };
 
   const login = async (username: string, password: string) => {
-    const response = await authService.login({ username, password });
-    setToken(response.token);
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('vaiTro', response.vaiTro || '');
-    await fetchProfile();
+    try {
+      const response = await authService.login({ username, password });
+
+      setToken(response.token);
+      localStorage.setItem('token', response.token);
+
+      if (response.vaiTro) {
+        localStorage.setItem('vaiTro', response.vaiTro);
+      }
+
+      await fetchProfile();
+    } catch (error) {
+      console.error('Login error in AuthContext:', error);
+      throw error;
+    }
   };
 
   const register = async (data: any) => {
     const response = await authService.register(data);
     setToken(response.token);
     localStorage.setItem('token', response.token);
-    localStorage.setItem('vaiTro', response.vaiTro || '');
+
+    if (response.vaiTro) {
+      localStorage.setItem('vaiTro', response.vaiTro);
+    }
+
     await fetchProfile();
   };
 
@@ -98,6 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(false);
     localStorage.removeItem('token');
     localStorage.removeItem('vaiTro');
+    localStorage.removeItem('userInfo');
   };
 
   const updateProfile = async (

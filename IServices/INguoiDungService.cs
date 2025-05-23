@@ -10,6 +10,7 @@ namespace WebsiteSmartHome.IServices
         Task UpdateNguoiDungAsync(string id, NguoiDungUpdateDto dto);
         Task DeleteNguoiDungAsync(string id);
         Task<IEnumerable<NguoiDungDto>> SearchNguoiDungAsync(string keyword);
+        Task<IEnumerable<NguoiDungDto>> GetKyThuatVienAsync();
     }
 
 }

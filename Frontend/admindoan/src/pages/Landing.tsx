@@ -1,8 +1,4 @@
 import {
-  ActivitiesByCountry,
-  ActivitiesByDevices,
-  ActivityByTime,
-  ConversionRateBySource,
   Sidebar,
   Stats,
   Welcome,
@@ -46,13 +42,6 @@ const Landing = () => {
             </h3>
             <PieChart />
           </div>
-        </div>
-        <div className="lg:grid grid-cols-2 max-[2300px]:grid-cols-1 gap-x-20 gap-y-8 lg:px-5 max-[1700px]:grid-cols-2 max-[1700px]:mt-10 max-lg:w-full max-lg:pr-5 max-lg:flex max-lg:flex-col max-lg:gap-y-5">
-          <ActivitiesByDevices />
-          <ActivitiesByCountry />
-
-          <ActivityByTime />
-          <ConversionRateBySource />
         </div>
       </div>
     </div>

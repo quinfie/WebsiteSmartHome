@@ -9,9 +9,18 @@ export interface DonHangDto {
     chiTietSanPham?: ChiTietDonHangDto[];
   }
   
-  export interface ViewResponseCreateDonHangDto extends DonHangDto {
+  export interface ViewResponseCreateDonHangDto {
+    id: string;
+    tenNguoiDung: string;
+    tongTien: number;
+    tongTienSauGiam: number;
+    phiVanChuyen: number;
+    trangThaiDonHang: string;
+    ngayDat: string;
+    tenKhuyenMai?: string;
+    maKhuyenMai?: string;
+    phanTramGiam?: number;
     chiTietDonHangs?: ChiTietDonHangDto[];
-   
   }
   
   export interface ChiTietDonHangDto {
@@ -30,15 +39,12 @@ export interface DonHangDto {
   }
   
   export interface RequestCreateDonHangDto {
-    tenNguoiDung: string;
-    tongTien: number;
-    trangThaiDonHang:string;
-    ngayDat: string;
-    maKhuyenMai?: string;
-    chiTietDonHangs?: RequestCreateChiTietDonHangDto[];
+    maKhuyenMai?: string | null;
+    chiTietDonHangs: RequestCreateChiTietDonHangDto[];
   }
   
   export interface ResponseCreateDonHangDto {
+    id: string;
     maNguoiDung: string;
     tongTien: number;
     trangThaiDonHang: string;

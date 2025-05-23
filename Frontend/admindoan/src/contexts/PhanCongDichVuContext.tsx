@@ -9,6 +9,8 @@ interface PhanCongDichVuContextType {
   create: (data: CreatePhanCongDichVuDto) => Promise<PhanCongDichVuDto>;
   updateTrangThai: (id: string, trangThai: string) => Promise<PhanCongDichVuDto>;
   hoanThanh: (id: string) => Promise<PhanCongDichVuDto>;
+  getByYeuCau: (yeuCauId: string) => Promise<PhanCongDichVuDto[]>;
+  getByKyThuatVien: (kyThuatVienId: string) => Promise<PhanCongDichVuDto[]>;
 }
 
 const PhanCongDichVuContext = createContext<PhanCongDichVuContextType | undefined>(undefined);
@@ -26,8 +28,22 @@ export const PhanCongDichVuProvider = ({ children }: { children: React.ReactNode
     return await phanCongDichVuApi.hoanThanh(id);
   };
 
+  const getByYeuCau = async (yeuCauId: string) => {
+    return await phanCongDichVuApi.getByYeuCau(yeuCauId);
+  };
+
+  const getByKyThuatVien = async (kyThuatVienId: string) => {
+    return await phanCongDichVuApi.getByKyThuatVien(kyThuatVienId);
+  };
+
   return (
-    <PhanCongDichVuContext.Provider value={{ create, updateTrangThai, hoanThanh }}>
+    <PhanCongDichVuContext.Provider value={{
+      create,
+      updateTrangThai,
+      hoanThanh,
+      getByYeuCau,
+      getByKyThuatVien
+    }}>
       {children}
     </PhanCongDichVuContext.Provider>
   );

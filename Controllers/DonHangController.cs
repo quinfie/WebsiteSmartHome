@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WebsiteSmartHome.Core;
 using WebsiteSmartHome.Core.DTOs;
-using WebsiteSmartHome.Services;
 using WebsiteSmartHome.IServices;
 using System.Security.Claims;
 
@@ -34,7 +33,7 @@ namespace WebsiteSmartHome.Controllers
 
         // GET: api/DonHang/{id}
         [HttpGet("{id}")]
-        [Authorize(Policy = "RequireManageRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<ViewResponseCreateDonHangDto>>> GetById(string id)
         {
             var result = await _donHangService.GetChiTietDonHangAsync(id);
@@ -53,7 +52,7 @@ namespace WebsiteSmartHome.Controllers
 
         // PUT: api/DonHang/{id}
         [HttpPut("{id}")]
-        [Authorize(Policy = "RequireManageRole")]
+        [Authorize(Policy = "RequireAllRole")]
         public async Task<ActionResult<BaseResponse<ResponseCreateDonHangDto>>> UpdateDonHang(string id, RequestUpdateDonHangDto dto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -81,6 +80,18 @@ namespace WebsiteSmartHome.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _donHangService.GetDonHangByCurrentUserAsync(userId);
             return BaseResponse<List<ViewResponseCreateDonHangDto>>.OkResponse(result, "Lấy danh sách đơn hàng thành công");
+        }
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng đã hoàn thành của người dùng hiện tại
+        /// </summary>
+        [HttpGet("completed")]
+        [Authorize(Policy = "RequireCustomerRole")]
+        public async Task<ActionResult<BaseResponse<List<ViewResponseCreateDonHangDto>>>> GetCompletedOrders()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var result = await _donHangService.GetCompletedOrdersAsync(userId);
+            return BaseResponse<List<ViewResponseCreateDonHangDto>>.OkResponse(result, "Lấy danh sách đơn hàng đã hoàn thành thành công");
         }
     }
 }

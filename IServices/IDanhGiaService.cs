@@ -1,4 +1,5 @@
 ﻿using WebsiteSmartHome.Core.DTOs;
+using WebsiteSmartHome.Core;
 
 namespace WebsiteSmartHome.IServices
 {
@@ -10,6 +11,9 @@ namespace WebsiteSmartHome.IServices
         Task<bool> CreateDanhGiaAsync(CreateDanhGiaDto danhGiaDto);//HAM DTO RIENG
         Task<bool> UpdateDanhGiaAsync(string maDonHang, string maSanPham, UpdateDanhGiaDto dto);
         Task<bool> DeleteDanhGiaAsync(string id);
+        Task<List<DanhGiaDto>> GetDanhGiaByMaDonHangAsync(string maDonHang);
+        Task<DanhGiaDetailDto?> GetDanhGiaDetailByIdAsync(string id);
+        Task<PagedResponse<DanhGiaDto>> GetDanhGiaByMaSanPhamAsync(string maSanPham, int pageNumber, int pageSize);
     }
 }
 

@@ -52,6 +52,8 @@ interface TableWrapperProps {
     hasData?: boolean;
     emptyStateMessage?: string;
     onResetFilters?: () => void;
+    hideExportButton?: boolean;
+    customHeader?: ReactNode;
 }
 
 const TableWrapper: React.FC<TableWrapperProps> = ({
@@ -72,7 +74,9 @@ const TableWrapper: React.FC<TableWrapperProps> = ({
     isLoading,
     hasData,
     emptyStateMessage = 'Không có dữ liệu',
-    onResetFilters
+    onResetFilters,
+    hideExportButton,
+    customHeader
 }) => {
     const [keyword, setKeyword] = useState('');
     const [showFilters, setShowFilters] = useState(false);
@@ -94,14 +98,19 @@ const TableWrapper: React.FC<TableWrapperProps> = ({
             {/* Header section with gradient background */}
             <div className="bg-gradient-to-r from-blue-900 to-purple-900 text-white py-8 px-8 shadow-lg">
                 <div className="max-w-7xl mx-auto">
-                    <h2 className="text-3xl font-bold mb-2">{title}</h2>
-                    {subtitle && (
-                        <p className="opacity-80 flex items-center text-sm">
-                            <span>Bảng điều khiển</span>{" "}
-                            <HiOutlineChevronRight className="mx-2" />{" "}
-                            <span>{subtitle}</span>
-                        </p>
-                    )}
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h2 className="text-3xl font-bold mb-2">{title}</h2>
+                            {subtitle && (
+                                <p className="opacity-80 flex items-center text-sm">
+                                    <span>Bảng điều khiển</span>{" "}
+                                    <HiOutlineChevronRight className="mx-2" />{" "}
+                                    <span>{subtitle}</span>
+                                </p>
+                            )}
+                        </div>
+                        {customHeader}
+                    </div>
                 </div>
             </div>
 
@@ -146,10 +155,12 @@ const TableWrapper: React.FC<TableWrapperProps> = ({
                             </Link>
                         )}
 
-                        <button className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 rounded-md shadow-sm flex items-center justify-center gap-x-2 transition-all duration-200">
-                            <AiOutlineExport className="text-gray-600 dark:text-gray-300" />
-                            <span className="text-gray-700 dark:text-gray-200 font-medium">Xuất</span>
-                        </button>
+                        {!hideExportButton && (
+                            <button className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 rounded-md shadow-sm flex items-center justify-center gap-x-2 transition-all duration-200">
+                                <AiOutlineExport className="text-gray-600 dark:text-gray-300" />
+                                <span className="text-gray-700 dark:text-gray-200 font-medium">Xuất</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Filter toggle button */}

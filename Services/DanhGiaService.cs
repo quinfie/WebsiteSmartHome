@@ -63,6 +63,17 @@ namespace WebsiteSmartHome.Services
                 throw BaseException.BadRequest("Mã đơn hàng hoặc mã sản phẩm không hợp lệ.");
             }
 
+            // Kiểm tra xem đánh giá cho cặp đơn hàng và sản phẩm này đã tồn tại chưa
+            var existingReview = await _unitOfWork.GetRepository<DanhGia>()
+                 .FindByCondition(dg => dg.MaDonHang == maDonHang && dg.MaSanPham == maSanPham)
+                 .FirstOrDefaultAsync();
+
+            if (existingReview != null)
+            {
+                // Đánh giá đã tồn tại, không cần tạo mới. Có thể xem là thành công.
+                return true;
+            }
+
             // Tạo đối tượng đánh giá mới
             var danhGia = new DanhGia
             {
@@ -118,6 +129,29 @@ namespace WebsiteSmartHome.Services
             return true;
         }
 
+        // Lấy danh sách đánh giá theo Mã đơn hàng
+        public async Task<List<DanhGiaDto>> GetDanhGiaByMaDonHangAsync(string maDonHang)
+        {
+            // Kiểm tra và chuyển đổi string sang Guid
+            if (!Guid.TryParse(maDonHang, out var guid))
+                throw BaseException.BadRequest("Mã đơn hàng không hợp lệ");
+
+            var danhGias = await _unitOfWork.GetRepository<DanhGia>()
+                 .FindByCondition(dg => dg.MaDonHang == guid)
+                 .Select(dg => new DanhGiaDto
+                 {
+                     Id = dg.Id.ToString(),
+                     MaDonHang = dg.MaDonHang.ToString(),
+                     MaSanPham = dg.MaSanPham.ToString(),
+                     SoSao = dg.SoSao,
+                     NoiDung = dg.NoiDung,
+                     NgayDanhGia = dg.NgayDanhGia
+                 })
+                 .ToListAsync();
+
+            return danhGias;
+        }
+
         // Tìm đánh giá theo nội dung chứa chuỗi nhập vào
         public async Task<List<DanhGiaDto>> SearchDanhGiaByContentAsync(string content)
         {
@@ -134,6 +168,63 @@ namespace WebsiteSmartHome.Services
                 .ToListAsync();
 
             return danhGias;
+        }
+
+        // Lấy danh sách đánh giá theo Mã sản phẩm
+        public async Task<PagedResponse<DanhGiaDto>> GetDanhGiaByMaSanPhamAsync(string maSanPham, int pageNumber, int pageSize)
+        {
+            // Kiểm tra và chuyển đổi string sang Guid
+            if (!Guid.TryParse(maSanPham, out var guid))
+                throw BaseException.BadRequest("Mã sản phẩm không hợp lệ");
+
+            var query = _unitOfWork.GetRepository<DanhGia>()
+                 .FindByCondition(dg => dg.MaSanPham == guid);
+
+            var totalCount = await query.CountAsync();
+
+            var danhGias = await query
+                 .Skip((pageNumber - 1) * pageSize)
+                 .Take(pageSize)
+                 .Select(dg => new DanhGiaDto
+                 {
+                     Id = dg.Id.ToString(),
+                     MaDonHang = dg.MaDonHang.ToString(),
+                     MaSanPham = dg.MaSanPham.ToString(),
+                     SoSao = dg.SoSao,
+                     NoiDung = dg.NoiDung,
+                     NgayDanhGia = dg.NgayDanhGia
+                 })
+                 .ToListAsync();
+
+            return new PagedResponse<DanhGiaDto>(danhGias, pageNumber, pageSize, totalCount);
+        }
+
+        public async Task<DanhGiaDetailDto?> GetDanhGiaDetailByIdAsync(string id)
+        {
+            if (!Guid.TryParse(id, out var guid))
+                throw BaseException.BadRequest("ID không hợp lệ");
+
+            var danhGia = await _unitOfWork.GetRepository<DanhGia>().GetByIdAsync(guid);
+            if (danhGia == null) return null;
+
+            // Lấy thông tin liên quan
+            var donHang = await _unitOfWork.GetRepository<DonHang>().GetByIdAsync(danhGia.MaDonHang);
+            var nguoiDung = donHang != null ? await _unitOfWork.GetRepository<NguoiDung>().GetByIdAsync(donHang.MaNguoiDung) : null;
+            var sanPham = await _unitOfWork.GetRepository<SanPham>().GetByIdAsync(danhGia.MaSanPham);
+
+            return new DanhGiaDetailDto
+            {
+                Id = danhGia.Id.ToString(),
+                MaDonHang = danhGia.MaDonHang.ToString(),
+                MaSanPham = danhGia.MaSanPham.ToString(),
+                MaNguoiDung = donHang?.MaNguoiDung.ToString() ?? "",
+                SoSao = danhGia.SoSao,
+                NoiDung = danhGia.NoiDung,
+                NgayDanhGia = danhGia.NgayDanhGia,
+                TenNguoiDung = nguoiDung?.TenNguoiDung ?? "",
+                TenSanPham = sanPham?.TenSanPham ?? "",
+                NgayDatHang = donHang?.NgayDat
+            };
         }
     }
 }

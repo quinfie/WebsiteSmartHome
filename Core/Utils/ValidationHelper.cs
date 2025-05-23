@@ -128,7 +128,7 @@ namespace WebsiteSmartHome.Core.Utils
         // Kiểm tra trạng thái yêu cầu dịch vụ hợp lệ
         public static void ValidateTrangThaiYeuCau(string trangThai)
         {
-            var validStatuses = new[] { "Chờ xác nhận", "Đã xác nhận", "Đang xử lý", "Hoàn thành", "Đã hủy" };
+            var validStatuses = new[] { "Đang chờ xác nhận", "Đã xác nhận", "Hoàn thành", "Đã hủy" };
             if (!validStatuses.Contains(trangThai))
             {
                 throw new BaseException.ValidationException("invalid_status", "Trạng thái yêu cầu không hợp lệ");

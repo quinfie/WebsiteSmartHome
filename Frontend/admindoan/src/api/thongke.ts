@@ -98,16 +98,13 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   try {
     const config = getAuthHeaderSafe();
     if (!config) {
-      console.log('Chưa đăng nhập, không thể lấy thống kê');
       return generateSampleDashboardStats();
     }
     
-    console.log('Bắt đầu lấy dữ liệu thống kê...');
     
     // Trong trường hợp API thống kê thực không tồn tại, sẽ tính toán từ các endpoint riêng
     // Lấy đơn hàng - sử dụng đúng endpoint
     const ordersResponse = await axios.get('/DonHang', config);
-    console.log('API Response - Orders:', ordersResponse);
     
     // Kiểm tra cấu trúc dữ liệu
     if (!ordersResponse.data || !ordersResponse.data.data) {
@@ -119,10 +116,8 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
     const orders = Array.isArray(ordersResponse.data.data) 
       ? ordersResponse.data.data 
       : [];
-    console.log('Dữ liệu đơn hàng:', orders);
     
     if (orders.length === 0) {
-      console.log('Không có dữ liệu đơn hàng, sử dụng dữ liệu mẫu');
       return generateSampleDashboardStats();
     }
     
@@ -134,7 +129,6 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
     const completedOrders = orders.filter((o: Order) => o.trangThaiDonHang === 'Hoàn thành').length;
     const cancelledOrders = orders.filter((o: Order) => o.trangThaiDonHang === 'Đã hủy').length;
     
-    console.log('Thống kê đơn hàng:', { totalOrders, pendingOrders, completedOrders, cancelledOrders });
     
     // Tính doanh thu - thêm xử lý để đảm bảo có giá trị hợp lệ
     const totalRevenue = orders.reduce((sum: number, order: Order) => {
@@ -158,7 +152,6 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
         return sum + orderAmount;
       }, 0);
     
-    console.log('Doanh thu:', { totalRevenue, thisMonthRevenue });
     
     // Lấy sản phẩm - sử dụng search endpoint cho kết quả chính xác
     const productsResponse = await axios.get('/SanPham', {
@@ -168,7 +161,6 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
         pageSize: 100 // Lấy nhiều sản phẩm hơn để thống kê chính xác
       }
     });
-    console.log('API Response - Products:', productsResponse);
     
     // Kiểm tra cấu trúc dữ liệu
     if (!productsResponse.data || !productsResponse.data.data) {
@@ -188,18 +180,15 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
     
     // Fix: Đảm bảo products luôn là mảng
     const products = (productsResponse.data.data.items || []).filter(Boolean);
-    console.log('Dữ liệu sản phẩm:', products);
     
     // Thống kê sản phẩm
     const totalProducts = productsResponse.data.data.totalItems || products.length;
     const inStockProducts = products.filter((p: Product) => p && p.soLuongTon > 0).length;
     const outOfStockProducts = products.filter((p: Product) => p && p.soLuongTon <= 0).length;
     
-    console.log('Thống kê sản phẩm:', { totalProducts, inStockProducts, outOfStockProducts });
     
     // Lấy người dùng
     const usersResponse = await axios.get('/TaiKhoan', config);
-    console.log('API Response - Users:', usersResponse);
     
     // Kiểm tra cấu trúc dữ liệu
     if (!usersResponse.data || !usersResponse.data.data) {
@@ -224,9 +213,8 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
     const users = Array.isArray(usersResponse.data.data) 
       ? usersResponse.data.data 
       : [];
-    console.log('Dữ liệu người dùng:', users);
     
-    // Thống kê người dùng
+    // Thống kê người dùng  
     const totalUsers = users.length;
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -238,13 +226,12 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       }
     }).length;
     
-    console.log('Thống kê người dùng:', { totalUsers, newUsers });
     
     // Lấy nhà cung cấp
-    let totalSuppliers = 0;
+    let totalSuppliers = 0; 
     try {
       const suppliersResponse = await axios.get('/NhaCungCap', config);
-      console.log('API Response - Suppliers:', suppliersResponse);
+      
       
       // Fix: Đảm bảo suppliers luôn là mảng
       const suppliers = Array.isArray(suppliersResponse.data.data) 
@@ -252,32 +239,28 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
         : [];
       totalSuppliers = suppliers.length;
     } catch (error) {
-      console.error('Lỗi khi lấy dữ liệu nhà cung cấp:', error);
       // Sử dụng dữ liệu mẫu cho nhà cung cấp
       totalSuppliers = 5;
     }
     
-    // Lấy khuyến mãi
-    let totalPromotions = 0;
-    try {
-      const promotionsResponse = await axios.get('/KhuyenMai', config);
-      console.log('API Response - Promotions:', promotionsResponse);
-      
-      // Fix: Đảm bảo promotions luôn là mảng
-      const promotions = Array.isArray(promotionsResponse.data.data) 
-        ? promotionsResponse.data.data 
-        : [];
-      totalPromotions = promotions.length;
-    } catch (error) {
-      console.error('Lỗi khi lấy dữ liệu khuyến mãi:', error);
-      // Sử dụng dữ liệu mẫu cho khuyến mãi
-      totalPromotions = 3;
-    }
+      // Lấy khuyến mãi
+      let totalPromotions = 0;
+      try {
+        const promotionsResponse = await axios.get('/KhuyenMai/all', config);
+        
+        // Fix: Đảm bảo promotions luôn là mảng
+        const promotions = Array.isArray(promotionsResponse.data.data) 
+          ? promotionsResponse.data.data 
+          : [];
+        totalPromotions = promotions.length;
+      } catch (error) { 
+        // Sử dụng dữ liệu mẫu cho khuyến mãi
+        totalPromotions = 3;
+      }
     
     // Kiểm tra tất cả dữ liệu thu thập được
     const allDataValid = totalOrders > 0 && totalProducts > 0 && totalUsers > 0;
     if (!allDataValid) {
-      console.log('Không đủ dữ liệu hợp lệ, sử dụng dữ liệu mẫu');
       return generateSampleDashboardStats();
     }
     
@@ -297,7 +280,6 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       totalPromotions
     };
     
-    console.log('Kết quả thống kê cuối cùng:', result);
     return result;
   } catch (error) {
     console.error("Lỗi khi lấy thống kê:", error);
@@ -329,14 +311,12 @@ export const getRevenueData = async (): Promise<RevenueData[]> => {
   try {
     const config = getAuthHeaderSafe();
     if (!config) {
-      console.log('Chưa đăng nhập, không thể lấy dữ liệu doanh thu');
       // Trả về dữ liệu mẫu nếu chưa đăng nhập
       return generateSampleRevenueData();
     }
     
     // Lấy tất cả đơn hàng
     const ordersResponse = await axios.get('/DonHang', config);
-    console.log('API Response - Revenue:', ordersResponse);
     
     // Fix: Đảm bảo orders luôn là mảng
     const orders = Array.isArray(ordersResponse.data.data) 
@@ -382,11 +362,9 @@ export const getRevenueData = async (): Promise<RevenueData[]> => {
     
     // Nếu không có dữ liệu thực tế, tạo dữ liệu mẫu
     if (!hasRealData) {
-      console.log('Không có dữ liệu doanh thu thực tế, sử dụng dữ liệu mẫu');
       return generateSampleRevenueData();
     }
     
-    console.log('Revenue Result:', result);
     return result;
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu doanh thu:", error);
@@ -420,13 +398,11 @@ export const getOrderStatusData = async (): Promise<OrderStatusData[]> => {
   try {
     const config = getAuthHeaderSafe();
     if (!config) {
-      console.log('Chưa đăng nhập, không thể lấy dữ liệu trạng thái đơn hàng');
       return [];
     }
     
     // Lấy tất cả đơn hàng
     const ordersResponse = await axios.get('/DonHang', config);
-    console.log('API Response - Order Status:', ordersResponse);
     
     // Fix: Đảm bảo orders luôn là mảng
     const orders = Array.isArray(ordersResponse.data.data) 
@@ -473,7 +449,6 @@ export const getOrderStatusData = async (): Promise<OrderStatusData[]> => {
       ];
     }
     
-    console.log('Order Status Result:', result);
     return result;
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu trạng thái đơn hàng:", error);
@@ -490,16 +465,13 @@ export const getTopSellingProducts = async (limit: number = 5): Promise<TopProdu
   try {
     const config = getAuthHeaderSafe();
     if (!config) {
-      console.log('Chưa đăng nhập, không thể lấy dữ liệu sản phẩm bán chạy');
       // Trả về dữ liệu mẫu nếu chưa đăng nhập
       return generateSampleTopProducts(limit);
     }
     
-    console.log('Bắt đầu lấy dữ liệu top sản phẩm bán chạy...');
     
     // Lấy tất cả đơn hàng hoàn thành
     const ordersResponse = await axios.get('/DonHang', config);
-    console.log('API Response - Top Products (Orders):', ordersResponse);
     
     // Fix: Đảm bảo orders luôn là mảng
     const orders = Array.isArray(ordersResponse.data.data) 
@@ -509,7 +481,6 @@ export const getTopSellingProducts = async (limit: number = 5): Promise<TopProdu
     const completedOrders = orders.filter((o: Order) => o && o.trangThaiDonHang === 'Hoàn thành');
     
     if (completedOrders.length === 0) {
-      console.log('Không có đơn hàng hoàn thành, sử dụng dữ liệu mẫu');
       return generateSampleTopProducts(limit);
     }
     
@@ -523,7 +494,6 @@ export const getTopSellingProducts = async (limit: number = 5): Promise<TopProdu
         if (!order.id) continue;
         
         const orderDetailResponse = await axios.get(`/DonHang/${order.id}`, config);
-        console.log(`API Response - Order Detail (${order.id}):`, orderDetailResponse);
         
         const orderDetail = orderDetailResponse.data.data as OrderDetail;
         
@@ -545,7 +515,6 @@ export const getTopSellingProducts = async (limit: number = 5): Promise<TopProdu
     
     // Nếu không có dữ liệu thực tế, trả về dữ liệu mẫu
     if (!hasRealData) {
-      console.log('Không có dữ liệu chi tiết đơn hàng, sử dụng dữ liệu mẫu');
       return generateSampleTopProducts(limit);
     }
     
@@ -557,12 +526,10 @@ export const getTopSellingProducts = async (limit: number = 5): Promise<TopProdu
     
     // Nếu không đủ sản phẩm, bổ sung thêm dữ liệu mẫu
     if (sortedProducts.length < 2) {
-      console.log('Không đủ dữ liệu top sản phẩm, bổ sung dữ liệu mẫu');
       const sampleProducts = generateSampleTopProducts(limit - sortedProducts.length);
       return [...sortedProducts, ...sampleProducts];
     }
     
-    console.log('Top Products Result:', sortedProducts);
     return sortedProducts;
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu sản phẩm bán chạy:", error);
@@ -591,13 +558,11 @@ export const getMonthlyNewUsers = async (): Promise<{ month: string; users: numb
   try {
     const config = getAuthHeaderSafe();
     if (!config) {
-      console.log('Chưa đăng nhập, không thể lấy dữ liệu người dùng mới');
       return generateSampleUserData();
     }
     
     // Lấy tất cả người dùng
     const usersResponse = await axios.get('/TaiKhoan', config);
-    console.log('API Response - Monthly Users:', usersResponse);
     
     // Fix: Đảm bảo users luôn là mảng
     const users = Array.isArray(usersResponse.data.data) 
@@ -639,11 +604,9 @@ export const getMonthlyNewUsers = async (): Promise<{ month: string; users: numb
     
     // Nếu không có dữ liệu thực tế, sử dụng dữ liệu mẫu
     if (!hasRealData) {
-      console.log('Không có dữ liệu người dùng mới thực tế, sử dụng dữ liệu mẫu');
       return generateSampleUserData();
     }
     
-    console.log('Monthly New Users Result:', result);
     return result;
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu người dùng mới:", error);

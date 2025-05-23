@@ -9,19 +9,12 @@ import {
 import {
   HiOutlinePlus,
   HiOutlineChevronRight,
-  HiOutlineSearch,
   HiOutlineFilter,
-  HiOutlineCalendar,
   HiOutlineX,
-  HiOutlineUser,
   HiOutlineClipboardCheck,
-  HiOutlineCash,
   HiOutlineRefresh
 } from "react-icons/hi";
-import { AiOutlineExport } from "react-icons/ai";
 import { useDonHang } from "../contexts/DonHangContext";
-import { getLichBaoTriByDonHangId } from "../api/lichbaotri";
-import { DonHangDto } from "../types/donhang";
 import { motion } from "framer-motion";
 
 // Status option array
@@ -36,11 +29,30 @@ const statusOptions = [
 
 // Sort option array that is separate from the sortOptions state in context
 const sortOptionItems = [
-  { value: "ngayDat", label: "Ngày đặt", ascending: false },
-  { value: "tongTien", label: "Tổng tiền", ascending: false },
-  { value: "tenNguoiDung", label: "Tên người dùng", ascending: true },
-  { value: "trangThai", label: "Trạng thái", ascending: true }
+  { value: "ngayDat_desc", label: "Cũ nhất", ascending: false },
+  { value: "ngayDat_asc", label: "Mới nhất", ascending: true }
 ];
+
+const timeRangeOptions = [
+  { value: "", label: "Tất cả thời gian" },
+  { value: "today", label: "Hôm nay" },
+  { value: "week", label: "7 ngày qua" },
+  { value: "month", label: "30 ngày qua" },
+  { value: "quarter", label: "3 tháng qua" }
+];
+
+interface FilterOptions {
+  keyword?: string;
+  trangThai: string;
+  tuNgay?: Date;
+  denNgay?: Date;
+}
+
+interface LocalFilterOptions {
+  trangThai: string;
+  tuNgay: string;
+  denNgay: string;
+}
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -57,15 +69,17 @@ const Orders = () => {
     remove
   } = useDonHang();
 
-  const [searchKeyword, setSearchKeyword] = useState(filterOptions.keyword || "");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [timeRange, setTimeRange] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [openDetailId, setOpenDetailId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [localFilterOptions, setLocalFilterOptions] = useState({
+  const [localFilterOptions, setLocalFilterOptions] = useState<LocalFilterOptions>({
     trangThai: filterOptions.trangThai || "",
-    tuNgay: filterOptions.tuNgay,
-    denNgay: filterOptions.denNgay
+    tuNgay: filterOptions.tuNgay ? filterOptions.tuNgay.toISOString().split('T')[0] : "",
+    denNgay: filterOptions.denNgay ? filterOptions.denNgay.toISOString().split('T')[0] : ""
   });
 
   // Order statistics
@@ -144,71 +158,102 @@ const Orders = () => {
     navigate(`/dashboard/lich-bao-tri/${donHangId}`);
   };
 
+  const getDateRangeFromOption = (option: string): { tuNgay?: Date; denNgay?: Date } => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    switch (option) {
+      case "today":
+        return {
+          tuNgay: today,
+          denNgay: now
+        };
+      case "week":
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return {
+          tuNgay: weekAgo,
+          denNgay: now
+        };
+      case "month":
+        const monthAgo = new Date(today);
+        monthAgo.setDate(monthAgo.getDate() - 30);
+        return {
+          tuNgay: monthAgo,
+          denNgay: now
+        };
+      case "quarter":
+        const quarterAgo = new Date(today);
+        quarterAgo.setDate(quarterAgo.getDate() - 90);
+        return {
+          tuNgay: quarterAgo,
+          denNgay: now
+        };
+      default:
+        return {
+          tuNgay: undefined,
+          denNgay: undefined
+        };
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    const dateRange = getDateRangeFromOption(timeRange);
 
     setFilterOptions({
-      ...filterOptions,
-      keyword: searchKeyword
+      keyword: searchKeyword,
+      trangThai: filterStatus,
+      ...dateRange
     });
-
-    setTimeout(() => {
-      searchAndSortOrders();
-    }, 0);
+    searchAndSortOrders();
   };
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    setLocalFilterOptions(prev => ({
-      ...prev,
-      [name]: name.includes('Ngay') ? (value ? new Date(value) : undefined) : value
-    }));
-  };
-
-  const applyFilters = () => {
-    setFilterOptions({
-      ...filterOptions,
-      ...localFilterOptions
-    });
-
-    setTimeout(() => {
-      searchAndSortOrders();
-    }, 0);
+    switch (name) {
+      case 'trangThai':
+        setFilterStatus(value);
+        break;
+      case 'timeRange':
+        setTimeRange(value);
+        break;
+    }
   };
 
   const resetFilters = () => {
-    const resetOptions = {
+    setSearchKeyword("");
+    setFilterStatus("");
+    setTimeRange("");
+    setFilterOptions({
+      keyword: "",
       trangThai: "",
       tuNgay: undefined,
       denNgay: undefined
-    };
-
-    setLocalFilterOptions(resetOptions);
-    setFilterOptions({
-      ...filterOptions,
-      ...resetOptions
     });
-
-    setTimeout(() => {
-      searchAndSortOrders();
-    }, 0);
+    searchAndSortOrders();
   };
 
   const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    const option = sortOptionItems.find(opt => opt.value === value);
 
-    if (option) {
+    if (!value) {
       setSortOptions({
-        sortBy: option.value,
-        ascending: option.ascending
+        sortBy: "ngayDat",
+        ascending: true // Mặc định tăng dần
       });
-
-      setTimeout(() => {
-        searchAndSortOrders();
-      }, 0);
+      searchAndSortOrders();
+      return;
     }
+
+    // Mới nhất: ngayDat_desc -> ascending = false (để ngày lớn lên trên)
+    // Cũ nhất: ngayDat_asc -> ascending = true (để ngày nhỏ lên trên)
+    setSortOptions({
+      sortBy: 'ngayDat',
+      ascending: value === 'ngayDat_asc'
+    });
+
+    searchAndSortOrders();
   };
 
   // Get paginated data
@@ -321,11 +366,6 @@ const Orders = () => {
                 <HiOutlinePlus className="text-white" />
                 <span className="font-medium">Thêm đơn hàng</span>
               </Link>
-
-              <button className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 rounded-md shadow-sm flex items-center justify-center gap-x-2 transition-all duration-200">
-                <AiOutlineExport className="text-gray-600 dark:text-gray-300" />
-                <span className="text-gray-700 dark:text-gray-200 font-medium">Xuất</span>
-              </button>
             </div>
 
             {/* Filter toggle button */}
@@ -365,39 +405,35 @@ const Orders = () => {
 
           {/* Filters panel */}
           {showFilters && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium text-gray-700 dark:text-gray-300">Lọc đơn hàng</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={resetFilters}
-                    className="text-sm px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                  >
-                    Đặt lại
-                  </button>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                  >
-                    <HiOutlineX size={18} />
-                  </button>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Search */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Tìm kiếm
+                  </label>
+                  <input
+                    type="text"
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md"
+                    placeholder="Tìm kiếm..."
+                  />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Status filter */}
                 <div>
-                  <label htmlFor="trangThai" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Trạng thái
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Sắp xếp theo
                   </label>
                   <select
-                    id="trangThai"
-                    name="trangThai"
-                    value={localFilterOptions.trangThai}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    name="sortBy"
+                    value={`${sortOptions.sortBy}_${sortOptions.ascending ? "asc" : "desc"}`}
+                    onChange={handleSort}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md"
                   >
-                    {statusOptions.map(option => (
+                    <option value="">-- Không sắp xếp --</option>
+                    {sortOptionItems.map(option => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
@@ -405,73 +441,54 @@ const Orders = () => {
                   </select>
                 </div>
 
-                {/* Date range filters */}
-                <div>
-                  <label htmlFor="tuNgay" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Từ ngày
-                  </label>
-                  <input
-                    type="date"
-                    id="tuNgay"
-                    name="tuNgay"
-                    value={localFilterOptions.tuNgay ? localFilterOptions.tuNgay.toISOString().split('T')[0] : ''}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
 
+                {/* Time range */}
                 <div>
-                  <label htmlFor="denNgay" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Đến ngày
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Thời gian
                   </label>
-                  <input
-                    type="date"
-                    id="denNgay"
-                    name="denNgay"
-                    value={localFilterOptions.denNgay ? localFilterOptions.denNgay.toISOString().split('T')[0] : ''}
+                  <select
+                    name="timeRange"
+                    value={timeRange}
                     onChange={handleFilterChange}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md"
+                  >
+                    {timeRangeOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex justify-end gap-2">
                 <button
-                  onClick={applyFilters}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                  onClick={resetFilters}
+                  className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
                 >
-                  Áp dụng
+                  Đặt lại
+                </button>
+                <button
+                  onClick={handleSearch}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Tìm kiếm
                 </button>
               </div>
             </div>
           )}
 
-          {/* Search and sort row */}
-          <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-            <form onSubmit={handleSearch} className="relative">
-              <HiOutlineSearch className="text-gray-400 text-lg absolute top-1/2 left-3 transform -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                className="w-64 h-10 pl-10 pr-4 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Tìm kiếm đơn hàng..."
-              />
-              <button
-                type="submit"
-                className="absolute right-1 top-1 p-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <HiOutlineSearch className="text-white" />
-              </button>
-            </form>
-
-            <div>
+          {/* sort row */}
+          <div className="flex flex-wrap justify-end items-center mb-6 gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600 dark:text-gray-300">Sắp xếp:</label>
               <select
-                className="w-60 h-10 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-white pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-40 h-10 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-white pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 onChange={handleSort}
-                value={sortOptions.sortBy}
+                value={sortOptions.sortBy ? `ngayDat_${sortOptions.ascending ? 'asc' : 'desc'}` : ""}
               >
-                <option value="">Sắp xếp theo</option>
+                <option value="">Mặc định</option>
                 {sortOptionItems.map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}

@@ -7,9 +7,7 @@ import {
 import { HiArrowSmallUp } from "react-icons/hi2";
 import { HiShoppingCart } from "react-icons/hi2";
 import ChartItem from "../components/chart/ChartItem";
-import RechartsAreaChart from "../components/chart/RechartsAreaChart";
 import RechartsBarChart from "../components/chart/RechartsBarChart";
-import RechartsLineChart from "../components/chart/RechartsLineChart";
 
 const Landingv2 = () => {
   return (
@@ -81,11 +79,11 @@ const Landingv2 = () => {
         </div>
         <div className="w-[95%] px-5 mt-10 max-md:w-[90%] max-[400px]:w-[95%] dark:bg-black bg-whiteSecondary">
 
-        <ChartItem title="Doanh thu VS Lợi nhuận">
-          <RechartsBarChart />
-        </ChartItem>
+          <ChartItem title="Doanh thu VS Lợi nhuận">
+            <RechartsBarChart />
+          </ChartItem>
 
-       
+
         </div>
       </div>
     </div>

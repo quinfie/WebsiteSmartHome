@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar, TableWrapper } from "../components";
 import {
-  HiOutlineChevronRight,
-  HiOutlineSearch,
   HiOutlineEye,
   HiOutlineTrash,
   HiOutlineStar,
@@ -15,24 +13,41 @@ import { DanhGiaDto } from "../types/danhgia";
 import { useNavigate } from "react-router-dom";
 
 // Custom DanhGiaTable component with props
-const CustomDanhGiaTable: React.FC<{ reviews: DanhGiaDto[], isLoading: boolean }> =
-  ({ reviews, isLoading }) => {
-    const { deleteDanhGia, fetchAllDanhGia } = useDanhGia();
+const CustomDanhGiaTable: React.FC<{
+  reviews: DanhGiaDto[],
+  isLoading: boolean,
+  setDisplayedReviews: (reviews: DanhGiaDto[]) => void
+}> = ({
+  reviews,
+  isLoading,
+  setDisplayedReviews
+}) => {
+    const { deleteDanhGia, fetchAllDanhGia, getDetailById } = useDanhGia();
     const navigate = useNavigate();
 
     const handleDelete = async (id: string) => {
       if (window.confirm("Bạn có chắc muốn xóa đánh giá này không?")) {
         try {
-          await deleteDanhGia(id);
-          fetchAllDanhGia();
+          const success = await deleteDanhGia(id);
+          if (success) {
+            const response = await fetchAllDanhGia();
+            setDisplayedReviews(response);
+          }
         } catch (error) {
           console.error("Lỗi khi xóa đánh giá:", error);
         }
       }
     };
 
-    const handleView = (id: string) => {
-      navigate(`/dashboard/reviews/${id}`);
+    const handleView = async (id: string) => {
+      try {
+        const detail = await getDetailById(id);
+        // Lưu detail vào localStorage hoặc state quản lý toàn cục nếu muốn, ở đây sẽ truyền qua route state
+        navigate(`/dashboard/reviews/${id}`, { state: { detail } });
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết đánh giá:", error);
+        navigate(`/dashboard/reviews/${id}`); // fallback
+      }
     };
 
     // Function to render star rating
@@ -55,11 +70,6 @@ const CustomDanhGiaTable: React.FC<{ reviews: DanhGiaDto[], isLoading: boolean }
                 <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
                   <span className="inline-flex items-center gap-1">
                     <HiOutlineCalendar className="text-blue-500" /> Mã đơn hàng
-                  </span>
-                </th>
-                <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                  <span className="inline-flex items-center gap-1">
-                    <HiOutlineCalendar className="text-green-500" /> Mã sản phẩm
                   </span>
                 </th>
                 <th className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
@@ -98,9 +108,6 @@ const CustomDanhGiaTable: React.FC<{ reviews: DanhGiaDto[], isLoading: boolean }
                   <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="py-4 px-4 font-medium dark:text-white text-gray-700">
                       {item.maDonHang || "N/A"}
-                    </td>
-                    <td className="py-4 px-4 dark:text-white text-gray-700">
-                      {item.maSanPham || "N/A"}
                     </td>
                     <td className="py-4 px-4 dark:text-white text-gray-700">
                       {renderStarRating(item.soSao)}
@@ -150,40 +157,24 @@ const DanhGiaPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [sortOption, setSortOption] = useState("");
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [displayedReviews, setDisplayedReviews] = useState<DanhGiaDto[]>([]);
 
   // Load data only once when component mounts
   useEffect(() => {
-    let isMounted = true;
-
-    if (!initialLoadDone) {
+    const loadData = async () => {
       setLoading(true);
-      fetchAllDanhGia()
-        .then(() => {
-          if (isMounted) {
-            setInitialLoadDone(true);
-            setLoading(false);
-          }
-        })
-        .catch(error => {
-          console.error("Error fetching reviews:", error);
-          if (isMounted) {
-            setLoading(false);
-          }
-        });
-    }
-
-    return () => {
-      isMounted = false;
+      try {
+        const response = await fetchAllDanhGia();
+        setDisplayedReviews(response);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-  }, [fetchAllDanhGia, initialLoadDone]);
 
-  // Update displayed reviews when the reviews from context change
-  useEffect(() => {
-    setDisplayedReviews(reviews);
-  }, [reviews]);
+    loadData();
+  }, []); // Empty dependency array to run only once
 
   const handleSearch = async (keyword: string) => {
     if (searchKeyword === keyword) return;
@@ -196,7 +187,8 @@ const DanhGiaPage = () => {
         const results = await searchDanhGia(keyword);
         setDisplayedReviews(results);
       } else {
-        setDisplayedReviews(reviews);
+        const response = await fetchAllDanhGia();
+        setDisplayedReviews(response);
       }
     } catch (error) {
       console.error("Error searching reviews:", error);
@@ -205,70 +197,29 @@ const DanhGiaPage = () => {
     }
   };
 
-  const handleSort = (value: string) => {
-    if (sortOption === value) return;
-
-    setSortOption(value);
-
-    // Sort the reviews based on the selected option
-    let sortedReviews = [...displayedReviews];
-
-    switch (value) {
-      case 'sao-cao':
-        sortedReviews.sort((a, b) => b.soSao - a.soSao);
-        break;
-      case 'sao-thap':
-        sortedReviews.sort((a, b) => a.soSao - b.soSao);
-        break;
-      case 'moi-nhat':
-        sortedReviews.sort((a, b) =>
-          new Date(b.ngayDanhGia || "").getTime() - new Date(a.ngayDanhGia || "").getTime()
-        );
-        break;
-      case 'cu-nhat':
-        sortedReviews.sort((a, b) =>
-          new Date(a.ngayDanhGia || "").getTime() - new Date(b.ngayDanhGia || "").getTime()
-        );
-        break;
-      default:
-        // Keep default order
-        break;
-    }
-
-    setDisplayedReviews(sortedReviews);
-  };
-
-  // Prepare sort options for TableWrapper
-  const sortOptionItems = [
-    { value: 'sao-cao', label: 'Sao cao nhất' },
-    { value: 'sao-thap', label: 'Sao thấp nhất' },
-    { value: 'moi-nhat', label: 'Mới nhất' },
-    { value: 'cu-nhat', label: 'Cũ nhất' }
-  ];
-
   // Prepare stat cards for TableWrapper
   const statCards = [
     {
       title: 'Tổng đánh giá',
-      value: reviews.length,
+      value: displayedReviews.length,
       icon: <HiOutlineChat className="text-blue-500 dark:text-blue-400 text-xl" />,
       color: 'bg-blue-100 dark:bg-blue-900'
     },
     {
       title: 'Đánh giá 5 sao',
-      value: reviews.filter(r => r.soSao === 5).length,
+      value: displayedReviews.filter(r => r.soSao === 5).length,
       icon: <HiOutlineStar className="text-yellow-500 dark:text-yellow-400 text-xl" />,
       color: 'bg-yellow-100 dark:bg-yellow-900'
     },
     {
       title: 'Điểm trung bình',
-      value: reviews.length ? (reviews.reduce((acc, r) => acc + r.soSao, 0) / reviews.length).toFixed(1) : '0',
+      value: displayedReviews.length ? (displayedReviews.reduce((acc, r) => acc + r.soSao, 0) / displayedReviews.length).toFixed(1) : '0',
       icon: <HiOutlineStar className="text-green-500 dark:text-green-400 text-xl" />,
       color: 'bg-green-100 dark:bg-green-900'
     },
     {
       title: 'Đánh giá gần đây',
-      value: reviews.filter(r => r.ngayDanhGia && new Date(r.ngayDanhGia).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length,
+      value: displayedReviews.filter(r => r.ngayDanhGia && new Date(r.ngayDanhGia).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length,
       icon: <HiOutlineCalendar className="text-purple-500 dark:text-purple-400 text-xl" />,
       color: 'bg-purple-100 dark:bg-purple-900'
     }
@@ -282,9 +233,6 @@ const DanhGiaPage = () => {
         subtitle="Tất cả đánh giá"
         onSearch={handleSearch}
         searchPlaceholder="Tìm kiếm đánh giá..."
-        onSort={handleSort}
-        sortOptions={sortOptionItems}
-        currentSortOption={sortOption}
         contextType="sanpham"
         itemLabel="đánh giá"
         statCards={statCards}
@@ -295,6 +243,7 @@ const DanhGiaPage = () => {
         <CustomDanhGiaTable
           reviews={displayedReviews}
           isLoading={loading}
+          setDisplayedReviews={setDisplayedReviews}
         />
       </TableWrapper>
     </div>

@@ -17,6 +17,7 @@
         public decimal TongTien { get; set; }
         public string TrangThaiDonHang { get; set; } = string.Empty;
         public string? TenKhuyenMai { get; set; }
+        public string? MaKhuyenMai { get; set; }
         public DateTime NgayDat { get; set; }
         public List<ChiTietDonHangDto>? ChiTietDonHangs { get; set; }
     }
@@ -36,6 +37,7 @@
 
     public class ResponseCreateDonHangDto
     {
+        public string Id { get; set; } = string.Empty;
         public string MaNguoiDung { get; set; } = string.Empty;
         public decimal TongTien { get; set; }
         public string TrangThaiDonHang { get; set; } = string.Empty;

@@ -8,73 +8,95 @@ const api = axios.create({
   },
 });
 
-// Tự động thêm token nếu có
+// Request interceptor for token handling
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
+    // Log the request URL and token (first 10 chars)
+    //console.log(`Request to ${config.url} with token: ${token.substring(0, 10)}...`);
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    //console.log(`Request to ${config.url} without token`);
   }
-  
-  // Log request data
-  if (config.data) {
-    console.log('Request data:', JSON.stringify(config.data));
-  }
-  
   return config;
+}, (error) => {
+  console.error('Request interceptor error:', error);
+  return Promise.reject(error);
 });
 
+// Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Log đầy đủ thông tin lỗi để debug
-    console.error('API Error Details:', {
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    console.error('Response error:', {
+      config: error.config,
       status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        headers: error.config?.headers,
-      }
+      data: error.response?.data
     });
 
     if (error.response) {
+      // Server returned an error response
       const data = error.response.data;
+      
+      // Get the error message from the response
+      let message = '';
+      
+      // Handle validation errors
+      if (error.response.status === 400 && data.errors) {
+        // Combine all validation errors into one message
+        message = Object.values(data.errors)
+          .flat()
+          .join(', ');
+      } else {
+        message = data?.errorMessage || 
+                 data?.message || 
+                 data?.title || 
+                 data?.error || 
+                 (typeof data === 'string' ? data : null) ||
+                 'Có lỗi xảy ra';
+      }
 
-      // Xử lý lỗi từ server
-      const message =
-        data?.errorMessage ||
-        data?.message ||
-        data?.title ||
-        data?.error ||
-        (typeof data === 'string' ? data : null) ||
-        'Có lỗi xảy ra';
+      // // Handle 401 Unauthorized
+      // if (error.response.status === 401) {
+      //   console.log('401 Unauthorized - Current token:', localStorage.getItem('token'));
+        
+      //   // Clear auth data
+      //   localStorage.removeItem('token');
+      //   localStorage.removeItem('userInfo');
+      //   localStorage.removeItem('vaiTro');
+        
+      //   // Add small delay to ensure error message is shown
+      //   await new Promise(resolve => setTimeout(resolve, 100));
+        
+      //   // Redirect to login
+      //   window.location.href = '/ecommerce/login';
+      //   return Promise.reject(new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'));
+      // }
 
-      const code = data?.errorCode ? `[${data.errorCode}] ` : '';
+      // Handle 404 Not Found
+      if (error.response.status === 404) {
+        return Promise.reject(new Error('Không tìm thấy tài nguyên yêu cầu'));
+      }
 
-      // Log lỗi chi tiết
-      console.error('API Error:', {
-        code: data?.errorCode,
-        message: message,
-        data: data
-      });
+      // Handle 403 Forbidden
+      if (error.response.status === 403) {
+        return Promise.reject(new Error('Bạn không có quyền thực hiện thao tác này'));
+      }
 
-      throw new Error(`${code}${message}`);
-    } else if (error.request) {
-      // Log lỗi kết nối
-      console.error('Network Error:', {
-        request: error.request,
-        message: 'Không thể kết nối đến máy chủ'
-      });
-      throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
-    } else {
-      // Log lỗi cấu hình request
-      console.error('Request Setup Error:', {
-        message: error.message,
-        config: error.config
-      });
-      throw new Error('Có lỗi xảy ra khi gửi yêu cầu');
+      // Handle 400 Bad Request
+      if (error.response.status === 400) {
+        return Promise.reject(new Error(message || 'Dữ liệu gửi lên không hợp lệ'));
+      }
+
+      // Handle other error codes
+      throw new Error(message);
     }
+
+    // Handle network errors or other issues
+    console.error('Network or other error:', error);
+    throw new Error('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
   }
 );
 

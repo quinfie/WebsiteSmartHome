@@ -1,10 +1,9 @@
-import { HiLogin, HiOutlineHome, HiUserGroup } from "react-icons/hi";
+import { HiOutlineHome } from "react-icons/hi";
 import { HiOutlineDevicePhoneMobile } from "react-icons/hi2";
 import { HiOutlineTag } from "react-icons/hi";
 import { HiOutlineTruck } from "react-icons/hi";
 import { HiOutlineStar } from "react-icons/hi";
 import { HiOutlineInformationCircle } from "react-icons/hi";
-import { HiOutlineChat } from "react-icons/hi";
 import { HiOutlineClipboardList } from "react-icons/hi";
 import { HiOutlineX } from "react-icons/hi";
 import { HiOutlineUser } from "react-icons/hi";
@@ -12,12 +11,14 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { setSidebar } from "../features/dashboard/dashboardSlice";
+import { useAuth } from '../contexts/AuthContext';
 
 const Sidebar = () => {
   const [isLandingOpen, setIsLandingOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const { isSidebarOpen } = useAppSelector((state) => state.dashboard);
   const dispatch = useAppDispatch();
+  const { user } = useAuth();
 
   const sidebarClass = isSidebarOpen ? "sidebar-open" : "sidebar-closed";
   const navActiveClass =
@@ -51,127 +52,97 @@ const Sidebar = () => {
             <span className="text-lg">Tổng quan</span>
           </NavLink>
 
-          {/* Các mục menu chính */}
-          <NavLink
-            to="/dashboard/products"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineDevicePhoneMobile className="text-xl" />
-            <span className="text-lg">Sản phẩm</span>
-          </NavLink>
-          <NavLink
-            to="/dashboard/categories"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineTag className="text-xl" />
-            <span className="text-lg">Danh mục</span>
-          </NavLink>
-          <NavLink
-            to="/dashboard/suppliers"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineTag className="text-xl" />
-            <span className="text-lg">Nhà cung cấp</span>
-          </NavLink>
-          <NavLink
-            to="/dashboard/orders"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineTruck className="text-xl" />
-            <span className="text-lg">Đơn hàng</span>
-          </NavLink>
-          <NavLink
-            to="/dashboard/assignrequest"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineClipboardList className="text-xl" />
-            <span className="text-lg">Phân công dịch vụ</span>
-          </NavLink>
+          {/* Phân công dịch vụ cho Nhân viên, Quản lý và Quản trị viên */}
+          {(user?.vaiTro === "Nhân Viên" || user?.vaiTro === "Quản Lí" || user?.vaiTro === "Quản Trị Viên") && (
+            <NavLink
+              to="/dashboard/assignrequest"
+              className={({ isActive }) =>
+                isActive ? navActiveClass : navInactiveClass
+              }
+            >
+              <HiOutlineClipboardList className="text-xl" />
+              <span className="text-lg">Phân công dịch vụ</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/dashboard/users"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineUser className="text-xl" />
-            <span className="text-lg">Người dùng</span>
-          </NavLink>
-
-          <NavLink
-            to="/dashboard/reviews"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineStar className="text-xl" />
-            <span className="text-lg">Đánh giá</span>
-          </NavLink>
-
-          <NavLink
-            to="/dashboard/requestservice"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineStar className="text-xl" />
-            <span className="text-lg">Yêu cầu dịch vụ</span>
-          </NavLink>
-          <NavLink
-            to="/dashboard/promotions"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineTag className="text-xl" />
-            <span className="text-lg">Khuyến mãi</span>
-          </NavLink>
-          <NavLink
-            to="/dashboard/storages"
-            className={({ isActive }) =>
-              isActive ? navActiveClass : navInactiveClass
-            }
-          >
-            <HiOutlineClipboardList className="text-xl" />
-            <span className="text-lg">Kho</span>
-          </NavLink>
-
-          {/* Authentication Section */}
-          <div onClick={toggleAuth} className={navInactiveClass}>
-            <HiUserGroup className="text-xl" />
-            <span className="text-lg">Xác thực</span>
-          </div>
-          {isAuthOpen && (
-            <div>
+          {/* Các mục menu chính cho Quản lý và Quản trị viên */}
+          {(user?.vaiTro === "Quản lí" || user?.vaiTro === "Quản Trị Viên") && (
+            <>
               <NavLink
-                to="/login"
+                to="/dashboard/products"
                 className={({ isActive }) =>
                   isActive ? navActiveClass : navInactiveClass
                 }
               >
-                <HiLogin className="text-xl" />
-                <span className="text-lg">Đăng nhập</span>
+                <HiOutlineDevicePhoneMobile className="text-xl" />
+                <span className="text-lg">Sản phẩm</span>
               </NavLink>
               <NavLink
-                to="/register"
+                to="/dashboard/categories"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineTag className="text-xl" />
+                <span className="text-lg">Danh mục</span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/suppliers"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineTag className="text-xl" />
+                <span className="text-lg">Nhà cung cấp</span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/orders"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineTruck className="text-xl" />
+                <span className="text-lg">Đơn hàng</span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/users"
                 className={({ isActive }) =>
                   isActive ? navActiveClass : navInactiveClass
                 }
               >
                 <HiOutlineUser className="text-xl" />
-                <span className="text-lg">Đăng ký</span>
+                <span className="text-lg">Người dùng</span>
               </NavLink>
-            </div>
+
+              <NavLink
+                to="/dashboard/reviews"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineStar className="text-xl" />
+                <span className="text-lg">Đánh giá</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/requestservice"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineStar className="text-xl" />
+                <span className="text-lg">Yêu cầu dịch vụ</span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/promotions"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineTag className="text-xl" />
+                <span className="text-lg">Khuyến mãi</span>
+              </NavLink>
+            </>
           )}
         </div>
 

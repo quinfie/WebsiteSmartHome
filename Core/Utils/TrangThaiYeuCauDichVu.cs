@@ -4,14 +4,12 @@ namespace WebsiteSmartHome.Core.Utils
 {
     public enum TrangThaiYeuCauDichVu
     {
-        [Description("Chờ xác nhận")]
-        ChoXacNhan,
+
+        [Description("Đang chờ xác nhận")]
+        DangChoXacNhan,
 
         [Description("Đã xác nhận")]
         DaXacNhan,
-
-        [Description("Đang xử lý")]
-        DangXuLy,
 
         [Description("Hoàn thành")]
         HoanThanh,

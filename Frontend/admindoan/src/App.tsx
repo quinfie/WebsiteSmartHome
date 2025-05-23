@@ -1,5 +1,7 @@
 import { RouterProvider, createBrowserRouter, Navigate, useParams, useLocation } from "react-router-dom"
 import { ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
+import RoleBasedDashboardRedirect from "./components/RoleBasedDashboardRedirect";
 import {
   HomeLayout,
   User,
@@ -26,7 +28,7 @@ import {
   CreateOrder,
   CreateUser,
   CreateReview,
-  CreatePromotion,
+  CreateKhuyenMai,
   CreateSupplier,
   CreateStorage,
   CreateRequestService,
@@ -36,12 +38,13 @@ import {
   EditCategory,
   EditOrder,
   EditReview,
-  EditPromotion,
+  EditKhuyenMai,
   EditSupplier,
   EditRequestService,
   EditAssignRequest,
   LichBaoTriPage,
   EditUser,
+  DanhGiaDetail,
 } from "./pages";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { SanPhamProvider } from "./contexts/SanPhamContext";
@@ -49,11 +52,20 @@ import { NhaCungCapProvider } from "./contexts/NhaCungCapContext";
 import { DonHangProvider } from "./contexts/DonHangContext";
 import { DanhMucProvider } from "./contexts/DanhMucContexts";
 import { PhanCongDichVuProvider } from './contexts/PhanCongDichVuContext';
+import { YeuCauDichVuProvider } from './contexts/YeuCauDichVuContext';
 import { NguoiDungProvider } from './contexts/NguoiDungContext';
 import { KhoProvider } from "./contexts/KhoContext";
 import { DanhGiaProvider } from "./contexts/DanhGiaContext";
 import CategoryProductsPage from "./pages/CategoryProductsPage";
 import TongQuanPage from "./pages/TongQuanPage";
+import UserWarrantyPage from "./pages/ecommerce/UserWarrantyPage";
+import YeuCauDichVuDetailPage from "./pages/YeuCauDichVuDetailPage";
+import OrderReview from './pages/ecommerce/OrderReview';
+import PhanCongCalendarPage from "./pages/PhanCongCalendarPage";
+import PhanCongDetailPage from "./pages/PhanCongDetailPage";
+
+// Import ecommerce routes
+import { ecommerceRoutes } from "./pages/ecommerce/routes";
 
 // Redirect component for old routes
 const OldRouteRedirect = () => {
@@ -75,15 +87,17 @@ const AppProviders = ({ children }: { children: ReactNode }) => (
     <NhaCungCapProvider>
       <DanhMucProvider>
         <DonHangProvider>
-          <PhanCongDichVuProvider>
-            <NguoiDungProvider>
-              <KhoProvider>
-                <DanhGiaProvider>
-                  {children}
-                </DanhGiaProvider>
-              </KhoProvider>
-            </NguoiDungProvider>
-          </PhanCongDichVuProvider>
+          <YeuCauDichVuProvider>
+            <PhanCongDichVuProvider>
+              <NguoiDungProvider>
+                <KhoProvider>
+                  <DanhGiaProvider>
+                    {children}
+                  </DanhGiaProvider>
+                </KhoProvider>
+              </NguoiDungProvider>
+            </PhanCongDichVuProvider>
+          </YeuCauDichVuProvider>
         </DonHangProvider>
       </DanhMucProvider>
     </NhaCungCapProvider>
@@ -93,15 +107,15 @@ const AppProviders = ({ children }: { children: ReactNode }) => (
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/ecommerce" replace />,
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <Navigate to="/ecommerce/login" replace />,
   },
   {
     path: "/register",
-    element: <Register />,
+    element: <Navigate to="/ecommerce/register" replace />,
   },
   // Add redirects for old routes
   {
@@ -115,14 +129,14 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["Quản Trị Viên", "Quản Lí", "Nhân Viên"]}>
         <HomeLayout />
       </ProtectedRoute>
     ),
     children: [
       {
         index: true,
-        element: <Navigate to="/dashboard/products" replace />,
+        element: <RoleBasedDashboardRedirect />,
       },
       {
         path: "profile",
@@ -224,6 +238,10 @@ const router = createBrowserRouter([
             path: ":id/edit",
             element: <EditRequestService />,
           },
+          {
+            path: "view/:id",
+            element: <YeuCauDichVuDetailPage />,
+          },
         ],
       },
       // Assign Request routes
@@ -242,7 +260,20 @@ const router = createBrowserRouter([
             path: ":id/edit",
             element: <EditAssignRequest />,
           },
+          {
+            path: "calendar",
+            element: <PhanCongCalendarPage />,
+          },
+          {
+            path: "detail/:id",
+            element: <PhanCongDetailPage />,
+          },
         ],
+      },
+      // Calendar route
+      {
+        path: "calendar/:kyThuatVienId",
+        element: <PhanCongCalendarPage />,
       },
       // Users routes
       {
@@ -292,6 +323,10 @@ const router = createBrowserRouter([
             path: ":id/edit",
             element: <EditReview />,
           },
+          {
+            path: ":id",
+            element: <DanhGiaDetail />,
+          },
         ],
       },
       // Promotions routes
@@ -304,11 +339,11 @@ const router = createBrowserRouter([
           },
           {
             path: "create",
-            element: <CreatePromotion />,
+            element: <CreateKhuyenMai />,
           },
           {
             path: ":id/edit",
-            element: <EditPromotion />,
+            element: <EditKhuyenMai />,
           },
         ],
       },
@@ -328,18 +363,33 @@ const router = createBrowserRouter([
         path: "tongquan",
         element: <TongQuanPage />,
       },
+      {
+        path: "assigncalendar",
+        element: <PhanCongCalendarPage />,
+      },
     ],
   },
+
+  // Add ecommerce routes
+  ...ecommerceRoutes,
+
+  // Remove duplicate route since it's already in ecommerceRoutes
+  {
+    path: "tongquan",
+    element: <TongQuanPage />,
+  },
+
   // Catch all other routes
   {
     path: "*",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/ecommerce" replace />,
   }
 ]);
 
 function App() {
   return (
     <AppProviders>
+      <Toaster position="top-right" />
       <RouterProvider router={router} />
     </AppProviders>
   );

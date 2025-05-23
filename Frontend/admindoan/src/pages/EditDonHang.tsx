@@ -5,9 +5,11 @@ import {
   RequestUpdateDonHangDto,
   ViewResponseCreateDonHangDto
 } from '@/types/donhang';
-import { HiOutlineUser, HiOutlineCurrencyDollar, HiOutlineCalendar, HiOutlineTag, HiOutlineCheckCircle, HiOutlineShoppingCart, HiOutlineChevronRight, HiOutlineInformationCircle } from 'react-icons/hi';
+import { HiOutlineUser, HiOutlineTag, HiOutlineCheckCircle, HiOutlineShoppingCart, HiOutlineChevronRight, HiOutlineInformationCircle } from 'react-icons/hi';
 import { Sidebar } from '../components';
 import { RiShoppingBag3Line } from 'react-icons/ri';
+import { getAllPromotions } from '../api/khuyenmai';
+import { KhuyenMaiDto } from '../types/khuyenmai';
 
 const EditOrder = () => {
   const { id } = useParams();
@@ -22,6 +24,31 @@ const EditOrder = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [promotions, setPromotions] = useState<KhuyenMaiDto[]>([]);
+  const [selectedPromotion, setSelectedPromotion] = useState<KhuyenMaiDto | null>(null);
+
+  // Fetch khuyến mãi
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const data = await getAllPromotions();
+        setPromotions(data);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách khuyến mãi:', error);
+      }
+    };
+    fetchPromotions();
+  }, []);
+
+  // Cập nhật selectedPromotion khi form.maKhuyenMai thay đổi
+  useEffect(() => {
+    if (form.maKhuyenMai) {
+      const promo = promotions.find(p => p.id === form.maKhuyenMai);
+      setSelectedPromotion(promo || null);
+    } else {
+      setSelectedPromotion(null);
+    }
+  }, [form.maKhuyenMai, promotions]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +75,12 @@ const EditOrder = () => {
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
-    setForm({ ...form, trangThaiDonHang: newStatus });
+    setForm(prev => ({ ...prev, trangThaiDonHang: newStatus }));
+  };
+
+  const handlePromotionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const promotionId = e.target.value;
+    setForm(prev => ({ ...prev, maKhuyenMai: promotionId }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,7 +100,6 @@ const EditOrder = () => {
         }))
       };
 
-      console.log("Dữ liệu cập nhật:", JSON.stringify(updateData, null, 2));
       await update(id, updateData);
       alert('Cập nhật đơn hàng thành công!');
       navigate('/dashboard/orders');
@@ -197,20 +228,38 @@ const EditOrder = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Mã khuyến mãi
+                    Khuyến mãi
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <HiOutlineTag className="text-gray-400" />
                     </div>
-                    <input
-                      type="text"
+                    <select
                       value={form.maKhuyenMai}
-                      onChange={(e) => setForm({ ...form, maKhuyenMai: e.target.value })}
+                      onChange={handlePromotionChange}
                       className="w-full border border-gray-300 pl-10 px-3 py-3 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      placeholder="Nhập mã khuyến mãi (nếu có)"
-                    />
+                    >
+                      <option value="">Không áp dụng khuyến mãi</option>
+                      {promotions.map(promo => (
+                        <option key={promo.id} value={promo.id}>
+                          {promo.tenKhuyenMai} ({promo.phanTramGiam}% giảm)
+                        </option>
+                      ))}
+                    </select>
                   </div>
+
+                  {selectedPromotion && (
+                    <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+                        Chi tiết khuyến mãi
+                      </h4>
+                      <div className="space-y-2 text-sm text-blue-700 dark:text-blue-400">
+                        <p>Tên: {selectedPromotion.tenKhuyenMai}</p>
+                        <p>Giảm giá: {selectedPromotion.phanTramGiam}%</p>
+                        <p>Thời gian: {new Date(selectedPromotion.ngayBatDau).toLocaleDateString('vi-VN')} - {new Date(selectedPromotion.ngayKetThuc).toLocaleDateString('vi-VN')}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>

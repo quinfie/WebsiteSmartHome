@@ -34,3 +34,15 @@ export const searchNguoiDung = async (keyword: string): Promise<NguoiDungDto[]> 
   const response = await api.get(`/NguoiDung/search?keyword=${encodeURIComponent(keyword)}`);
   return response.data.data;
 };
+
+export const getKyThuatVien = async (): Promise<NguoiDungDto[]> => {
+  const response = await api.get('/NguoiDung/ky-thuat-vien');
+  return response.data.data;
+};
+
+export const nguoiDungApi = {
+  getKyThuatVien: async (): Promise<NguoiDungDto[]> => {
+    const res = await api.get("/NguoiDung/ky-thuat-vien");
+    return res.data.data;
+  }
+};

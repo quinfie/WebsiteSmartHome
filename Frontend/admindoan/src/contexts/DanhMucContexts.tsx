@@ -19,8 +19,7 @@ import {
   DanhMucDto,
   DanhMucUpdateDto,
 } from "../types/danhmuc";
-
-import { getAccessToken } from "../utils/auth";
+import { sanPhamService } from "../api/sanpham";
 
 // Interface cho tùy chọn sắp xếp
 interface SortOptions {
@@ -41,8 +40,13 @@ interface PaginationInfo {
   pageSize: number;
 }
 
+// Extended DanhMucDto to include soSanPham
+interface ExtendedDanhMucDto extends DanhMucDto {
+  soSanPham: number;
+}
+
 interface DanhMucContextType {
-  danhMucs: DanhMucDto[];
+  danhMucs: ExtendedDanhMucDto[];
   loading: boolean;
   fetchDanhMucs: () => Promise<void>;
   getById: (id: string) => Promise<DanhMucDto>;
@@ -61,14 +65,14 @@ interface DanhMucContextType {
   setFilterOptions: (options: FilterOptions) => void;
   handleSortOptionsChange: (options: SortOptions) => void;
   searchAndSortCategories: () => Promise<void>;
-  filteredDanhMucs: DanhMucDto[]; // Danh mục sau khi lọc và sắp xếp
+  filteredDanhMucs: ExtendedDanhMucDto[]; // Danh mục sau khi lọc và sắp xếp
 }
 
 const DanhMucContext = createContext<DanhMucContextType | undefined>(undefined);
 
 export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
-  const [danhMucs, setDanhMucs] = useState<DanhMucDto[]>([]);
-  const [filteredDanhMucs, setFilteredDanhMucs] = useState<DanhMucDto[]>([]);
+  const [danhMucs, setDanhMucs] = useState<ExtendedDanhMucDto[]>([]);
+  const [filteredDanhMucs, setFilteredDanhMucs] = useState<ExtendedDanhMucDto[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   // State cho phân trang
@@ -90,20 +94,44 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     keyword: '',
   });
 
+  const getProductCountForCategory = async (categoryId: string): Promise<number> => {
+    try {
+      const response = await sanPhamService.search({
+        maDanhMuc: categoryId,
+        pageSize: 1000 // Get all products for accurate count
+      });
+      return response.totalItems || 0;
+    } catch (error) {
+      console.error(`Error getting product count for category ${categoryId}:`, error);
+      return 0;
+    }
+  };
+
   const fetchDanhMucs = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getAllDanhMuc();
-      setDanhMucs(data);
 
-      // Cập nhật thông tin phân trang
+      // Get product counts for all categories
+      const categoriesWithCounts = await Promise.all(
+        data.map(async (category): Promise<ExtendedDanhMucDto> => {
+          const productCount = await getProductCountForCategory(category.id);
+          return {
+            ...category,
+            soSanPham: productCount
+          };
+        })
+      );
+
+      setDanhMucs(categoriesWithCounts);
       setPaginationInfo(prev => ({
         ...prev,
-        totalItems: data.length,
-        totalPages: Math.ceil(data.length / prev.pageSize)
+        totalItems: categoriesWithCounts.length,
+        totalPages: Math.ceil(categoriesWithCounts.length / prev.pageSize)
       }));
     } catch (error) {
       console.error('Lỗi khi lấy danh mục:', error);
+      setDanhMucs([]);
     } finally {
       setLoading(false);
     }
@@ -146,7 +174,6 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
       const startIndex = (paginationInfo.currentPage - 1) * paginationInfo.pageSize;
       const paginatedItems = filtered.slice(startIndex, startIndex + paginationInfo.pageSize);
 
-      // Cập nhật state
       setFilteredDanhMucs(paginatedItems);
       setPaginationInfo(prev => ({
         ...prev,
@@ -198,7 +225,6 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  // Phương thức này cho phép thay đổi tùy chọn sắp xếp
   const handleSortOptionsChange = (options: SortOptions) => {
     setSortOptions(options);
   };
