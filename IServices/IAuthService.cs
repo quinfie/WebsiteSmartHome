@@ -12,5 +12,7 @@ namespace WebsiteSmartHome.IServices
         Task<bool> UpdateNguoiDungAsync(string userId, UpdateNguoiDungDto nguoiDung);
         Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePassword);
         Task<bool> ForgotPasswordAsync(ForgotPasswordDto forgotPassword);
+        Task<bool> VerifyEmailAsync(string token);
+        Task<bool> ResendVerificationEmailAsync(string email);
     }
 }

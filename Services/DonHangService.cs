@@ -11,6 +11,7 @@ namespace WebsiteSmartHome.Services
 {
     public class DonHangService : IDonHangService
     {
+        private readonly decimal phiVanChuyen = 30000;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IChiTietDonHangService _chiTietDonHangService;
         private readonly ILichBaoTriService _lichBaoTriService;
@@ -20,11 +21,11 @@ namespace WebsiteSmartHome.Services
         public DonHangService(IUnitOfWork unitOfWork, IChiTietDonHangService chiTietDonHangService,
             ILichBaoTriService lichBaoTriService, IHttpContextAccessor httpContextAccessor, ILogger<DonHangService> logger)
         {
-            _unitOfWork = unitOfWork;
-            _chiTietDonHangService = chiTietDonHangService;
-            _lichBaoTriService = lichBaoTriService;
-            _httpContextAccessor = httpContextAccessor;
-            _logger = logger;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _chiTietDonHangService = chiTietDonHangService ?? throw new ArgumentNullException(nameof(chiTietDonHangService));
+            _lichBaoTriService = lichBaoTriService ?? throw new ArgumentNullException(nameof(lichBaoTriService));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // Lấy danh sách đơn hàng (không bao gồm chi tiết)
@@ -163,7 +164,7 @@ namespace WebsiteSmartHome.Services
                 }
             }
 
-            return tongTien;
+            return tongTien + phiVanChuyen;
         }
 
         private ResponseCreateDonHangDto CreateResponse(DonHang donHang, RequestCreateDonHangDto dto, decimal tongTien)

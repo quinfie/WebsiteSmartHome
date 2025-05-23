@@ -81,5 +81,20 @@ namespace WebsiteSmartHome.Controllers
             await _authService.ForgotPasswordAsync(forgotPassword);
             return BaseResponse<bool>.OkResponse(true, "Đặt lại mật khẩu thành công");
         }
+
+        [HttpGet("verify-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+        {
+            var result = await _authService.VerifyEmailAsync(token);
+            if (result)
+            {
+                return Content("Xác thực email thành công! Bạn có thể đăng nhập.");
+            }
+            else
+            {
+                return Content("Xác thực email thất bại hoặc token không hợp lệ.");
+            }
+        }
     }
 }

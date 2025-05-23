@@ -106,4 +106,11 @@ export const sanPhamService = {
     });
     return response.data.data.items;
   },
+
+  getSuggestedProductsByOrder: async (orderId: string, limit = 4): Promise<PagedResult<SanPhamResponseDto>> => {
+    const response = await api.get(`/SanPham/suggested-by-order/${orderId}`, {
+      params: { limit },
+    });
+    return response.data.data;
+  }
 };

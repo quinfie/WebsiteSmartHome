@@ -24,6 +24,10 @@ namespace WebsiteSmartHome.IServices
             int pageSize = 10);
 
         Task<string> UploadImageAsync(IFormFile file);
+
+        Task<List<SanPhamResponseDto>> GetSuggestedProductsAsync(int limit = 4);
+
+        Task<List<SanPhamResponseDto>> GetSuggestedProductsByOrderAsync(string orderId, int limit = 4);
     }
 
 }

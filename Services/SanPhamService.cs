@@ -322,5 +322,78 @@ namespace WebsiteSmartHome.Services
             // Trả về đường dẫn lưu trong DB
             return $"public/{fileName}";
         }
+
+        public async Task<List<SanPhamResponseDto>> GetSuggestedProductsAsync(int limit = 4)
+        {
+            // Lấy sản phẩm mới nhất (hoặc random nếu muốn)
+            var products = await _unitOfWork.GetRepository<SanPham>()
+                .Entities
+                .OrderByDescending(sp => sp.NgaySanXuat)
+                .Take(limit)
+                .ToListAsync();
+
+            return products.Select(sp => MapToResponseDto(sp)).ToList();
+        }
+
+        public async Task<List<SanPhamResponseDto>> GetSuggestedProductsByOrderAsync(string orderId, int limit = 4)
+        {
+            if (!Guid.TryParse(orderId, out var guid))
+                throw new BaseException.BadRequestException("invalid_id", "Mã đơn hàng không hợp lệ");
+
+            // Lấy danh mục từ các sản phẩm trong đơn hàng và ID các sản phẩm trong đơn hàng
+            var orderDetails = await _unitOfWork.GetRepository<ChiTietDonHang>()
+                .Entities
+                .Include(ct => ct.MaSanPhamNavigation)
+                .Where(ct => ct.MaDonHang == guid)
+                .ToListAsync();
+
+            var orderCategories = orderDetails
+                .Where(ct => ct.MaSanPhamNavigation != null)
+                .Select(ct => ct.MaSanPhamNavigation!.MaDanhMuc)
+                .Distinct()
+                .ToList();
+
+            var orderProductIds = orderDetails
+                .Where(ct => ct.MaSanPhamNavigation != null)
+                .Select(ct => ct.MaSanPhamNavigation!.Id)
+                .ToList();
+
+            var suggestedProducts = new List<SanPham>();
+
+            // 1. Lấy sản phẩm từ các danh mục tương tự (nếu có) và loại trừ sản phẩm đã mua
+            if (orderCategories.Any())
+            {
+                var categorySuggestedProducts = await _unitOfWork.GetRepository<SanPham>()
+                    .Entities
+                    .Include(sp => sp.MaDanhMucNavigation)
+                    .Include(sp => sp.MaNhaCungCapNavigation)
+                    .Include(sp => sp.MaKhoNavigation)
+                    .Where(sp => orderCategories.Contains(sp.MaDanhMuc) && !orderProductIds.Contains(sp.Id))
+                    .OrderByDescending(sp => sp.NgaySanXuat) // Có thể đổi sang phổ biến nếu có
+                    .Take(limit)
+                    .ToListAsync();
+
+                suggestedProducts.AddRange(categorySuggestedProducts);
+            }
+
+            // 2. Nếu chưa đủ số lượng, bổ sung bằng các sản phẩm mới nhất (hoặc phổ biến) không nằm trong đơn hàng
+            if (suggestedProducts.Count < limit)
+            {
+                var remainingLimit = limit - suggestedProducts.Count;
+                var fallbackProducts = await _unitOfWork.GetRepository<SanPham>()
+                    .Entities
+                    .Include(sp => sp.MaDanhMucNavigation)
+                    .Include(sp => sp.MaNhaCungCapNavigation)
+                    .Include(sp => sp.MaKhoNavigation)
+                    .Where(sp => !orderProductIds.Contains(sp.Id) && !suggestedProducts.Select(s => s.Id).Contains(sp.Id)) // Loại bỏ cả sản phẩm đã có trong đơn và sản phẩm đã được thêm từ danh mục
+                    .OrderByDescending(sp => sp.NgaySanXuat) // Lấy sản phẩm mới nhất
+                    .Take(remainingLimit)
+                    .ToListAsync();
+
+                suggestedProducts.AddRange(fallbackProducts);
+            }
+
+            return suggestedProducts.Select(sp => MapToResponseDto(sp)).ToList();
+        }
     }
 }

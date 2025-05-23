@@ -47,6 +47,15 @@ export default function Login() {
             const profileData = await authService.getProfile();
             console.log('Profile data:', profileData);
 
+            // Kiểm tra trạng thái tài khoản
+            if (profileData.trangThai === 'Chờ xác minh') {
+                throw new Error('Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.');
+            }
+
+            if (profileData.trangThai === 'Bị khóa') {
+                throw new Error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ với chúng tôi để được hỗ trợ.');
+            }
+
             // Nếu vaiTro chưa được lưu hoặc không lấy được từ localStorage, lấy từ profile
             if (!userRole && profileData.vaiTro) {
                 userRole = profileData.vaiTro;

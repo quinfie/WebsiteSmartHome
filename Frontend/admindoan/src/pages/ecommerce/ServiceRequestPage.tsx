@@ -85,8 +85,11 @@ export default function ServiceRequestPage() {
     const fetchCompletedOrders = async () => {
         try {
             const response = await donhangApi.getCompletedOrders();
-            if (Array.isArray(response)) {
-                setCompletedOrders(response);
+            if (response && Array.isArray(response.data)) {
+                setCompletedOrders(response.data);
+            } else {
+                console.error('Invalid data format received for completed orders:', response);
+                setCompletedOrders([]);
             }
         } catch (error: any) {
             console.error('Error fetching completed orders:', error);

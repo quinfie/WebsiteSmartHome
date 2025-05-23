@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { cartApi, getCartFromStorage } from '../../api/cart';
+import { cartApi, clearCart, getCartFromStorage } from '../../api/cart';
 import { getImagePath, handleImageError } from '../../utils/imageUtils';
 import { toast } from 'react-hot-toast';
 import { getValidPromotions } from '../../api/khuyenmai';
 import { KhuyenMaiDto } from '../../types/khuyenmai';
 import { paymentApi } from '../../api/payment';
-import { updateDonHang } from '../../api/donhang';
+import { updateDonHang, getDonHangById } from '../../api/donhang';
+import { RequestUpdateDonHangDto } from '../../types/donhang';
 
 interface CartItem {
     id: string;
@@ -165,7 +166,10 @@ export default function Cart() {
 
                 if (paymentResponse.success && paymentResponse.data?.paymentUrl) {
                     setPaymentStatus('success');
-                    toast.success('Chuyển hướng đến trang thanh toán VNPAY...');
+                    toast('Đang chuyển hướng đến trang thanh toán VNPAY...', {
+                        icon: '🔄',
+                        duration: 2000
+                    });
                     // Redirect user to VNPAY payment URL
                     window.location.href = paymentResponse.data.paymentUrl;
                 } else {
@@ -176,22 +180,46 @@ export default function Cart() {
             } else {
                 // Handle COD payment
                 try {
-                    const updateResponse = await updateDonHang(orderId, {
-                        trangThaiDonHang: 'Đã xác nhận'
-                    });
+                    setLoading(true);
+
+                    // Lấy chi tiết đơn hàng sau khi tạo thành công
+                    const orderDetailResponse = await getDonHangById(orderId);
+                    if (!orderDetailResponse.success || !orderDetailResponse.data) {
+                        throw new Error(orderDetailResponse.message || 'Không thể lấy chi tiết đơn hàng vừa tạo');
+                    }
+
+                    // Prepare update data including the fetched order details
+                    const updateData: RequestUpdateDonHangDto = {
+                        trangThaiDonHang: 'Chờ xác nhận',
+                        maKhuyenMai: orderDetailResponse.data.maKhuyenMai || undefined,
+                        chiTietDonHangs: orderDetailResponse.data.chiTietDonHangs?.map(item => ({
+                            maSanPham: item.maSanPham,
+                            soLuongMua: item.soLuong,
+                            donGiaMua: item.donGia
+                        })) || []
+                    };
+
+                    // Update order status with full details
+                    const updateResponse = await updateDonHang(orderId, updateData);
 
                     if (!updateResponse.success) {
-                        console.warn('Failed to update COD order status:', updateResponse.message);
+                        throw new Error(updateResponse.message || 'Không thể cập nhật trạng thái đơn hàng');
                     }
+
+                    // Clear cart after successful order
+                    clearCart();
+
                     setPaymentStatus('success');
                     toast.success('Đặt hàng COD thành công!');
-                    navigate('/ecommerce/orders');
+                    navigate(`/ecommerce/checkout/success?orderId=${orderId}`);
                 } catch (updateError: any) {
-                    console.error('Error updating COD order status:', updateError);
+                    console.error('Error during COD payment:', updateError);
                     setPaymentStatus('error');
-                    setPaymentError('Đặt hàng thành công nhưng có lỗi khi cập nhật trạng thái.');
-                    toast.success('Đặt hàng COD thành công (lỗi cập nhật trạng thái).');
+                    setPaymentError(updateError.message || 'Đặt hàng thành công nhưng có lỗi khi cập nhật trạng thái.');
+                    toast.error(updateError.message || 'Đặt hàng thành công nhưng có lỗi khi cập nhật trạng thái.');
                     navigate('/ecommerce/orders');
+                } finally {
+                    setLoading(false);
                 }
             }
         } catch (err: any) {
@@ -201,8 +229,6 @@ export default function Cart() {
             setError(errorMessage);
             console.error('Error during checkout:', err);
             toast.error(errorMessage);
-        } finally {
-            setLoading(false);
         }
     };
 

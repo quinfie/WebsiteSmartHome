@@ -20,19 +20,22 @@ namespace WebsiteSmartHome.Services
         private readonly IVaiTroService _vaiTroService;
         private readonly INguoiDungService _nguoiDungService;
         private readonly ITaiKhoanService _taiKhoanService;
+        private readonly IAccountVerificationService _verificationService;
 
         public AuthService(
             IUnitOfWork unitOfWork,
             IConfiguration configuration,
             ITaiKhoanService taiKhoanService,
             INguoiDungService nguoiDungService,
-            IVaiTroService vaiTroService)
+            IVaiTroService vaiTroService,
+            IAccountVerificationService verificationService)
         {
-            _unitOfWork = unitOfWork;
-            _configuration = configuration;
-            _vaiTroService = vaiTroService;
-            _nguoiDungService = nguoiDungService;
-            _taiKhoanService = taiKhoanService;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _vaiTroService = vaiTroService ?? throw new ArgumentNullException(nameof(vaiTroService));
+            _nguoiDungService = nguoiDungService ?? throw new ArgumentNullException(nameof(nguoiDungService));
+            _taiKhoanService = taiKhoanService ?? throw new ArgumentNullException(nameof(taiKhoanService));
+            _verificationService = verificationService ?? throw new ArgumentNullException(nameof(verificationService));
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
@@ -115,14 +118,8 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.NotFoundException("role_not_found", "Không tìm thấy vai trò được chỉ định");
             }
 
-            // Kiểm tra trạng thái có hợp lệ không
-            if (!Enum.TryParse<AccountStatus>(request.TrangThai, true, out var trangThaiEnum))
-            {
-                throw new BaseException.BadRequestException("invalid_status", "Trạng thái không hợp lệ");
-            }
-
-            // Lấy tên trạng thái từ enum
-            string trangThaiDbName = trangThaiEnum.ToString().GetDescription(typeof(AccountStatus));
+            // Lấy tên trạng thái "Chờ xác minh" từ enum
+            string trangThaiDbName = AccountStatus.ChoXacMinh.ToString().GetDescription(typeof(AccountStatus));
 
             // Tạo tài khoản mới với mật khẩu đã hash
             var taiKhoan = new TaiKhoan
@@ -152,6 +149,14 @@ namespace WebsiteSmartHome.Services
 
             await _unitOfWork.GetRepository<NguoiDung>().InsertAsync(nguoiDung);
             await _unitOfWork.SaveAsync();
+
+            // Tạo và gửi email xác thực
+            var verificationDto = new CreateVerificationDto
+            {
+                TaiKhoanId = taiKhoan.Id,
+                Email = taiKhoan.Email
+            };
+            await _verificationService.CreateVerificationAsync(verificationDto);
 
             // Lấy thông tin vai trò
             var vaiTro = await _vaiTroService.GetVaiTroByIdAsync(vaiTroId.Value.ToString());
@@ -355,6 +360,57 @@ namespace WebsiteSmartHome.Services
             await _unitOfWork.GetRepository<TaiKhoan>().UpdateAsync(taiKhoan);
             await _unitOfWork.SaveAsync();
 
+            return true;
+        }
+
+        public async Task<bool> VerifyEmailAsync(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)),
+                ValidateLifetime = true
+            };
+
+            try
+            {
+                var principal = handler.ValidateToken(token, validationParameters, out _);
+                var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrEmpty(email))
+                    return false;
+
+                var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().FindByConditionAsync(t => t.Email == email);
+                if (taiKhoan == null)
+                    return false;
+
+                taiKhoan.TrangThai = AccountStatus.HoatDong.ToString().GetDescription(typeof(AccountStatus));
+                await _unitOfWork.GetRepository<TaiKhoan>().UpdateAsync(taiKhoan);
+                await _unitOfWork.SaveAsync();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> ResendVerificationEmailAsync(string email)
+        {
+            var taiKhoan = await _unitOfWork.GetRepository<TaiKhoan>().FindByConditionAsync(t => t.Email == email);
+            if (taiKhoan == null)
+                return false;
+
+            // Nếu đã xác thực thì không gửi lại
+            if (taiKhoan.TrangThai == AccountStatus.HoatDong.ToString().GetDescription(typeof(AccountStatus)))
+                return false;
+
+            // Gửi lại email xác thực
+            var emailService = new EmailService(_configuration);
+            await emailService.SendVerificationEmailAsync(email);
             return true;
         }
     }

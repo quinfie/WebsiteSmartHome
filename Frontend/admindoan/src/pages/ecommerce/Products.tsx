@@ -55,7 +55,6 @@ export default function Products() {
     const [totalPages, setTotalPages] = useState(1);
     const [sortBy, setSortBy] = useState('default');
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000000]);
-    const [inStock, setInStock] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const pageSize = 12;
@@ -73,7 +72,6 @@ export default function Products() {
         const sort = searchParams.get('sort');
         const minPrice = searchParams.get('minPrice');
         const maxPrice = searchParams.get('maxPrice');
-        const stock = searchParams.get('inStock');
 
         // Create a batch of updates to avoid multiple renders
         const updates: {
@@ -81,7 +79,6 @@ export default function Products() {
             page?: number;
             sort?: string;
             priceRange?: [number, number];
-            inStock?: boolean;
         } = {};
 
         // Process category first as it's the main filter
@@ -101,10 +98,6 @@ export default function Products() {
             updates.priceRange = [parseInt(minPrice, 10), parseInt(maxPrice, 10)];
         }
 
-        if (stock) {
-            updates.inStock = stock === 'true';
-        }
-
         // Apply all updates at once
         if (updates.category !== undefined && updates.category !== selectedCategory) {
             setSelectedCategory(updates.category);
@@ -121,10 +114,6 @@ export default function Products() {
         if (updates.priceRange !== undefined &&
             (updates.priceRange[0] !== priceRange[0] || updates.priceRange[1] !== priceRange[1])) {
             setPriceRange(updates.priceRange);
-        }
-
-        if (updates.inStock !== undefined && updates.inStock !== inStock) {
-            setInStock(updates.inStock);
         }
 
         // Always fetch products when URL parameters change
@@ -204,11 +193,6 @@ export default function Products() {
                 params.maxPrice = priceRange[1];
             }
 
-            // Add stock filter if needed
-            if (inStock) {
-                params.minStock = 1;
-            }
-
             try {
                 // Use the search API directly to debug
                 const response = await api.get('/SanPham/search', {
@@ -261,65 +245,6 @@ export default function Products() {
             pathname: '/ecommerce/products',
             search: params.toString()
         }, { replace: true });
-
-        // Also trigger a fetch directly
-        setTimeout(() => {
-            const newParams: any = {
-                page: 1,
-                pageSize: pageSize,
-            };
-
-            if (finalCategoryId && finalCategoryId !== '') {
-                newParams.maDanhMuc = finalCategoryId;
-            }
-
-            // Keep other filters
-            if (priceRange[0] > 0) {
-                newParams.minPrice = priceRange[0];
-            }
-            if (priceRange[1] < 10000000) {
-                newParams.maxPrice = priceRange[1];
-            }
-            if (inStock) {
-                newParams.minStock = 1;
-            }
-
-            // Sort
-            if (sortBy === 'price-asc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = true;
-            } else if (sortBy === 'price-desc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = false;
-            } else if (sortBy === 'name-asc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = true;
-            } else if (sortBy === 'name-desc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = false;
-            }
-
-            setLoading(true);
-
-            api.get('/SanPham/search', { params: newParams })
-                .then(response => {
-                    const result = response.data.data;
-                    if (result && result.items) {
-                        const mappedProducts = result.items.map(mapSanPhamToProduct);
-                        setProducts(mappedProducts);
-                        setTotalPages(Math.ceil(result.totalItems / pageSize));
-                    } else {
-                        setProducts([]);
-                        setTotalPages(1);
-                    }
-                })
-                .catch(err => {
-                    setError('Không thể tải sản phẩm. Vui lòng thử lại sau.');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        }, 0);
     };
 
     const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -345,68 +270,6 @@ export default function Products() {
             pathname: '/ecommerce/products',
             search: params.toString()
         }, { replace: true, state: { preventScroll: true, scroll: false } });
-
-        // Also trigger a fetch directly to apply sorting immediately
-        setTimeout(() => {
-            const newParams: any = {
-                page: 1,
-                pageSize: pageSize,
-            };
-
-            // Keep category filter if set
-            if (selectedCategory) {
-                newParams.maDanhMuc = selectedCategory;
-            }
-
-            // Keep price range
-            if (priceRange[0] > 0) {
-                newParams.minPrice = priceRange[0];
-            }
-            if (priceRange[1] < 10000000) {
-                newParams.maxPrice = priceRange[1];
-            }
-
-            // Keep inStock filter
-            if (inStock) {
-                newParams.minStock = 1;
-            }
-
-            // Add sorting based on the new sort value
-            if (newSortValue === 'price-asc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = true;
-            } else if (newSortValue === 'price-desc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = false;
-            } else if (newSortValue === 'name-asc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = true;
-            } else if (newSortValue === 'name-desc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = false;
-            }
-
-            setLoading(true);
-
-            api.get('/SanPham/search', { params: newParams })
-                .then(response => {
-                    const result = response.data.data;
-                    if (result && result.items) {
-                        const mappedProducts = result.items.map(mapSanPhamToProduct);
-                        setProducts(mappedProducts);
-                        setTotalPages(Math.ceil(result.totalItems / pageSize));
-                    } else {
-                        setProducts([]);
-                        setTotalPages(1);
-                    }
-                })
-                .catch(err => {
-                    setError('Không thể tải sản phẩm. Vui lòng thử lại sau.');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        }, 0);
     };
 
     const handlePriceRangeChange = (min: number, max: number) => {
@@ -436,155 +299,6 @@ export default function Products() {
             pathname: '/ecommerce/products',
             search: params.toString()
         }, { replace: true, state: { preventScroll: true, scroll: false } });
-
-        // Also trigger a fetch directly
-        setTimeout(() => {
-            const newParams: any = {
-                page: 1,
-                pageSize: pageSize,
-            };
-
-            // Keep category filter if set
-            if (selectedCategory) {
-                newParams.maDanhMuc = selectedCategory;
-            }
-
-            // Set price range
-            if (min > 0) {
-                newParams.minPrice = min;
-            }
-            if (max < 10000000) {
-                newParams.maxPrice = max;
-            }
-
-            // Keep inStock filter
-            if (inStock) {
-                newParams.minStock = 1;
-            }
-
-            // Sort
-            if (sortBy === 'price-asc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = true;
-            } else if (sortBy === 'price-desc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = false;
-            } else if (sortBy === 'name-asc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = true;
-            } else if (sortBy === 'name-desc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = false;
-            }
-
-            setLoading(true);
-
-            api.get('/SanPham/search', { params: newParams })
-                .then(response => {
-                    const result = response.data.data;
-                    if (result && result.items) {
-                        const mappedProducts = result.items.map(mapSanPhamToProduct);
-                        setProducts(mappedProducts);
-                        setTotalPages(Math.ceil(result.totalItems / pageSize));
-                    } else {
-                        setProducts([]);
-                        setTotalPages(1);
-                    }
-                })
-                .catch(err => {
-                    setError('Không thể tải sản phẩm. Vui lòng thử lại sau.');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        }, 0);
-    };
-
-    const handleInStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const isChecked = e.target.checked;
-
-        // Update URL directly
-        const params = new URLSearchParams(location.search);
-
-        if (isChecked) {
-            params.set('inStock', 'true');
-        } else {
-            params.delete('inStock');
-        }
-
-        // Reset to page 1 when changing stock filter
-        params.delete('page');
-
-        // Update state for immediate UI feedback
-        setInStock(isChecked);
-        setCurrentPage(1);
-
-        navigate({
-            pathname: '/ecommerce/products',
-            search: params.toString()
-        }, { replace: true, state: { preventScroll: true, scroll: false } });
-
-        // Also trigger a fetch directly
-        setTimeout(() => {
-            const newParams: any = {
-                page: 1,
-                pageSize: pageSize,
-            };
-
-            // Keep category filter if set
-            if (selectedCategory) {
-                newParams.maDanhMuc = selectedCategory;
-            }
-
-            // Keep price range
-            if (priceRange[0] > 0) {
-                newParams.minPrice = priceRange[0];
-            }
-            if (priceRange[1] < 10000000) {
-                newParams.maxPrice = priceRange[1];
-            }
-
-            // Set inStock filter
-            if (isChecked) {
-                newParams.minStock = 1;
-            }
-
-            // Sort
-            if (sortBy === 'price-asc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = true;
-            } else if (sortBy === 'price-desc') {
-                newParams.sortBy = 'gia';
-                newParams.ascending = false;
-            } else if (sortBy === 'name-asc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = true;
-            } else if (sortBy === 'name-desc') {
-                newParams.sortBy = 'tensanpham';
-                newParams.ascending = false;
-            }
-
-            setLoading(true);
-
-            api.get('/SanPham/search', { params: newParams })
-                .then(response => {
-                    const result = response.data.data;
-                    if (result && result.items) {
-                        const mappedProducts = result.items.map(mapSanPhamToProduct);
-                        setProducts(mappedProducts);
-                        setTotalPages(Math.ceil(result.totalItems / pageSize));
-                    } else {
-                        setProducts([]);
-                        setTotalPages(1);
-                    }
-                })
-                .catch(err => {
-                    setError('Không thể tải sản phẩm. Vui lòng thử lại sau.');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        }, 0);
     };
 
     // Define a reset key based on current filters to force remount when they change
@@ -754,26 +468,6 @@ export default function Products() {
                                 </li>
                             </ul>
                         </div>
-
-                        <div className="bg-[#182233] border border-[#243447] rounded-lg p-4">
-                            <h3 className="text-white font-bold mb-3">Tình trạng</h3>
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    id="inStock"
-                                    checked={inStock}
-                                    onChange={handleInStockChange}
-                                    className="mr-2 h-4 w-4 cursor-pointer accent-blue-600"
-                                />
-                                <label
-                                    htmlFor="inStock"
-                                    className="text-gray-300 cursor-pointer py-1"
-                                    onClick={() => handleInStockChange({ target: { checked: !inStock } } as React.ChangeEvent<HTMLInputElement>)}
-                                >
-                                    Còn hàng
-                                </label>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Product grid */}
@@ -842,8 +536,6 @@ export default function Products() {
                                     onClick={() => {
                                         setSelectedCategory('');
                                         setPriceRange([0, 10000000]);
-                                        setInStock(false);
-                                        setSortBy('default');
                                         setCurrentPage(1);
                                     }}
                                     className="inline-flex items-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"

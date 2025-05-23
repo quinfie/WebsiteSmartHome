@@ -17,6 +17,7 @@ export default function Register() {
         diaChi: ''
     });
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -27,49 +28,92 @@ export default function Register() {
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const validateForm = () => {
         // Kiểm tra mật khẩu khớp nhau
         if (formData.matKhau !== formData.xacNhanMatKhau) {
             setError('Mật khẩu xác nhận không khớp');
-            return;
+            return false;
+        }
+
+        // Kiểm tra độ dài mật khẩu
+        if (formData.matKhau.length < 8) {
+            setError('Mật khẩu phải có ít nhất 8 ký tự');
+            return false;
+        }
+
+        // Kiểm tra độ dài tên đăng nhập
+        if (formData.tenTaiKhoan.length < 3) {
+            setError('Tên đăng nhập phải có ít nhất 3 ký tự');
+            return false;
         }
 
         // Kiểm tra định dạng email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             setError('Email không hợp lệ');
-            return;
+            return false;
         }
 
         // Kiểm tra số điện thoại
         const phoneRegex = /^[0-9]{10}$/;
         if (!phoneRegex.test(formData.sdt)) {
             setError('Số điện thoại không hợp lệ (phải có 10 chữ số)');
-            return;
+            return false;
         }
 
         // Kiểm tra CCCD
         const cccdRegex = /^[0-9]{12}$/;
         if (!cccdRegex.test(formData.cccd)) {
             setError('CCCD không hợp lệ (phải có 12 chữ số)');
+            return false;
+        }
+
+        // Kiểm tra tuổi
+        const birthDate = new Date(formData.ngaySinh);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age < 18) {
+            setError('Bạn phải đủ 18 tuổi để đăng ký tài khoản');
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+
+        if (!validateForm()) {
             return;
         }
 
         setIsLoading(true);
-        setError('');
 
         try {
             await authService.register({
                 ...formData,
-                vaiTro: 'Khách Hàng', // Đặt vai trò mặc định là Khách Hàng
-                trangThai: 'Hoạt động', // Mặc định trạng thái là Hoạt động
+                vaiTro: 'KhachHang', // Thay đổi từ 'Khách Hàng' thành 'KhachHang'
+                trangThai: 'ChoXacMinh', // Thay đổi từ 'Chờ xác minh' thành 'ChoXacMinh'
                 ngaySinh: new Date(formData.ngaySinh)
             });
 
-            // Chuyển hướng đến trang đăng nhập sau khi đăng ký thành công
-            navigate('/ecommerce/login', { state: { message: 'Đăng ký thành công! Vui lòng đăng nhập.' } });
+            setSuccess('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản của bạn.');
+
+            // Chuyển hướng đến trang đăng nhập sau 5 giây
+            setTimeout(() => {
+                navigate('/ecommerce/login', {
+                    state: {
+                        message: 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản của bạn.'
+                    }
+                });
+            }, 5000);
         } catch (err: any) {
             setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại sau.');
         } finally {
@@ -90,11 +134,44 @@ export default function Register() {
                             đăng nhập nếu đã có tài khoản
                         </Link>
                     </p>
+                    <div className="mt-4 text-sm text-gray-600 space-y-2">
+                        <p>Sau khi đăng ký, bạn cần xác thực email để kích hoạt tài khoản</p>
+                        <p>Yêu cầu mật khẩu: Ít nhất 8 ký tự</p>
+                        <p>Yêu cầu độ tuổi: Từ 18 tuổi trở lên</p>
+                    </div>
                 </div>
 
                 {error && (
                     <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                         <span className="block sm:inline">{error}</span>
+                    </div>
+                )}
+
+                {success && (
+                    <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <span className="block sm:inline">{success}</span>
+                        <div className="mt-2 text-sm text-gray-600">
+                            Nếu không nhận được email, hãy kiểm tra thư mục <b>Spam</b> hoặc thử lại sau vài phút.<br />
+                            <button
+                                type="button"
+                                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                onClick={async () => {
+                                    setIsLoading(true);
+                                    setError("");
+                                    try {
+                                        await authService.resendVerificationEmail(formData.email);
+                                        setSuccess("Email xác thực đã được gửi lại! Vui lòng kiểm tra hộp thư của bạn.");
+                                    } catch (err: any) {
+                                        setError(err.message || "Gửi lại email xác thực thất bại. Vui lòng thử lại sau.");
+                                    } finally {
+                                        setIsLoading(false);
+                                    }
+                                }}
+                                disabled={isLoading}
+                            >
+                                Gửi lại email xác thực
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -130,6 +207,7 @@ export default function Register() {
                                     value={formData.tenTaiKhoan}
                                     onChange={handleChange}
                                     required
+                                    minLength={3}
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                                 />
                             </div>
@@ -145,6 +223,7 @@ export default function Register() {
                                     value={formData.matKhau}
                                     onChange={handleChange}
                                     required
+                                    minLength={8}
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                                 />
                             </div>
@@ -160,6 +239,7 @@ export default function Register() {
                                     value={formData.xacNhanMatKhau}
                                     onChange={handleChange}
                                     required
+                                    minLength={8}
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                                 />
                             </div>
@@ -193,6 +273,7 @@ export default function Register() {
                                     id="gioiTinh"
                                     value={formData.gioiTinh}
                                     onChange={handleChange}
+                                    required
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                                 >
                                     <option value="Nam">Nam</option>
@@ -218,7 +299,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="cccd" className="block text-sm font-medium text-gray-700">
-                                    CCCD/CMND
+                                    CCCD
                                 </label>
                                 <input
                                     type="text"
@@ -227,6 +308,7 @@ export default function Register() {
                                     value={formData.cccd}
                                     onChange={handleChange}
                                     required
+                                    maxLength={12}
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                                 />
                             </div>
@@ -236,53 +318,49 @@ export default function Register() {
                                     Số điện thoại
                                 </label>
                                 <input
-                                    type="text"
+                                    type="tel"
                                     name="sdt"
                                     id="sdt"
                                     value={formData.sdt}
                                     onChange={handleChange}
                                     required
+                                    maxLength={10}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="diaChi" className="block text-sm font-medium text-gray-700">
+                                    Địa chỉ
+                                </label>
+                                <textarea
+                                    name="diaChi"
+                                    id="diaChi"
+                                    value={formData.diaChi}
+                                    onChange={handleChange}
+                                    required
+                                    rows={3}
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label htmlFor="diaChi" className="block text-sm font-medium text-gray-700">
-                            Địa chỉ
-                        </label>
-                        <textarea
-                            name="diaChi"
-                            id="diaChi"
-                            rows={3}
-                            value={formData.diaChi}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                        />
-                    </div>
-
-                    <div className="flex items-center">
-                        <input
-                            id="terms"
-                            name="terms"
-                            type="checkbox"
-                            required
-                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-                            Tôi đồng ý với <a href="#" className="text-green-600 hover:text-green-500">Điều khoản dịch vụ</a> và <a href="#" className="text-green-600 hover:text-green-500">Chính sách bảo mật</a>
-                        </label>
-                    </div>
-
-                    <div>
+                    <div className="flex items-center justify-center">
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isLoading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                         >
-                            {isLoading ? 'Đang xử lý...' : 'Đăng ký'}
+                            {isLoading ? (
+                                <div className="flex items-center">
+                                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
+                                    Đang xử lý...
+                                </div>
+                            ) : (
+                                'Đăng ký'
+                            )}
                         </button>
                     </div>
                 </form>

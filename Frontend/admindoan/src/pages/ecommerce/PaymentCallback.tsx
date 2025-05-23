@@ -22,6 +22,12 @@ export default function PaymentCallback() {
             setOrderId(vnp_OrderId);
             setTransactionId(vnp_TransactionId);
             setMessage('Thanh toán thành công!');
+            // Redirect to success page after a delay
+            const timer = setTimeout(() => {
+                // Chuyển hướng đến trang CheckoutSuccess và truyền orderId
+                navigate(`/ecommerce/checkout/success?orderId=${vnp_OrderId}`);
+            }, 1500); // Redirect after 1.5 seconds
+            return () => clearTimeout(timer); // Cleanup the timer
         } else {
             setStatus('error');
             setOrderId(vnp_OrderId);

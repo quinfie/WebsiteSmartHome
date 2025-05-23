@@ -24,9 +24,10 @@ export default function MaintenanceCalendarPage() {
                 setLoading(true);
                 setError('');
 
-                const donHangs = await getCurrentUserDonHang();
+                const response = await getCurrentUserDonHang();
+                const donHangs = response?.data;
 
-                if (!donHangs || donHangs.length === 0) {
+                if (!donHangs || !Array.isArray(donHangs) || donHangs.length === 0) {
                     setMaintenanceEvents([]);
                     setLoading(false);
                     return;

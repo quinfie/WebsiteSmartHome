@@ -15,9 +15,10 @@ const Register: React.FC = () => {
     sdt: '',
     diaChi: '',
     vaiTro: 'Khách Hàng',
-    trangThai: 'Hoạt Động'
+    trangThai: 'Chờ xác minh'
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -33,7 +34,10 @@ const Register: React.FC = () => {
     e.preventDefault();
     try {
       await register(formData);
-      navigate('/dashboard');
+      setSuccess('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản của bạn.');
+      setTimeout(() => {
+        navigate('/login');
+      }, 5000);
     } catch (err) {
       setError('Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.');
     }
@@ -46,11 +50,19 @@ const Register: React.FC = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Đăng ký tài khoản mới
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Sau khi đăng ký, bạn cần xác thực email để kích hoạt tài khoản
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <span className="block sm:inline">{error}</span>
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+              <span className="block sm:inline">{success}</span>
             </div>
           )}
           <div className="rounded-md shadow-sm -space-y-px">

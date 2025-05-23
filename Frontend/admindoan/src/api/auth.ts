@@ -107,5 +107,11 @@ export const authService = {
       console.error('Get nguoi dung error:', error);
       throw error;
     }
+  },
+
+  resendVerificationEmail: async (email: string): Promise<void> => {
+    await api.post('/Auth/resend-verification-email', email, {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }; 

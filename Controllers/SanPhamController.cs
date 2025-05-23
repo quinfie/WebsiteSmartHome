@@ -88,5 +88,21 @@ namespace WebsiteSmartHome.Controllers
             var imagePath = await _sanPhamService.UploadImageAsync(file);
             return BaseResponse<string>.OkResponse(imagePath, "Upload ảnh thành công");
         }
+
+        [HttpGet("suggested")]
+        [AllowAnonymous]
+        public async Task<ActionResult<BaseResponse<List<SanPhamResponseDto>>>> GetSuggested([FromQuery] int limit = 4)
+        {
+            var result = await _sanPhamService.GetSuggestedProductsAsync(limit);
+            return BaseResponse<List<SanPhamResponseDto>>.OkResponse(result, "Lấy sản phẩm gợi ý thành công");
+        }
+
+        [HttpGet("suggested-by-order/{orderId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<BaseResponse<List<SanPhamResponseDto>>>> GetSuggestedProductsByOrder(string orderId, [FromQuery] int limit = 4)
+        {
+            var result = await _sanPhamService.GetSuggestedProductsByOrderAsync(orderId, limit);
+            return BaseResponse<List<SanPhamResponseDto>>.OkResponse(result, "Lấy danh sách sản phẩm gợi ý thành công");
+        }
     }
 }

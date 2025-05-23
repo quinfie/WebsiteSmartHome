@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getDonHangById, cancelUserOrder } from '../../api/donhang';
 import { getKhuyenMaiById, getAllPromotions } from '../../api/khuyenmai';
 import { ViewResponseCreateDonHangDto } from '../../types/donhang';
 import { KhuyenMaiDto } from '../../types/khuyenmai';
 import { toast } from 'react-toastify';
+import { sanPhamService } from '../../api/sanpham';
+import { SanPhamResponseDto } from '../../types/sanpham';
+import { getImagePath, handleImageError } from '../../utils/imageUtils';
 
 export default function OrderDetail() {
     const { id } = useParams<{ id: string }>();
@@ -13,10 +16,12 @@ export default function OrderDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const [suggestedProducts, setSuggestedProducts] = useState<SanPhamResponseDto[]>([]);
 
     useEffect(() => {
         if (id) {
             fetchOrderDetails();
+            fetchSuggestedProducts(id);
         } else {
             console.error('OrderDetail: No order ID provided in URL parameters');
             setError('Không tìm thấy mã đơn hàng');
@@ -29,19 +34,19 @@ export default function OrderDetail() {
             setLoading(true);
             const data = await getDonHangById(id!);
 
-            if (!data) {
+            if (!data || !data.data) {
                 console.error('OrderDetail: No data returned from API for order:', id);
                 setError('Đơn hàng không tồn tại');
                 setTimeout(() => navigate('/ecommerce/orders'), 3000);
                 return;
             }
 
-            setOrder(data);
+            setOrder(data.data);
 
             // Fetch promotion details if exists
-            if (data.maKhuyenMai) {
+            if (data.data.maKhuyenMai) {
                 try {
-                    const khuyenMaiData = await getKhuyenMaiById(data.maKhuyenMai);
+                    const khuyenMaiData = await getKhuyenMaiById(data.data.maKhuyenMai);
 
                     if (khuyenMaiData && khuyenMaiData.phanTramGiam !== undefined) {
                         setKhuyenMai(khuyenMaiData);
@@ -62,6 +67,20 @@ export default function OrderDetail() {
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchSuggestedProducts = async (orderId: string) => {
+        try {
+            const data = await sanPhamService.getSuggestedProductsByOrder(orderId);
+            if (data && data.items) {
+                setSuggestedProducts(data.items);
+            } else {
+                setSuggestedProducts([]);
+            }
+        } catch (err) {
+            console.error('Error fetching suggested products:', err);
+            setSuggestedProducts([]);
         }
     };
 
@@ -132,21 +151,31 @@ export default function OrderDetail() {
         }).format(date);
     };
 
+    // Tính tổng tiền trước giảm giá từ chi tiết đơn hàng
+    const calculateTotalBeforeDiscount = (order: ViewResponseCreateDonHangDto) => {
+        if (!order.chiTietDonHangs || order.chiTietDonHangs.length === 0) {
+            return 0;
+        }
+        return order.chiTietDonHangs.reduce((total, item) => total + item.donGia * item.soLuong, 0);
+    };
+
     // Tính số tiền giảm
     const calculateDiscount = (order: ViewResponseCreateDonHangDto) => {
         if (!khuyenMai || !khuyenMai.phanTramGiam) {
             return 0;
         }
 
-        const totalBeforeDiscount = order.tongTien;
-        const discount = Math.round((totalBeforeDiscount * khuyenMai.phanTramGiam) / 100);
-        return discount;
+        const totalBeforeDiscount = calculateTotalBeforeDiscount(order);
+        const discount = (totalBeforeDiscount * khuyenMai.phanTramGiam) / 100;
+        // Làm tròn đến 0 chữ số thập phân cho tiền tệ
+        return Math.round(discount);
     };
 
     // Tính tổng tiền sau giảm
     const calculateTotalAfterDiscount = (order: ViewResponseCreateDonHangDto) => {
+        const totalBeforeDiscount = calculateTotalBeforeDiscount(order);
         const discount = calculateDiscount(order);
-        return order.tongTien - discount;
+        return totalBeforeDiscount - discount;
     };
 
     return (
@@ -201,7 +230,7 @@ export default function OrderDetail() {
                                             </div>
                                             <div>
                                                 <h2 className="text-2xl font-bold text-white mb-1">
-                                                    Đơn hàng #{order.id.slice(-8).toUpperCase()}
+                                                    Đơn hàng #{order?.id?.slice(0, 8).toUpperCase() ?? 'N/A'}
                                                 </h2>
                                                 <p className="text-gray-400">
                                                     <i className="far fa-calendar-alt mr-1"></i> {formatDate(order.ngayDat)}
@@ -213,9 +242,6 @@ export default function OrderDetail() {
                                                 <i className={`${getStatusInfo(order.trangThaiDonHang).icon} mr-2`}></i>
                                                 <span className="font-medium">{order.trangThaiDonHang}</span>
                                             </div>
-                                            <span className="text-blue-400 font-bold text-xl">
-                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.tongTien)}
-                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -249,9 +275,9 @@ export default function OrderDetail() {
                                     </h3>
                                     <dl className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                            <dt className="text-gray-400">Tổng tiền sản phẩm:</dt>
+                                            <dt className="text-gray-400">Tổng tiền trước giảm:</dt>
                                             <dd className="text-white font-medium">
-                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.tongTien)}
+                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(calculateTotalBeforeDiscount(order))}
                                             </dd>
                                         </div>
                                         {khuyenMai && (
@@ -286,7 +312,7 @@ export default function OrderDetail() {
                                             <dt className="text-gray-400">Tổng thanh toán:</dt>
                                             <dd className="text-blue-400 font-bold">
                                                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                                                    (order.tongTienSauGiam || order.tongTien) + (order.phiVanChuyen || 30000)
+                                                    calculateTotalAfterDiscount(order) + (order.phiVanChuyen || 30000)
                                                 )}
                                             </dd>
                                         </div>
@@ -338,13 +364,42 @@ export default function OrderDetail() {
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-400" colSpan={2}></th>
                                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-400">Tổng cộng:</th>
                                                 <th className="px-6 py-3 text-right text-sm font-bold text-blue-400">
-                                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.tongTien)}
+                                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(calculateTotalBeforeDiscount(order))}
                                                 </th>
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
                             </div>
+
+                            {/* Suggested Products */}
+                            {suggestedProducts.length > 0 && (
+                                <div className="bg-white/5 backdrop-blur-sm rounded-xl shadow-lg border border-white/10 p-6 mt-6">
+                                    <h3 className="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/10">
+                                        <i className="fas fa-gift mr-2 text-pink-400"></i> Sản phẩm gợi ý
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {suggestedProducts.map(product => (
+                                            <div key={product.id} className="bg-[#182233] rounded-lg overflow-hidden shadow-md border border-[#243447] hover:border-blue-500/50 transition-all duration-200">
+                                                <Link to={`/ecommerce/products/${product.id}`}>
+                                                    <img
+                                                        src={product.img ? getImagePath(product.img) : '/path/to/default/image.png'}
+                                                        alt={product.tenSanPham}
+                                                        className="w-full h-32 object-cover"
+                                                        onError={handleImageError}
+                                                    />
+                                                    <div className="p-3">
+                                                        <h4 className="text-sm font-semibold text-white truncate mb-1">{product.tenSanPham}</h4>
+                                                        <p className="text-blue-400 text-sm font-bold">
+                                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.donGia)}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Action buttons */}
                             <div className="flex justify-between mt-6">
