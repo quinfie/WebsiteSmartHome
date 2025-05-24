@@ -120,10 +120,9 @@ namespace WebsiteSmartHome.Services
 
         private string GenerateVerificationToken()
         {
-            using var rng = new RNGCryptoServiceProvider();
-            var tokenBytes = new byte[32];
-            rng.GetBytes(tokenBytes);
-            return Convert.ToBase64String(tokenBytes);
+            byte[] randomBytes = new byte[32];
+            RandomNumberGenerator.Fill(randomBytes);
+            return Convert.ToBase64String(randomBytes);
         }
     }
 }

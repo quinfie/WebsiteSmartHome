@@ -18,7 +18,7 @@ namespace WebsiteSmartHome.Services
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public async Task SendVerificationEmailAsync(string email, string verificationToken = null)
+        public async Task SendVerificationEmailAsync(string email, string? verificationToken = null)
         {
             // Tạo token JWT chứa email
             var securityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

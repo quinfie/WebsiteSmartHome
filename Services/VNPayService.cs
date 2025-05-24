@@ -1,9 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using WebsiteSmartHome.Core;
+﻿using WebsiteSmartHome.Core;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.Libaries;
 

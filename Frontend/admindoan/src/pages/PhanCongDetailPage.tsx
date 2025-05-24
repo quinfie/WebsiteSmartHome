@@ -143,12 +143,16 @@ const PhanCongDetailPage: React.FC = () => {
                         <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
                             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
                                 <i className="fas fa-tools text-blue-400 mr-2"></i>
-                                Thông tin dịch vụ
+                                Chi tiết yêu cầu dịch vụ
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-wrench mr-2 text-blue-400"></i>Loại dịch vụ</label>
                                     <p className="text-white font-medium">{phanCong.loaiDichVu ?? 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-wrench mr-2 text-blue-400"></i>Trạng thái yêu cầu</label>
+                                    <p className="text-white font-medium">{phanCong.id ?? 'N/A'}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-comment-alt mr-2 text-gray-400"></i>Mô tả yêu cầu</label>

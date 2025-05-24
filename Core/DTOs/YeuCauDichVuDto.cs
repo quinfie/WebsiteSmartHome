@@ -44,14 +44,14 @@ namespace WebsiteSmartHome.Core.DTOs
 
     public class UpdateMoTaDto
     {
-        public string MoTa { get; set; }
+        public string MoTa { get; set; } = string.Empty;
         public bool IsKetQua { get; set; }
     }
 
     // DTO cho cập nhật trạng thái yêu cầu dịch vụ
     public class UpdateTrangThaiYeuCauDto
     {
-        public string TrangThai { get; set; }
+        public required string TrangThai { get; set; }
         public DateTime? NgayXuLy { get; set; }
     }
 }

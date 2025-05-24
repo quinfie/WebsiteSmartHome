@@ -28,24 +28,30 @@ const EditNhaCungCap = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (id) {
-      setLoading(true);
-      getSupplierById(id)
-        .then((data) => {
-          setForm({
-            tenNhaCungCap: data.tenNhaCungCap,
-            sdt: data.sdt,
-            email: data.email,
-            diaChi: data.diaChi,
-          });
-        })
-        .catch((err) => {
-          console.error("Lỗi khi tải dữ liệu:", err);
-          setError("Không thể tải thông tin nhà cung cấp. Vui lòng thử lại sau!");
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [id, getSupplierById]);
+    const fetchData = async () => {
+      if (id) {
+        setLoading(true);
+        try {
+          const data = await getSupplierById(id);
+          if (data) {
+            setForm({
+              tenNhaCungCap: data.tenNhaCungCap,
+              sdt: data.sdt,
+              email: data.email,
+              diaChi: data.diaChi,
+            });
+            setError(null);
+          } else {
+            setError("Không thể tải thông tin nhà cung cấp. Vui lòng kiểm tra lại.");
+          }
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [id]); // Chỉ chạy khi id thay đổi
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });

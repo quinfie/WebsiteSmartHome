@@ -91,8 +91,9 @@ const Orders = () => {
   });
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    // Call searchAndSortOrders on component mount to apply initial filters/sort
+    searchAndSortOrders();
+  }, [searchAndSortOrders]); // Depend on searchAndSortOrders as it's a useCallback dependency
 
   useEffect(() => {
     if (orders.length > 0) {
@@ -199,12 +200,17 @@ const Orders = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const dateRange = getDateRangeFromOption(timeRange);
+    const dateRangeFromSelect = getDateRangeFromOption(timeRange);
+
+    // Use custom dates if provided, otherwise use the quick select range
+    const finalTuNgay = localFilterOptions.tuNgay ? new Date(localFilterOptions.tuNgay) : dateRangeFromSelect.tuNgay;
+    const finalDenNgay = localFilterOptions.denNgay ? new Date(localFilterOptions.denNgay) : dateRangeFromSelect.denNgay;
 
     setFilterOptions({
       keyword: searchKeyword,
       trangThai: filterStatus,
-      ...dateRange
+      tuNgay: finalTuNgay,
+      denNgay: finalDenNgay
     });
     searchAndSortOrders();
   };
@@ -217,6 +223,12 @@ const Orders = () => {
         break;
       case 'timeRange':
         setTimeRange(value);
+        // Clear custom date inputs when a quick range is selected
+        setLocalFilterOptions({
+          ...localFilterOptions,
+          tuNgay: "",
+          denNgay: ""
+        });
         break;
     }
   };
@@ -225,6 +237,12 @@ const Orders = () => {
     setSearchKeyword("");
     setFilterStatus("");
     setTimeRange("");
+    setLocalFilterOptions({ // Reset local date inputs
+      trangThai: "", // Keep status in local state for display
+      tuNgay: "",
+      denNgay: ""
+    });
+    // Reset the context filter options
     setFilterOptions({
       keyword: "",
       trangThai: "",
@@ -382,9 +400,8 @@ const Orders = () => {
                 val !== "" && val !== undefined && val !== null
               ) && (
                   <span className="bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {Object.values(localFilterOptions).filter(val =>
-                      val !== "" && val !== undefined && val !== null
-                    ).length}
+                    {/* Count only non-empty filters */}
+                    {[searchKeyword, filterStatus, timeRange, localFilterOptions.tuNgay, localFilterOptions.denNgay].filter(val => val !== "" && val !== undefined && val !== null).length}
                   </span>
                 )}
             </button>
@@ -416,7 +433,7 @@ const Orders = () => {
                     type="text"
                     value={searchKeyword}
                     onChange={(e) => setSearchKeyword(e.target.value)}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md"
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                     placeholder="Tìm kiếm..."
                   />
                 </div>
@@ -424,16 +441,15 @@ const Orders = () => {
                 {/* Status filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Sắp xếp theo
+                    Trạng thái
                   </label>
                   <select
-                    name="sortBy"
-                    value={`${sortOptions.sortBy}_${sortOptions.ascending ? "asc" : "desc"}`}
-                    onChange={handleSort}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md"
+                    name="trangThai"
+                    value={filterStatus}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   >
-                    <option value="">-- Không sắp xếp --</option>
-                    {sortOptionItems.map(option => (
+                    {statusOptions.map(option => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
@@ -441,17 +457,16 @@ const Orders = () => {
                   </select>
                 </div>
 
-
-                {/* Time range */}
+                {/* Time range select */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Thời gian
+                    Khoảng thời gian (Chọn nhanh)
                   </label>
                   <select
                     name="timeRange"
                     value={timeRange}
                     onChange={handleFilterChange}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md"
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   >
                     {timeRangeOptions.map(option => (
                       <option key={option.value} value={option.value}>
@@ -459,6 +474,37 @@ const Orders = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* Custom date range filters */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {/* From Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Từ ngày
+                  </label>
+                  <input
+                    type="date"
+                    name="tuNgay"
+                    value={localFilterOptions.tuNgay}
+                    onChange={(e) => setLocalFilterOptions({ ...localFilterOptions, tuNgay: e.target.value })}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+
+                {/* To Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Đến ngày
+                  </label>
+                  <input
+                    type="date"
+                    name="denNgay"
+                    value={localFilterOptions.denNgay}
+                    onChange={(e) => setLocalFilterOptions({ ...localFilterOptions, denNgay: e.target.value })}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  />
                 </div>
               </div>
 

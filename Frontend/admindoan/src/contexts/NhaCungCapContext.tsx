@@ -17,7 +17,7 @@ interface NhaCungCapContextType {
   createSupplier: (data: NhaCungCapCreateDto) => Promise<void>;
   updateSupplier: (id: string, data: NhaCungCapCreateDto) => Promise<void>;
   deleteSupplier: (id: string) => Promise<void>;
-  getSupplierById: (id: string) => Promise<NhaCungCapDto>;
+  getSupplierById: (id: string) => Promise<NhaCungCapDto | undefined>;
 }
 
 const NhaCungCapContext = createContext<NhaCungCapContextType | undefined>(undefined);
@@ -68,7 +68,6 @@ export const NhaCungCapProvider = ({ children }: { children: React.ReactNode }) 
       }
     } catch (error: any) {
       setError(error.message || 'Đã xảy ra lỗi khi tạo nhà cung cấp');
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -87,7 +86,6 @@ export const NhaCungCapProvider = ({ children }: { children: React.ReactNode }) 
       }
     } catch (error: any) {
       setError(error.message || 'Đã xảy ra lỗi khi cập nhật nhà cung cấp');
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -106,24 +104,25 @@ export const NhaCungCapProvider = ({ children }: { children: React.ReactNode }) 
       }
     } catch (error: any) {
       setError(error.message || 'Đã xảy ra lỗi khi xóa nhà cung cấp');
-      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const getSupplierById = async (id: string) => {
+  const getSupplierById = async (id: string): Promise<NhaCungCapDto | undefined> => {
     try {
       setLoading(true);
       setError(null);
       const response = await getNhaCungCapById(id);
-      if (response.code === 'Success') {
+      if (response.code === 'OK') {
         return response.data;
       }
-      throw new Error(response.message || 'Không thể lấy thông tin nhà cung cấp');
+      setError(response.message || 'Không thể lấy thông tin nhà cung cấp');
+      return undefined;
     } catch (error: any) {
       setError(error.message || 'Đã xảy ra lỗi khi lấy thông tin nhà cung cấp');
-      throw error;
+      console.error("Error in getSupplierById context function:", error);
+      return undefined;
     } finally {
       setLoading(false);
     }

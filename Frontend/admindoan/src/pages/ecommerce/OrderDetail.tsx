@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { sanPhamService } from '../../api/sanpham';
 import { SanPhamResponseDto } from '../../types/sanpham';
 import { getImagePath, handleImageError } from '../../utils/imageUtils';
+import SuggestedProducts from '../../components/ecommerce/SuggestedProducts';
 
 export default function OrderDetail() {
     const { id } = useParams<{ id: string }>();
@@ -374,31 +375,11 @@ export default function OrderDetail() {
 
                             {/* Suggested Products */}
                             {suggestedProducts.length > 0 && (
-                                <div className="bg-white/5 backdrop-blur-sm rounded-xl shadow-lg border border-white/10 p-6 mt-6">
-                                    <h3 className="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/10">
-                                        <i className="fas fa-gift mr-2 text-pink-400"></i> Sản phẩm gợi ý
-                                    </h3>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                        {suggestedProducts.map(product => (
-                                            <div key={product.id} className="bg-[#182233] rounded-lg overflow-hidden shadow-md border border-[#243447] hover:border-blue-500/50 transition-all duration-200">
-                                                <Link to={`/ecommerce/products/${product.id}`}>
-                                                    <img
-                                                        src={product.img ? getImagePath(product.img) : '/path/to/default/image.png'}
-                                                        alt={product.tenSanPham}
-                                                        className="w-full h-32 object-cover"
-                                                        onError={handleImageError}
-                                                    />
-                                                    <div className="p-3">
-                                                        <h4 className="text-sm font-semibold text-white truncate mb-1">{product.tenSanPham}</h4>
-                                                        <p className="text-blue-400 text-sm font-bold">
-                                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.donGia)}
-                                                        </p>
-                                                    </div>
-                                                </Link>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                <SuggestedProducts
+                                    title="Sản phẩm gợi ý"
+                                    products={suggestedProducts}
+                                    icon="gift"
+                                />
                             )}
 
                             {/* Action buttons */}

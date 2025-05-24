@@ -15,6 +15,7 @@ import {
   getCurrentUserDonHang,
 } from '../api/donhang';
 import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from 'react';
+import { BaseResponse } from '../types/common';
 
 // Filter options for orders
 interface FilterOptions {
@@ -53,11 +54,11 @@ interface DonHangContextType {
   setSortOptions: (options: SortOptions) => void;
 
   getAll: () => Promise<DonHangDto[]>;
-  getById: (id: string) => Promise<ViewResponseCreateDonHangDto>;
-  create: (data: RequestCreateDonHangDto) => Promise<ResponseCreateDonHangDto>;
-  update: (id: string, data: RequestUpdateDonHangDto) => Promise<ResponseCreateDonHangDto>;
-  remove: (id: string) => Promise<boolean>;
-  getCurrentUserOrders: () => Promise<ViewResponseCreateDonHangDto[]>;
+  getById: (id: string) => Promise<BaseResponse<ViewResponseCreateDonHangDto>>;
+  create: (data: RequestCreateDonHangDto) => Promise<BaseResponse<ResponseCreateDonHangDto>>;
+  update: (id: string, data: RequestUpdateDonHangDto) => Promise<BaseResponse<ResponseCreateDonHangDto>>;
+  remove: (id: string) => Promise<BaseResponse<boolean>>;
+  getCurrentUserOrders: () => Promise<BaseResponse<ViewResponseCreateDonHangDto[]>>;
 
   fetchOrders: () => Promise<void>;
   searchAndSortOrders: () => Promise<void>;
@@ -210,7 +211,10 @@ export const DonHangProvider = ({ children }: { children: ReactNode }) => {
       setSortOptions,
 
       getAll: getAllDonHang,
-      getById: getDonHangById,
+      getById: async (id: string) => {
+        const response = await getDonHangById(id);
+        return response;
+      },
       create: createDonHang,
       update: updateDonHang,
       remove: deleteDonHang,

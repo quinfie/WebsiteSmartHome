@@ -6,6 +6,7 @@ import { getImagePath, handleImageError } from '../../utils/imageUtils';
 import { cartApi } from '../../api/cart';
 import { toast } from 'react-hot-toast';
 import ProductReviews from '../../components/ecommerce/ProductReviews';
+import SuggestedProducts from '../../components/ecommerce/SuggestedProducts';
 
 export default function ProductDetail() {
     const { id } = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ export default function ProductDetail() {
     const [activeImage, setActiveImage] = useState<string>('');
     const [addingToCart, setAddingToCart] = useState<boolean>(false);
     const [activeSection, setActiveSection] = useState<'description' | 'reviews'>('description');
+    const [relatedProducts, setRelatedProducts] = useState<SanPhamResponseDto[]>([]);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -28,6 +30,9 @@ export default function ProductDetail() {
                 if (data.img) {
                     setActiveImage(data.img);
                 }
+                // Fetch related products
+                const related = await sanPhamService.getRelatedProducts(id);
+                setRelatedProducts(related);
             } catch (error) {
             } finally {
                 setLoading(false);
@@ -267,6 +272,15 @@ export default function ProductDetail() {
                     id && <ProductReviews productId={id} />
                 )}
             </div>
+
+            {/* Related Products */}
+            {relatedProducts.length > 0 && (
+                <SuggestedProducts
+                    title="Sản phẩm liên quan"
+                    products={relatedProducts}
+                    icon="link"
+                />
+            )}
         </div>
     );
 } 

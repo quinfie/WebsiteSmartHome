@@ -1,18 +1,15 @@
 import { Sidebar, TableWrapper } from "../components";
 import {
-  HiOutlinePlus,
-  HiOutlineChevronRight,
-  HiOutlineSearch,
   HiOutlineFilter,
-  HiOutlineX,
   HiOutlinePencil,
   HiOutlineTrash,
   HiOutlineFolder,
   HiOutlineViewGrid,
-  HiOutlineEye
+  HiOutlineEye,
+  HiOutlineChevronLeft,
+  HiOutlineChevronRight
 } from "react-icons/hi";
-import { AiOutlineExport } from "react-icons/ai";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDanhMuc } from "../contexts/DanhMucContexts";
 import React from "react";
@@ -152,81 +149,85 @@ const CustomDanhMucTable: React.FC<{ categories: ExtendedDanhMucDto[], isLoading
     );
   };
 
+// Pagination Controls Component
+const PaginationControls: React.FC = () => {
+  const { paginationInfo, setCurrentPage, setPageSize } = useDanhMuc();
+  const { currentPage, totalPages, pageSize } = paginationInfo;
+
+  const pageSizeOptions = [5, 10, 20, 50];
+
+  return (
+    <div className="flex items-center justify-between mt-4 px-4">
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-600 dark:text-gray-400">Hiển thị</span>
+        <select
+          value={pageSize}
+          onChange={(e) => setPageSize(Number(e.target.value))}
+          className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+        >
+          {pageSizeOptions.map(size => (
+            <option key={size} value={size}>{size}</option>
+          ))}
+        </select>
+        <span className="text-sm text-gray-600 dark:text-gray-400">mục</span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`p-2 rounded-full ${currentPage === 1
+            ? 'text-gray-400 cursor-not-allowed'
+            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+            }`}
+        >
+          <HiOutlineChevronLeft size={20} />
+        </button>
+
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          Trang {currentPage} / {totalPages}
+        </span>
+
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`p-2 rounded-full ${currentPage === totalPages
+            ? 'text-gray-400 cursor-not-allowed'
+            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+            }`}
+        >
+          <HiOutlineChevronRight size={20} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Categories = () => {
   const navigate = useNavigate();
   const {
-    danhMucs: categories,
+    filteredDanhMucs: categories,
     loading,
-    filterOptions,
-    setFilterOptions,
-    sortOptions,
-    handleSortOptionsChange,
-    searchAndSortCategories,
     paginationInfo,
-    fetchDanhMucs: fetchCategories
+    fetchDanhMucs: fetchCategories,
+    search
   } = useDanhMuc();
-
-  const [keyword, setKeyword] = useState(filterOptions.keyword || '');
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  const handleSearch = (searchKeyword: string) => {
-    setFilterOptions({
-      ...filterOptions,
-      keyword: searchKeyword
-    });
-    searchAndSortCategories();
-  };
-
-  const handleSort = (value: string) => {
-    let newSortOptions;
-
-    // Xử lý các tùy chọn sắp xếp
-    switch (value) {
-      case 'az':
-        newSortOptions = { sortBy: 'tenDanhMuc', ascending: true };
-        break;
-      case 'za':
-        newSortOptions = { sortBy: 'tenDanhMuc', ascending: false };
-        break;
-      case 'moTaasc':
-        newSortOptions = { sortBy: 'moTa', ascending: true };
-        break;
-      case 'moTadesc':
-        newSortOptions = { sortBy: 'moTa', ascending: false };
-        break;
-      default:
-        newSortOptions = { sortBy: 'tenDanhMuc', ascending: true };
-    }
-
-    // Cập nhật sortOptions và gọi API
-    handleSortOptionsChange(newSortOptions);
-  };
-
-  const getCurrentSortOption = () => {
-    const { sortBy, ascending } = sortOptions;
-
-    if (sortBy === 'tenDanhMuc' && ascending) return 'az';
-    if (sortBy === 'tenDanhMuc' && !ascending) return 'za';
-    if (sortBy === 'moTa' && ascending) return 'moTaasc';
-    if (sortBy === 'moTa' && !ascending) return 'moTadesc';
-
-    return '';
-  };
-
   const handleViewProducts = (categoryId: string) => {
     navigate(`/dashboard/categories/${categoryId}/products`);
   };
 
-  // Prepare sort options for TableWrapper
-  const sortOptionItems = [
-    { value: 'az', label: 'Tên A-Z' },
-    { value: 'za', label: 'Tên Z-A' },
-    { value: 'moTaasc', label: 'Mô tả A-Z' },
-    { value: 'moTadesc', label: 'Mô tả Z-A' }
-  ];
+  const handleSearch = async (keyword: string) => {
+    if (keyword.trim()) {
+      await search(keyword);
+    } else {
+      await fetchCategories();
+    }
+  };
 
   // Prepare stat cards for TableWrapper  
   const statCards = [
@@ -252,23 +253,21 @@ const Categories = () => {
         subtitle="Tất cả danh mục"
         addButtonLink="/dashboard/categories/create"
         addButtonLabel="Thêm danh mục"
-        onSearch={handleSearch}
-        searchPlaceholder="Tìm kiếm danh mục..."
-        onSort={handleSort}
-        sortOptions={sortOptionItems}
-        currentSortOption={getCurrentSortOption()}
         contextType="sanpham"
         itemLabel="danh mục"
         statCards={statCards}
         isLoading={loading}
         hasData={categories.length > 0}
         emptyStateMessage="Không có danh mục nào"
+        onSearch={handleSearch}
+        searchPlaceholder="Tìm kiếm danh mục..."
       >
         <CustomDanhMucTable
           categories={categories}
           isLoading={loading}
           onViewProducts={handleViewProducts}
         />
+        <PaginationControls />
       </TableWrapper>
     </div>
   );

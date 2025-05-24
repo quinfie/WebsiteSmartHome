@@ -10,6 +10,7 @@ import { Sidebar } from '../components';
 import { RiShoppingBag3Line } from 'react-icons/ri';
 import { getAllPromotions } from '../api/khuyenmai';
 import { KhuyenMaiDto } from '../types/khuyenmai';
+import { BaseResponse } from '../types/common';
 
 const EditOrder = () => {
   const { id } = useParams();
@@ -52,16 +53,27 @@ const EditOrder = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!id) return;
+      if (!id) {
+        console.log('ID đơn hàng không có.');
+        setLoading(false);
+        return;
+      }
 
+      console.log(`Đang lấy dữ liệu đơn hàng với ID: ${id}`);
       setLoading(true);
       try {
-        const data = await getById(id);
-        setOrderData(data);
-        setForm({
-          trangThaiDonHang: data.trangThaiDonHang,
-          maKhuyenMai: data.maKhuyenMai || '',
-        });
+        const response = await getById(id);
+        console.log('API Response:', response);
+        if (response.success && response.data) {
+          console.log('Dữ liệu đơn hàng được tải thành công:', response.data);
+          setOrderData(response.data);
+          setForm({
+            trangThaiDonHang: response.data.trangThaiDonHang,
+            maKhuyenMai: response.data.maKhuyenMai || '',
+          });
+        } else {
+          throw new Error(response.message || 'Không thể lấy thông tin đơn hàng');
+        }
       } catch (error) {
         console.error("Lỗi khi lấy thông tin đơn hàng:", error);
         alert("Không thể tải thông tin đơn hàng. Vui lòng thử lại sau.");
@@ -97,12 +109,16 @@ const EditOrder = () => {
           maSanPham: item.maSanPham,
           soLuongMua: item.soLuong,
           donGiaMua: item.donGia
-        }))
+        })) || []
       };
 
-      await update(id, updateData);
-      alert('Cập nhật đơn hàng thành công!');
-      navigate('/dashboard/orders');
+      const response = await update(id, updateData);
+      if (response.success) {
+        alert('Cập nhật đơn hàng thành công!');
+        navigate('/dashboard/orders');
+      } else {
+        throw new Error(response.message || 'Đã xảy ra lỗi khi cập nhật đơn hàng');
+      }
     } catch (error: any) {
       console.error('Lỗi khi cập nhật đơn hàng:', error);
       const errorMessage = error.response?.data?.errors?.message || error.message || 'Đã xảy ra lỗi khi cập nhật đơn hàng';
@@ -163,11 +179,13 @@ const EditOrder = () => {
                   <div className="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-lg space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">Người đặt:</span>
-                      <span className="font-medium dark:text-white">{orderData.tenNguoiDung}</span>
+                      <span className="font-medium dark:text-white">{orderData.tenNguoiDung || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">Ngày đặt:</span>
-                      <span className="font-medium dark:text-white">{new Date(orderData.ngayDat).toLocaleDateString('vi-VN')}</span>
+                      <span className="font-medium dark:text-white">
+                        {orderData.ngayDat ? new Date(orderData.ngayDat).toLocaleDateString('vi-VN') : 'N/A'}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">Khuyến mãi:</span>
@@ -175,7 +193,9 @@ const EditOrder = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">Tổng tiền:</span>
-                      <span className="font-medium text-green-600 dark:text-green-400">{orderData.tongTien.toLocaleString('vi-VN')}₫</span>
+                      <span className="font-medium text-green-600 dark:text-green-400">
+                        {orderData.tongTien ? orderData.tongTien.toLocaleString('vi-VN') + '₫' : 'N/A'}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">Trạng thái:</span>
@@ -185,7 +205,7 @@ const EditOrder = () => {
                             orderData.trangThaiDonHang === 'Đã xác nhận' ? 'bg-purple-100 text-purple-800' :
                               'bg-yellow-100 text-yellow-800'
                         }`}>
-                        {orderData.trangThaiDonHang}
+                        {orderData.trangThaiDonHang || 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -193,30 +213,37 @@ const EditOrder = () => {
 
                 <div>
                   <h3 className="font-medium mb-2 dark:text-white">Chi tiết sản phẩm:</h3>
-                  <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg max-h-80 overflow-y-auto">
-                    <table className="min-w-full">
-                      <thead>
-                        <tr className="border-b dark:border-gray-700">
-                          <th className="text-left text-sm text-gray-600 dark:text-gray-400 pb-2">Sản phẩm</th>
-                          <th className="text-right text-sm text-gray-600 dark:text-gray-400 pb-2">SL</th>
-                          <th className="text-right text-sm text-gray-600 dark:text-gray-400 pb-2">Đơn giá</th>
-                          <th className="text-right text-sm text-gray-600 dark:text-gray-400 pb-2">Thành tiền</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orderData?.chiTietDonHangs?.map((item, index) => (
-                          <tr key={index} className={index !== 0 ? 'border-t dark:border-gray-700' : ''}>
-                            <td className="py-2 pr-2 text-sm dark:text-white">{item.tenSanPham}</td>
-                            <td className="py-2 text-right text-sm dark:text-white">{item.soLuong}</td>
-                            <td className="py-2 text-right text-sm dark:text-white">{item.donGia.toLocaleString('vi-VN')}₫</td>
-                            <td className="py-2 text-right text-sm font-medium dark:text-white">
-                              {(item.soLuong * item.donGia).toLocaleString('vi-VN')}₫
-                            </td>
+                  {orderData && orderData.chiTietDonHangs && (
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg max-h-80 overflow-y-auto">
+                      <table className="min-w-full">
+                        <thead>
+                          <tr className="border-b dark:border-gray-700">
+                            <th className="text-left text-sm text-gray-600 dark:text-gray-400 pb-2">Sản phẩm</th>
+                            <th className="text-right text-sm text-gray-600 dark:text-gray-400 pb-2">SL</th>
+                            <th className="text-right text-sm text-gray-600 dark:text-gray-400 pb-2">Đơn giá</th>
+                            <th className="text-right text-sm text-gray-600 dark:text-gray-400 pb-2">Thành tiền</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {orderData.chiTietDonHangs.map((item, index) => (
+                            <tr key={index} className={index !== 0 ? 'border-t dark:border-gray-700' : ''}>
+                              <td className="py-2 pr-2 text-sm dark:text-white">{item.tenSanPham || 'N/A'}</td>
+                              <td className="py-2 text-right text-sm dark:text-white">{item.soLuong || 0}</td>
+                              <td className="py-2 text-right text-sm dark:text-white">
+                                {item.donGia ? item.donGia.toLocaleString('vi-VN') + '₫' : 'N/A'}
+                              </td>
+                              <td className="py-2 text-right text-sm font-medium dark:text-white">
+                                {item.soLuong && item.donGia ?
+                                  (item.soLuong * item.donGia).toLocaleString('vi-VN') + '₫' :
+                                  'N/A'
+                                }
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
 

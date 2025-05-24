@@ -1,5 +1,3 @@
-using System;
-
 namespace WebsiteSmartHome.Core
 {
     public class PaymentInformationModel

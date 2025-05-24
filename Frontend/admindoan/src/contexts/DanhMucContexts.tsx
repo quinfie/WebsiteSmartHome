@@ -21,17 +21,6 @@ import {
 } from "../types/danhmuc";
 import { sanPhamService } from "../api/sanpham";
 
-// Interface cho tùy chọn sắp xếp
-interface SortOptions {
-  sortBy: string;
-  ascending: boolean;
-}
-
-// Interface cho tùy chọn lọc
-interface FilterOptions {
-  keyword?: string;
-}
-
 // Interface cho thông tin phân trang
 interface PaginationInfo {
   currentPage: number;
@@ -55,24 +44,17 @@ interface DanhMucContextType {
   remove: (id: string) => Promise<boolean>;
   search: (keyword: string) => Promise<DanhMucDto[]>;
 
-  // Thêm phương thức mới cho phân trang, sắp xếp, lọc
+  // Phân trang
   paginationInfo: PaginationInfo;
-  sortOptions: SortOptions;
-  filterOptions: FilterOptions;
   setPageSize: (size: number) => void;
   setCurrentPage: (page: number) => void;
-  setSortOptions: (options: SortOptions) => void;
-  setFilterOptions: (options: FilterOptions) => void;
-  handleSortOptionsChange: (options: SortOptions) => void;
-  searchAndSortCategories: () => Promise<void>;
-  filteredDanhMucs: ExtendedDanhMucDto[]; // Danh mục sau khi lọc và sắp xếp
+  filteredDanhMucs: ExtendedDanhMucDto[]; // Danh mục sau khi phân trang
 }
 
 const DanhMucContext = createContext<DanhMucContextType | undefined>(undefined);
 
 export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
   const [danhMucs, setDanhMucs] = useState<ExtendedDanhMucDto[]>([]);
-  const [filteredDanhMucs, setFilteredDanhMucs] = useState<ExtendedDanhMucDto[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   // State cho phân trang
@@ -81,17 +63,6 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     totalPages: 1,
     totalItems: 0,
     pageSize: 10
-  });
-
-  // State cho sắp xếp
-  const [sortOptions, setSortOptions] = useState<SortOptions>({
-    sortBy: 'tenDanhMuc',
-    ascending: true
-  });
-
-  // State cho lọc
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    keyword: '',
   });
 
   const getProductCountForCategory = async (categoryId: string): Promise<number> => {
@@ -137,56 +108,6 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Hàm để lọc và sắp xếp danh mục
-  const searchAndSortCategories = useCallback(async (): Promise<void> => {
-    setLoading(true);
-
-    try {
-      // Lọc theo từ khóa
-      let filtered = [...danhMucs];
-      if (filterOptions.keyword) {
-        const keyword = filterOptions.keyword.toLowerCase();
-        filtered = filtered.filter(item =>
-          item.tenDanhMuc.toLowerCase().includes(keyword) ||
-          (item.moTa && item.moTa.toLowerCase().includes(keyword))
-        );
-      }
-
-      // Sắp xếp
-      filtered.sort((a, b) => {
-        let comparison = 0;
-
-        switch (sortOptions.sortBy) {
-          case 'tenDanhMuc':
-            comparison = a.tenDanhMuc.localeCompare(b.tenDanhMuc);
-            break;
-          case 'moTa':
-            comparison = (a.moTa || '').localeCompare(b.moTa || '');
-            break;
-          default:
-            comparison = a.tenDanhMuc.localeCompare(b.tenDanhMuc);
-        }
-
-        return sortOptions.ascending ? comparison : -comparison;
-      });
-
-      // Phân trang
-      const startIndex = (paginationInfo.currentPage - 1) * paginationInfo.pageSize;
-      const paginatedItems = filtered.slice(startIndex, startIndex + paginationInfo.pageSize);
-
-      setFilteredDanhMucs(paginatedItems);
-      setPaginationInfo(prev => ({
-        ...prev,
-        totalItems: filtered.length,
-        totalPages: Math.ceil(filtered.length / prev.pageSize)
-      }));
-    } catch (error) {
-      console.error('Lỗi khi lọc và sắp xếp danh mục:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [danhMucs, filterOptions, sortOptions, paginationInfo.currentPage, paginationInfo.pageSize]);
-
   // Effect khi mount để tải danh mục
   useEffect(() => {
     let isMounted = true;
@@ -203,13 +124,6 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  // Effect để lọc và sắp xếp khi các thông số thay đổi
-  useEffect(() => {
-    if (danhMucs.length > 0) {
-      searchAndSortCategories();
-    }
-  }, [danhMucs, filterOptions, sortOptions, paginationInfo.currentPage, paginationInfo.pageSize, searchAndSortCategories]);
-
   const setPageSize = (size: number) => {
     setPaginationInfo({
       ...paginationInfo,
@@ -225,9 +139,11 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const handleSortOptionsChange = (options: SortOptions) => {
-    setSortOptions(options);
-  };
+  // Tính toán danh sách đã phân trang
+  const filteredDanhMucs = danhMucs.slice(
+    (paginationInfo.currentPage - 1) * paginationInfo.pageSize,
+    paginationInfo.currentPage * paginationInfo.pageSize
+  );
 
   const getById = async (id: string) => {
     return await getDanhMucById(id);
@@ -255,8 +171,37 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     return result;
   };
 
-  const search = async (keyword: string) => {
-    return await searchDanhMuc(keyword);
+  const search = async (keyword: string): Promise<DanhMucDto[]> => {
+    try {
+      setLoading(true);
+      const data = await searchDanhMuc(keyword);
+
+      // Get product counts for all categories
+      const categoriesWithCounts = await Promise.all(
+        data.map(async (category): Promise<ExtendedDanhMucDto> => {
+          const productCount = await getProductCountForCategory(category.id);
+          return {
+            ...category,
+            soSanPham: productCount
+          };
+        })
+      );
+
+      setDanhMucs(categoriesWithCounts);
+      setPaginationInfo(prev => ({
+        ...prev,
+        currentPage: 1, // Reset to first page when searching
+        totalItems: categoriesWithCounts.length,
+        totalPages: Math.ceil(categoriesWithCounts.length / prev.pageSize)
+      }));
+
+      return data; // Return the original search results
+    } catch (error) {
+      console.error("Lỗi khi tìm kiếm danh mục:", error);
+      return []; // Return empty array on error
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -271,14 +216,8 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
         remove,
         search,
         paginationInfo,
-        sortOptions,
-        filterOptions,
         setPageSize,
         setCurrentPage,
-        setSortOptions,
-        setFilterOptions,
-        handleSortOptionsChange,
-        searchAndSortCategories,
         filteredDanhMucs
       }}
     >

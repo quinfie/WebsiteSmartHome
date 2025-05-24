@@ -49,7 +49,6 @@ const DanhMucTable = ({ onViewProducts }: DanhMucTableProps) => {
 
       setCheckingId(null);
     } catch (error) {
-      console.error("Lỗi khi kiểm tra sản phẩm:", error);
       setCheckingId(null);
       alert("Có lỗi xảy ra khi kiểm tra dữ liệu sản phẩm");
     }
