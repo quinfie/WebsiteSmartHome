@@ -230,10 +230,12 @@ const EditProduct = () => {
 
       setMessage('Cập nhật sản phẩm thành công!');
       setMessageType('success');
+
       // Delay navigation to allow user to see success message
       setTimeout(() => {
-        navigate('/dashboard/products');
+        window.location.href = '/dashboard/products'; // full reload
       }, 1500);
+
     } catch (err: any) {
       console.error(err);
       // Get more specific error messages from the error object

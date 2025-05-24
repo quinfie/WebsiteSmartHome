@@ -4,6 +4,7 @@ import { getImagePath, handleImageError } from '../../utils/imageUtils';
 import { sanPhamService } from '../../api/sanpham';
 import { SanPhamDto, SanPhamResponseDto } from '../../types/sanpham';
 import api from '../../api/axios.config';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface Product {
     id?: string;
@@ -58,6 +59,7 @@ export default function Products() {
     const location = useLocation();
     const navigate = useNavigate();
     const pageSize = 12;
+    const { user } = useAuth(); // Lấy thông tin user từ AuthContext
 
     // Định nghĩa ref ở cấp độ component
     const shouldSkipFirstRender = useRef(true);
@@ -575,17 +577,17 @@ export default function Products() {
                                                             className="max-h-40 max-w-full object-contain transition-transform group-hover:scale-105"
                                                             onError={(e) => handleImageError(e, 'https://via.placeholder.com/300')}
                                                         />
-                                                        {product.soLuongTon !== undefined && product.soLuongTon <= 5 && product.soLuongTon > 0 && (
-                                                            <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                                                                <i className="fas fa-fire-flame-curved mr-1"></i>
-                                                                Chỉ còn {product.soLuongTon}
-                                                            </span>
-                                                        )}
-                                                        {product.soLuongTon === 0 && (
-                                                            <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                                                                <i className="fas fa-times-circle mr-1"></i>
-                                                                Hết hàng
-                                                            </span>
+                                                        {/* Hiển thị số lượng tồn kho chỉ cho Admin */}
+                                                        {(user?.vaiTro?.includes('Quản Trị Viên') || user?.vaiTro?.includes('Quản Lí')) && product.soLuongTon !== undefined && (
+                                                            product.soLuongTon > 0 ? (
+                                                                <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                                                                    <i className="fas fa-check-circle mr-1"></i> Còn hàng: {product.soLuongTon}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                                                                    <i className="fas fa-times-circle mr-1"></i> Hết hàng
+                                                                </span>
+                                                            )
                                                         )}
                                                     </div>
 

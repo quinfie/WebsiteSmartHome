@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  HiOutlineChevronRight,
-  HiOutlineSearch,
-  HiOutlinePlus,
   HiOutlinePencil,
   HiOutlineTrash,
   HiOutlineEye,
@@ -10,7 +7,6 @@ import {
   HiOutlineOfficeBuilding,
   HiOutlinePhone
 } from "react-icons/hi";
-import { AiOutlineExport } from "react-icons/ai";
 import { Sidebar, TableWrapper } from "../components";
 import { useKho } from "../contexts/KhoContext";
 import { useNavigate } from "react-router-dom";

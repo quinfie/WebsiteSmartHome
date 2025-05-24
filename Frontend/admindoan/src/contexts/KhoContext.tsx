@@ -24,16 +24,17 @@ export const KhoProvider = ({ children }: KhoProviderProps) => {
   const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
 
-  const isAdmin = user?.vaiTro === 'Quản Trị Viên';
+  // Check if user has Admin or Manager role
+  const canAccessKho = user?.vaiTro?.includes('Quản Trị Viên') || user?.vaiTro?.includes('Quản Lí');
 
   const fetchAllKho = async () => {
-    if (!isAuthenticated) {
-      toast.error('Vui lòng đăng nhập để xem danh sách kho');
-      return;
-    }
-
-    if (!isAdmin) {
-      toast.error('Bạn không có quyền xem danh sách kho');
+    // Only attempt to fetch if user is authenticated and has access
+    if (!isAuthenticated || !user || !canAccessKho) {
+      if (!isAuthenticated || !user) {
+        toast.error('Vui lòng đăng nhập để xem danh sách kho');
+      } else if (!canAccessKho) {
+        toast.error('Bạn không có quyền xem danh sách kho');
+      }
       return;
     }
 
@@ -57,7 +58,7 @@ export const KhoProvider = ({ children }: KhoProviderProps) => {
       return;
     }
 
-    if (!isAdmin) {
+    if (!canAccessKho) {
       toast.error('Bạn không có quyền tạo kho mới');
       return;
     }
@@ -80,7 +81,8 @@ export const KhoProvider = ({ children }: KhoProviderProps) => {
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
-      if (isMounted && isAuthenticated && isAdmin && khoList.length === 0) {
+      // Fetch kho list only if mounted, user is authenticated, user object exists, has access, and list is empty
+      if (isMounted && isAuthenticated && user && canAccessKho && khoList.length === 0) {
         await fetchAllKho();
       }
     };
@@ -90,7 +92,7 @@ export const KhoProvider = ({ children }: KhoProviderProps) => {
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticated, isAdmin]);
+  }, [isAuthenticated, canAccessKho]);
 
   return (
     <KhoContext.Provider value={{ khoList, fetchAllKho, createKho, loading, error }}>

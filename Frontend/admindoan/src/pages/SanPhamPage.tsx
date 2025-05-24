@@ -8,6 +8,7 @@ import { useKho } from "../contexts/KhoContext";
 import { SanPhamDto } from "../types/sanpham";
 import { Link } from "react-router-dom";
 import React from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 // Custom ProductTable component to accept props
 const CustomProductTable: React.FC<{ products: SanPhamDto[], isLoading: boolean }> = ({ products, isLoading }) => {
@@ -206,6 +207,7 @@ const CustomProductTable: React.FC<{ products: SanPhamDto[], isLoading: boolean 
 };
 
 const Products = () => {
+  const { user, isAuthenticated } = useAuth();
   const {
     products,
     loading,
@@ -240,10 +242,11 @@ const Products = () => {
       fetchSuppliers();
     }
 
-    if (khoList.length === 0) {
+    // Chỉ fetch kho list nếu đã đăng nhập, có user object và danh sách kho trống
+    if (isAuthenticated && user && khoList.length === 0) {
       fetchAllKho();
     }
-  }, []); // Empty dependency array chỉ gọi một lần khi mount
+  }, [isAuthenticated, user]);
 
   const handleSearch = (keyword: string) => {
     setFilterOptions({
