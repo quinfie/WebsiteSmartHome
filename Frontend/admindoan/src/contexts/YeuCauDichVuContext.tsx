@@ -15,8 +15,6 @@ interface YeuCauDichVuContextType {
     updateTrangThai: (id: string, trangThai: string) => Promise<YeuCauDichVuDto>;
     updateChiPhi: (id: string, chiPhi: number) => Promise<YeuCauDichVuDto>;
     updateNgayXuLy: (id: string, ngayXuLy: Date) => Promise<YeuCauDichVuDto>;
-    updateTienDo: (id: string, tienDo: string) => Promise<YeuCauDichVuDto>;
-    updateKetQua: (id: string, ketQua: string) => Promise<YeuCauDichVuDto>;
     huyYeuCau: (id: string) => Promise<YeuCauDichVuDto>;
     xacNhanYeuCau: (id: string) => Promise<YeuCauDichVuDto>;
     getAllYeuCau: (trangThai?: string, loaiDichVu?: string) => Promise<YeuCauDichVuDto[]>;
@@ -57,14 +55,6 @@ export const YeuCauDichVuProvider = ({ children }: { children: React.ReactNode }
         return await yeucaudichvuApi.updateNgayXuLy(id, ngayXuLy);
     };
 
-    const updateTienDo = async (id: string, tienDo: string) => {
-        return await yeucaudichvuApi.updateTienDo(id, tienDo);
-    };
-
-    const updateKetQua = async (id: string, ketQua: string) => {
-        return await yeucaudichvuApi.updateKetQua(id, ketQua);
-    };
-
     const huyYeuCau = async (id: string) => {
         return await yeucaudichvuApi.huyYeuCau(id);
     };
@@ -102,8 +92,6 @@ export const YeuCauDichVuProvider = ({ children }: { children: React.ReactNode }
             updateTrangThai,
             updateChiPhi,
             updateNgayXuLy,
-            updateTienDo,
-            updateKetQua,
             huyYeuCau,
             xacNhanYeuCau,
             getAllYeuCau,

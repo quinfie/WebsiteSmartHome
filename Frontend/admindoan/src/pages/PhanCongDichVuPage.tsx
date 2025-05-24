@@ -49,7 +49,7 @@ const PhanCongDichVu = () => {
           setPhanCongList([]);
         }
         setUnassignedRequests([]);
-      } else if (user.vaiTro === "Quản lý" || user.vaiTro === "Quản Trị Viên") {
+      } else if (user.vaiTro === "Quản Lí" || user.vaiTro === "Quản Trị Viên") {
         const unassignedData = await getYeuCauChuaPhanCong();
         setUnassignedRequests(unassignedData);
         setPhanCongList([]);

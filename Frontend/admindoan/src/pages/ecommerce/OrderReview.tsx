@@ -6,10 +6,12 @@ import { ViewResponseCreateDonHangDto } from '../../types/donhang';
 import { CreateDanhGiaDto } from '../../types/danhgia';
 import { toast } from 'react-toastify';
 import { FaStar } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function OrderReview() {
     const { orderId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [order, setOrder] = useState<ViewResponseCreateDonHangDto | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -27,12 +29,16 @@ export default function OrderReview() {
     const fetchOrderDetails = async () => {
         try {
             setLoading(true);
-            const orders = await getCurrentUserDonHang();
-            const foundOrder = orders.find(o => o.id === orderId);
-            if (foundOrder) {
-                setOrder(foundOrder);
+            const response = await getCurrentUserDonHang();
+            if (response.success && response.data) {
+                const foundOrder = response.data.find(o => o.id === orderId);
+                if (foundOrder) {
+                    setOrder(foundOrder);
+                } else {
+                    setError('Không tìm thấy đơn hàng');
+                }
             } else {
-                setError('Không tìm thấy đơn hàng');
+                setError('Không thể tải thông tin đơn hàng');
             }
         } catch (err) {
             setError('Không thể tải thông tin đơn hàng');
@@ -60,9 +66,9 @@ export default function OrderReview() {
                 const reviewData: CreateDanhGiaDto = {
                     maDonHang: orderId,
                     maSanPham: item.maSanPham,
+                    maNguoiDung: user?.maNguoiDung || user?.id || '',
                     soSao: rating,
                     noiDung: review.trim(),
-                    ngayDanhGia: new Date().toISOString()
                 };
                 return danhGiaService.create(reviewData);
             });
