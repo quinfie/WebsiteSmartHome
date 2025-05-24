@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { getImagePath } from '../../utils/imageUtils';
+import { getImagePath, handleImageError } from '../../utils/imageUtils';
 import { getDonHangById } from '../../api/donhang';
 import { getKhuyenMaiById } from '../../api/khuyenmai';
 import { ViewResponseCreateDonHangDto } from '../../types/donhang';
 import { KhuyenMaiDto } from '../../types/khuyenmai';
+import { SanPhamDto } from '../../types/sanpham';
+import api from '../../api/axios.config';
 import { toast } from 'react-hot-toast';
 
 export default function CheckoutSuccess() {
@@ -15,6 +17,8 @@ export default function CheckoutSuccess() {
     const [khuyenMai, setKhuyenMai] = useState<KhuyenMaiDto | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [suggestedProducts, setSuggestedProducts] = useState<SanPhamDto[]>([]);
+    const [loadingSuggestions, setLoadingSuggestions] = useState(true);
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -26,19 +30,19 @@ export default function CheckoutSuccess() {
             }
 
             try {
-                const data = await getDonHangById(orderId);
+                const response = await getDonHangById(orderId);
 
-                if (!data) {
+                if (!response.success || !response.data) {
                     console.error('No data returned from API for order:', orderId);
                     setError('Không tìm thấy thông tin đơn hàng');
                     setTimeout(() => navigate('/ecommerce/cart'), 3000);
                 } else {
-                    setOrderDetails(data);
+                    setOrderDetails(response.data);
 
                     // Fetch promotion details if exists
-                    if (data.maKhuyenMai) {
+                    if (response.data.maKhuyenMai) {
                         try {
-                            const khuyenMaiData = await getKhuyenMaiById(data.maKhuyenMai);
+                            const khuyenMaiData = await getKhuyenMaiById(response.data.maKhuyenMai);
                             setKhuyenMai(khuyenMaiData);
                         } catch (err) {
                             console.error('Error fetching promotion details:', err);
@@ -61,6 +65,33 @@ export default function CheckoutSuccess() {
 
         fetchOrderDetails();
     }, [orderId, navigate]);
+
+    // Fetch suggested products
+    useEffect(() => {
+        const fetchSuggestedProducts = async () => {
+            try {
+                setLoadingSuggestions(true);
+                const response = await api.get('/SanPham/search', {
+                    params: {
+                        page: 1,
+                        pageSize: 4,
+                        sortBy: 'gia',
+                        ascending: true
+                    }
+                });
+
+                if (response.data?.data?.items) {
+                    setSuggestedProducts(response.data.data.items);
+                }
+            } catch (err) {
+                console.error('Error fetching suggested products:', err);
+            } finally {
+                setLoadingSuggestions(false);
+            }
+        };
+
+        fetchSuggestedProducts();
+    }, []);
 
     const calculateDiscount = (orderDetails: ViewResponseCreateDonHangDto) => {
         if (!khuyenMai || !khuyenMai.phanTramGiam) {
@@ -230,25 +261,38 @@ export default function CheckoutSuccess() {
 
                 <div className="mt-8 text-center">
                     <h3 className="text-xl text-white font-semibold mb-4">Có thể bạn quan tâm</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map((item) => (
-                            <div key={item} className="bg-[#182233] rounded-lg p-4 border border-[#243447] hover:border-blue-500 transition-colors">
-                                <Link to={`/ecommerce/product/${item}`}>
-                                    <div className="h-32 flex items-center justify-center bg-[#1b2a3b] rounded mb-3">
-                                        <img
-                                            src={getImagePath(`product-${item}.jpg`, 'https://via.placeholder.com/150')}
-                                            alt="Sản phẩm gợi ý"
-                                            className="h-28 object-contain"
-                                        />
-                                    </div>
-                                    <h4 className="text-white font-medium truncate">Sản phẩm gợi ý {item}</h4>
-                                    <p className="text-blue-400 font-bold mt-1">
-                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(1000000 + item * 500000)}
-                                    </p>
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
+                    {loadingSuggestions ? (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[1, 2, 3, 4].map((item) => (
+                                <div key={item} className="bg-[#182233] rounded-lg p-4 border border-[#243447] animate-pulse">
+                                    <div className="h-32 bg-[#1b2a3b] rounded mb-3"></div>
+                                    <div className="h-4 bg-[#1b2a3b] rounded w-3/4 mx-auto mb-2"></div>
+                                    <div className="h-4 bg-[#1b2a3b] rounded w-1/2 mx-auto"></div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {suggestedProducts.map((product) => (
+                                <div key={product.id} className="bg-[#182233] rounded-lg p-4 border border-[#243447] hover:border-blue-500 transition-colors">
+                                    <Link to={`/ecommerce/product/${product.id}`}>
+                                        <div className="h-32 flex items-center justify-center bg-[#1b2a3b] rounded mb-3">
+                                            <img
+                                                src={getImagePath(product.img, 'https://via.placeholder.com/150')}
+                                                alt={product.tenSanPham}
+                                                className="h-28 object-contain"
+                                                onError={(e) => handleImageError(e, 'https://via.placeholder.com/150')}
+                                            />
+                                        </div>
+                                        <h4 className="text-white font-medium truncate">{product.tenSanPham}</h4>
+                                        <p className="text-blue-400 font-bold mt-1">
+                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.donGia)}
+                                        </p>
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
