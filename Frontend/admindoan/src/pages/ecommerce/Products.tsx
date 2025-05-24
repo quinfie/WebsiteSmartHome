@@ -301,6 +301,20 @@ export default function Products() {
         }, { replace: true, state: { preventScroll: true, scroll: false } });
     };
 
+    const handlePageChange = (page: number) => {
+        // Update URL directly
+        const params = new URLSearchParams(location.search);
+        params.set('page', page.toString());
+
+        // Update state directly for immediate UI feedback
+        setCurrentPage(page);
+
+        navigate({
+            pathname: '/ecommerce/products',
+            search: params.toString()
+        }, { replace: true });
+    };
+
     // Define a reset key based on current filters to force remount when they change
     const resetKey = `${selectedCategory}-${currentPage}`;
 
@@ -594,7 +608,7 @@ export default function Products() {
                                     <div className="mt-10 flex justify-center">
                                         <div className="flex space-x-1">
                                             <button
-                                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                                                 disabled={currentPage === 1}
                                                 className="px-4 py-2 bg-[#1b2a3b] text-white rounded-md disabled:opacity-50 flex items-center"
                                             >
@@ -624,7 +638,7 @@ export default function Products() {
                                                             )}
 
                                                             <button
-                                                                onClick={() => setCurrentPage(page)}
+                                                                onClick={() => handlePageChange(page)}
                                                                 className={`w-10 h-10 flex items-center justify-center rounded-md ${currentPage === page
                                                                     ? 'bg-blue-600 text-white'
                                                                     : 'bg-[#1b2a3b] text-white hover:bg-[#243447]'
@@ -637,7 +651,7 @@ export default function Products() {
                                                 })}
 
                                             <button
-                                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                                                 disabled={currentPage === totalPages}
                                                 className="px-4 py-2 bg-[#1b2a3b] text-white rounded-md disabled:opacity-50 flex items-center"
                                             >
