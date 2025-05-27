@@ -2,6 +2,8 @@ import { ReactNode, useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getCartFromStorage } from '../../api/cart';
+import ChatBox from '../../components/ChatBox';
+
 
 interface EcommerceLayoutProps {
     children: ReactNode;
@@ -151,6 +153,9 @@ export default function EcommerceLayout({ children }: EcommerceLayoutProps) {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
+            
+      <ChatBox /> 
+
             <header className="bg-white shadow-md">
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex flex-col md:flex-row items-center justify-between">
@@ -158,6 +163,8 @@ export default function EcommerceLayout({ children }: EcommerceLayoutProps) {
                         <Link to="/ecommerce" className="flex items-center mb-4 md:mb-0">
                             <span className="text-green-600 text-2xl font-bold">Smart Home</span>
                         </Link>
+
+                        
 
 
                         {/* Nav */}
@@ -254,7 +261,9 @@ export default function EcommerceLayout({ children }: EcommerceLayoutProps) {
                                                             <i className="fas fa-sign-out-alt w-5"></i>
                                                             <span className="ml-2">Đăng xuất</span>
                                                         </button>
+                                                       
                                                     </div>
+                                                    
                                                 )}
                                             </li>
                                         </>
@@ -270,12 +279,14 @@ export default function EcommerceLayout({ children }: EcommerceLayoutProps) {
                                                     Đăng ký
                                                 </Link>
                                             </li>
+                                            
                                         </>
                                     )}
                                 </ul>
                             </nav>
                         </div>
                     </div>
+                    
                 </div>
             </header>
 
@@ -283,6 +294,7 @@ export default function EcommerceLayout({ children }: EcommerceLayoutProps) {
             <main className="flex-grow">
                 {children}
             </main>
+            
 
             {/* Footer */}
             <footer className="bg-gray-800 text-white py-12">
@@ -332,7 +344,7 @@ export default function EcommerceLayout({ children }: EcommerceLayoutProps) {
                             <ul className="space-y-2">
                                 <li className="flex items-start">
                                     <i className="fas fa-map-marker-alt mr-2 mt-1"></i>
-                                    <span>123 Đường ABC, Quận XYZ, TP HCM</span>
+                                    <span>141 Lê Trọng Tấn, Tây Thạnh, Tân Phú, Tp.HCM</span>
                                 </li>
                                 <li className="flex items-center">
                                     <i className="fas fa-phone mr-2"></i>
@@ -346,11 +358,14 @@ export default function EcommerceLayout({ children }: EcommerceLayoutProps) {
                         </div>
                     </div>
 
+
                     <div className="border-t border-gray-700 mt-8 pt-8 text-center">
                         <p>&copy; {new Date().getFullYear()} Smart Home. Tất cả quyền được bảo lưu.</p>
                     </div>
+                    
                 </div>
             </footer>
+            
         </div>
     );
 } 
