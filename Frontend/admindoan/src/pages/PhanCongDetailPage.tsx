@@ -1,31 +1,74 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { phanCongDichVuApi } from '../api/phancongdichvu';
-import { PhanCongCalendarDto } from '../types/phancongdichvu';
+import { PhanCongCalendarDto, PhanCongDichVuDto } from '../types/phancongdichvu';
+
+const PHAN_CONG_STATUSES = [
+    'Đang chờ xác nhận',
+    'Đã xác nhận',
+    'Hoàn thành',
+    'Đã hủy',
+];
+
+const statusDescription: Record<string, string> = {
+    'Đang chờ xác nhận': 'Phân công đã được tạo, chờ kỹ thuật viên xác nhận.',
+    'Đã xác nhận': 'Kỹ thuật viên đã xác nhận phân công và đang trong quá trình thực hiện.',
+    'Hoàn thành': 'Kỹ thuật viên đã hoàn thành phân công.',
+    'Đã hủy': 'Phân công đã bị hủy.'
+};
+
+const getStatusColor = (status: string) => {
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus.includes('hoàn thành')) {
+        return 'bg-green-100 text-green-800 border-green-200';
+    }
+    if (lowerStatus.includes('xác nhận')) {
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+    }
+    if (lowerStatus.includes('chờ xác nhận')) {
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    }
+    return 'bg-gray-100 text-gray-800 border-gray-200';
+};
 
 const PhanCongDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [phanCong, setPhanCong] = useState<PhanCongCalendarDto | null>(null);
+    const [phanCongDetail, setPhanCongDetail] = useState<PhanCongDichVuDto | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [updating, setUpdating] = useState(false);
+    const [newStatus, setNewStatus] = useState('');
 
     useEffect(() => {
-        const fetchPhanCongDetail = async () => {
+        const fetchData = async () => {
+            if (!id) return;
+            setLoading(true);
             try {
-                if (!id) {
-                    throw new Error('Không tìm thấy ID phân công');
-                }
-                const data = await phanCongDichVuApi.getById(id);
-                setPhanCong(data);
+                // Lấy thông tin tổng hợp (calendar)
+                const calendarData = await phanCongDichVuApi.getById(id);
+                setPhanCong(calendarData);
+                // Lấy thông tin phân công chi tiết
+                const detailList = await phanCongDichVuApi.getByYeuCau(calendarData.yeuCauId);
+                const detail = detailList.find((d: PhanCongDichVuDto) => d.id === id);
+                setPhanCongDetail(detail || null);
+                setNewStatus(detail?.trangThaiPhanCong || '');
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'Có lỗi xảy ra khi tải dữ liệu');
+                setError('Có lỗi xảy ra khi tải dữ liệu');
             } finally {
                 setLoading(false);
             }
         };
-
-        fetchPhanCongDetail();
+        fetchData();
     }, [id]);
+
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('vi-VN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+    };
 
     if (loading) {
         return (
@@ -45,7 +88,6 @@ const PhanCongDetailPage: React.FC = () => {
             </div>
         );
     }
-
     if (error) {
         return (
             <div className="bg-[#0f172a] min-h-screen py-8">
@@ -60,32 +102,7 @@ const PhanCongDetailPage: React.FC = () => {
             </div>
         );
     }
-
-    if (!phanCong) {
-        return null;
-    }
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('vi-VN', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const getStatusColor = (status: string) => {
-        const lowerStatus = status.toLowerCase();
-        if (lowerStatus.includes('hoàn thành')) {
-            return 'bg-green-100 text-green-800 border-green-200';
-        }
-        if (lowerStatus.includes('hủy')) {
-            return 'bg-red-100 text-red-800 border-red-200';
-        }
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    };
+    if (!phanCong) return null;
 
     return (
         <div className="bg-[#0f172a] min-h-screen py-8">
@@ -106,7 +123,6 @@ const PhanCongDetailPage: React.FC = () => {
                     <i className="fas fa-chevron-right text-xs mx-2"></i>{' '}
                     <span className="text-white">Chi tiết phân công</span>
                 </div>
-
                 {/* Main Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left Column - Service Details */}
@@ -128,17 +144,56 @@ const PhanCongDetailPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-calendar-alt mr-2 text-yellow-400"></i>Ngày phân công</label>
-                                    <p className="text-white font-medium">{phanCong.ngayPhanCong ? formatDate(phanCong.ngayPhanCong) : 'N/A'}</p>
+                                    <p className="text-white font-medium">{formatDate(phanCong.ngayPhanCong)}</p>
                                 </div>
-                                {phanCong.trangThaiPhanCong.toLowerCase().includes('hoàn thành') && (
+                                {phanCong.ngayHoanThanh && (
                                     <div>
                                         <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-calendar-check mr-2 text-green-400"></i>Ngày hoàn thành</label>
-                                        <p className="text-white font-medium">{phanCong.ngayHoanThanh ? formatDate(phanCong.ngayHoanThanh) : 'N/A'}</p>
+                                        <p className="text-white font-medium">{formatDate(phanCong.ngayHoanThanh)}</p>
                                     </div>
                                 )}
                             </div>
                         </div>
-
+                        {/* Assignment Status Card */}
+                        <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
+                            <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                                <i className="fas fa-info-circle text-blue-400 mr-2"></i>
+                                Trạng thái phân công
+                            </h2>
+                            <div>
+                                <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(phanCong.trangThaiPhanCong)}`}>
+                                    {phanCong.trangThaiPhanCong}
+                                </span>
+                                <p className="text-gray-400 mt-2">
+                                    {statusDescription[phanCong.trangThaiPhanCong] || ''}
+                                </p>
+                            </div>
+                        </div>
+                        {/* Technician Information Card (from phanCongDetail) */}
+                        <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
+                            <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                                <i className="fas fa-user-cog text-purple-400 mr-2"></i>
+                                Thông tin kỹ thuật viên
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-sm text-gray-400">Tên kỹ thuật viên</label>
+                                    <p className="text-white font-medium">{phanCongDetail?.kyThuatVien?.tenNguoiDung ?? 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-400">Email</label>
+                                    <p className="text-white font-medium">{phanCongDetail?.kyThuatVien?.email ?? 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-400">Số điện thoại</label>
+                                    <p className="text-white font-medium">{phanCongDetail?.kyThuatVien?.soDienThoai ?? 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-400">Ghi chú phân công</label>
+                                    <p className="text-white font-medium">{phanCongDetail?.ghiChu ?? 'Không có ghi chú'}</p>
+                                </div>
+                            </div>
+                        </div>
                         {/* Service Information Card */}
                         <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
                             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
@@ -152,19 +207,14 @@ const PhanCongDetailPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-wrench mr-2 text-blue-400"></i>Trạng thái yêu cầu</label>
-                                    <p className="text-white font-medium">{phanCong.id ?? 'N/A'}</p>
+                                    <p className="text-white font-medium">{phanCong.trangThaiPhanCong ?? 'N/A'}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-comment-alt mr-2 text-gray-400"></i>Mô tả yêu cầu</label>
                                     <p className="text-white font-medium break-all">{phanCong.moTaYeuCau ?? 'Không có mô tả'}</p>
                                 </div>
-                                <div className="md:col-span-2">
-                                    <label className="text-sm text-gray-400 flex items-center"><i className="fas fa-sticky-note mr-2 text-yellow-400"></i>Ghi chú</label>
-                                    <p className="text-white font-medium break-all">{phanCong.ghiChu ?? 'Không có ghi chú'}</p>
-                                </div>
                             </div>
                         </div>
-
                         {/* Customer Information Card */}
                         <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
                             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
@@ -186,7 +236,6 @@ const PhanCongDetailPage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-
                         {/* Product Information Card */}
                         <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
                             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
@@ -221,43 +270,67 @@ const PhanCongDetailPage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-
                     {/* Right Column - Actions */}
                     <div className="space-y-6">
-                        {/* Action Buttons */}
+                        {/* Quay lại */}
                         <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
-                            <div className="space-y-3">
-                                <button
-                                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                                    onClick={() => window.history.back()}
-                                >
-                                    <i className="fas fa-arrow-left mr-2"></i>
-                                    Quay lại
-                                </button>
-                                {phanCong.trangThaiPhanCong !== 'Hoàn thành' && (
-                                    <>
-                                        <button
-                                            className="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
-                                            onClick={() => {
-                                                // TODO: Implement update status
-                                            }}
-                                        >
-                                            <i className="fas fa-sync-alt mr-2"></i>
-                                            Cập nhật trạng thái
-                                        </button>
-                                        <button
-                                            className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                                            onClick={() => {
-                                                // TODO: Implement complete
-                                            }}
-                                        >
-                                            <i className="fas fa-check mr-2"></i>
-                                            Hoàn thành
-                                        </button>
-                                    </>
-                                )}
-                            </div>
+                            <button
+                                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                onClick={() => window.history.back()}
+                            >
+                                <i className="fas fa-arrow-left mr-2"></i>
+                                Quay lại
+                            </button>
                         </div>
+                        {/* Cập nhật trạng thái */}
+                        {phanCongDetail && phanCongDetail.trangThaiPhanCong !== 'Hoàn thành' && (
+                            <div className="bg-[#182233] border border-[#243447] rounded-lg p-6">
+                                <button
+                                    className="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
+                                    onClick={() => setShowUpdateModal(true)}
+                                >
+                                    <i className="fas fa-sync-alt mr-2"></i>
+                                    Cập nhật trạng thái
+                                </button>
+                            </div>
+                        )}
+                        {/* Modal cập nhật trạng thái */}
+                        {showUpdateModal && phanCongDetail && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+                                <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+                                    <h3 className="text-lg font-bold mb-4">Cập nhật trạng thái phân công</h3>
+                                    <select
+                                        className="w-full p-2 border rounded mb-4"
+                                        value={newStatus}
+                                        onChange={e => setNewStatus(e.target.value)}
+                                    >
+                                        {PHAN_CONG_STATUSES.map(status => (
+                                            <option key={status} value={status}>{status}</option>
+                                        ))}
+                                    </select>
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            className="px-4 py-2 bg-gray-200 rounded"
+                                            onClick={() => setShowUpdateModal(false)}
+                                        >Hủy</button>
+                                        <button
+                                            className="px-4 py-2 bg-blue-600 text-white rounded"
+                                            disabled={updating}
+                                            onClick={async () => {
+                                                setUpdating(true);
+                                                try {
+                                                    await phanCongDichVuApi.updateTrangThai(phanCongDetail.id, newStatus);
+                                                    setPhanCongDetail({ ...phanCongDetail, trangThaiPhanCong: newStatus });
+                                                    setShowUpdateModal(false);
+                                                } finally {
+                                                    setUpdating(false);
+                                                }
+                                            }}
+                                        >Lưu</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
