@@ -5,7 +5,7 @@ export interface NguoiDungDto {
   gioiTinh: string;
   ngaySinh: Date;
   cccd: string;
-  sdt: string;
+  soDienThoai: string;
   diaChi: string;
   maTaiKhoan?: string;
   maVaiTro?: string;
@@ -16,7 +16,7 @@ export interface NguoiDungUpdateDto {
   gioiTinh: string;
   ngaySinh: Date;
   cccd: string;
-  sdt: string;
+  soDienThoai: string;
   diaChi: string;
 }
 
@@ -25,7 +25,7 @@ export interface NguoiDungCreateDto {
   gioiTinh: string;
   ngaySinh: Date;
   cccd: string;
-  sdt: string;
+  soDienThoai: string;
   diaChi: string;
   maTaiKhoan: string;
   tenVaiTro: string;

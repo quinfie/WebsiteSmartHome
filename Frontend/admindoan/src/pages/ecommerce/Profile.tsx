@@ -9,7 +9,7 @@ interface NguoiDungData {
     gioiTinh: string;
     ngaySinh: Date;
     cccd: string;
-    sdt: string;
+    soDienThoai: string;
     diaChi: string;
     maTaiKhoan?: string;
 }
@@ -74,7 +74,7 @@ export default function CustomerProfile() {
                 maNguoiDung: profileData.maNguoiDung || profileData.MaNguoiDung,
                 tenNguoiDung: nguoiDungData?.tenNguoiDung || '',
                 diaChi: nguoiDungData?.diaChi || '',
-                soDienThoai: nguoiDungData?.sdt || '',
+                soDienThoai: nguoiDungData?.soDienThoai || '',
                 gioiTinh: nguoiDungData?.gioiTinh || '',
                 ngaySinh: nguoiDungData?.ngaySinh || null,
                 cccd: nguoiDungData?.cccd || ''
@@ -125,7 +125,7 @@ export default function CustomerProfile() {
                 gioiTinh: userInfo.gioiTinh || 'Nam',
                 ngaySinh: userInfo.ngaySinh || new Date(),
                 cccd: userInfo.cccd || '',
-                sdt: formData.soDienThoai,
+                SoDienThoai: formData.soDienThoai,
                 diaChi: formData.diaChi
             };
 

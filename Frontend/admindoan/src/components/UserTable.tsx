@@ -25,7 +25,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
           <th scope="col" className="py-2 px-4 font-semibold">Giới tính</th>
           <th scope="col" className="py-2 px-4 font-semibold">Ngày sinh</th>
           <th scope="col" className="py-2 px-4 font-semibold">CCCD</th>
-          <th scope="col" className="py-2 px-4 font-semibold">SĐT</th>
+          <th scope="col" className="py-2 px-4 font-semibold">Số điện thoại</th>
           <th scope="col" className="py-2 px-4 font-semibold">Địa chỉ</th>
           <th scope="col" className="py-2 pl-0 pr-4 text-right font-semibold sm:pr-6 lg:pr-8">Hành động</th>
         </tr>
@@ -48,7 +48,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
               {user.cccd}
             </td>
             <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {user.sdt}
+              {user.soDienThoai}
             </td>
             <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
               {user.diaChi}

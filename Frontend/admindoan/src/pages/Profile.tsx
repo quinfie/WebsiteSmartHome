@@ -88,7 +88,7 @@ const Profile: React.FC = () => {
           gioiTinh: nguoiDung.gioiTinh,
           ngaySinh: new Date(nguoiDung.ngaySinh),
           cccd: nguoiDung.cccd,
-          sdt: nguoiDung.sdt,
+          sdt: nguoiDung.soDienThoai,
           diaChi: nguoiDung.diaChi
         });
       }

@@ -198,7 +198,7 @@ const YeuCauDichVuDetailPage: React.FC = () => {
                         {/* Customer Information Card */}
                         <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
                             <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white border-b pb-4 border-gray-200 dark:border-gray-700 flex items-center">
-                                <i className="fas fa-user-circle mr-2 text-green-500"></i> Thông tin Khách hàng
+                                <i className="fas fa-user-circle mr-2 text-green-500"></i> Thông tin khách hàng
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>

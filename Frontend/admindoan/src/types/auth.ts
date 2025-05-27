@@ -61,7 +61,7 @@ export interface UpdateNguoiDungDto {
   gioiTinh: string;
   ngaySinh: Date;
   cccd: string;
-  sdt: string;
+  SoDienThoai: string;
   diaChi: string;
 }
 

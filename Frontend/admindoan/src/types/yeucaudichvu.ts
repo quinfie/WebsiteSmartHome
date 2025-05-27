@@ -24,6 +24,7 @@ export interface YeuCauDichVuDto {
     cccd: string;
     ngaySinh?: Date;
   };
+  phanCongHienTai?: any;
 }
 
 export interface YeuCauDichVuKhachHangDto {

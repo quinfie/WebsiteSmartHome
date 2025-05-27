@@ -29,7 +29,7 @@ namespace WebsiteSmartHome.Services
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh,
                 Cccd = x.Cccd!,
-                Sdt = x.SoDienThoai!,
+                soDienThoai = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
         }
@@ -56,7 +56,7 @@ namespace WebsiteSmartHome.Services
                 GioiTinh = nd.GioiTinh!,
                 NgaySinh = nd.NgaySinh,
                 Cccd = nd.Cccd!,
-                Sdt = nd.SoDienThoai!,
+                soDienThoai = nd.SoDienThoai!,
                 DiaChi = nd.DiaChi
             };
         }
@@ -118,7 +118,7 @@ namespace WebsiteSmartHome.Services
                 GioiTinh = nguoiDung.GioiTinh!,
                 NgaySinh = nguoiDung.NgaySinh,
                 Cccd = nguoiDung.Cccd!,
-                Sdt = nguoiDung.SoDienThoai!,
+                soDienThoai = nguoiDung.SoDienThoai!,
                 DiaChi = nguoiDung.DiaChi
             };
         }
@@ -234,7 +234,7 @@ namespace WebsiteSmartHome.Services
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh,
                 Cccd = x.Cccd!,
-                Sdt = x.SoDienThoai!,
+                soDienThoai = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
         }
@@ -254,7 +254,7 @@ namespace WebsiteSmartHome.Services
                 GioiTinh = x.GioiTinh!,
                 NgaySinh = x.NgaySinh,
                 Cccd = x.Cccd!,
-                Sdt = x.SoDienThoai!,
+                soDienThoai = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
         }

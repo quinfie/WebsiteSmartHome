@@ -153,20 +153,22 @@ namespace WebsiteSmartHome.Services
             if (trangThai == "Đã xác nhận")
             {
                 // Kiểm tra ràng buộc: Nếu trạng thái là "Đã xác nhận", DaPhanCong phải là true
-                if (!entity.DaPhanCong)
-                {
-                    throw new BaseException.ValidationException("missing_assignment", "Yêu cầu cần được phân công trước khi xác nhận.");
-                }
+                // if (!entity.DaPhanCong)
+                // {
+                //     throw new BaseException.ValidationException("missing_assignment", "Yêu cầu cần được phân công trước khi xác nhận.");
+                // }
 
                 if (!ngayXuLy.HasValue)
                 {
                     throw new BaseException.ValidationException("missing_ngay_xu_ly", "Ngày xử lý là bắt buộc khi chuyển trạng thái sang Đã xác nhận");
                 }
-                // Tùy chọn: Thêm validation cho NgayXuLy nếu cần (ví dụ: không được trong quá khứ, phải sau NgayHen...)
-                // const ngayHen = entity.NgayHen.ToDateTime(TimeOnly.MinValue);
-                // if (ngayXuLy.Value < ngayHen) {
-                //     throw new BaseException.ValidationException("invalid_ngay_xu_ly", "Ngày xử lý không được phép trước ngày hẹn.");
-                // }
+
+                //Tùy chọn: Thêm validation cho NgayXuLy nếu cần(ví dụ: không được trong quá khứ, phải sau NgayHen...)
+                var ngayHen = entity.NgayHen.ToDateTime(TimeOnly.MinValue);
+                if (ngayXuLy.Value <= ngayHen)
+                {
+                    throw new BaseException.ValidationException("invalid_ngay_xu_ly", "Ngày xử lý không được phép trước ngày hẹn.");
+                }
 
                 entity.NgayXuLy = ngayXuLy.Value; // Update NgayXuLy
             }
@@ -328,7 +330,7 @@ namespace WebsiteSmartHome.Services
                 KhachHang = chiTietDonHang?.MaDonHangNavigation?.MaNguoiDungNavigation != null ? new NguoiDungDto
                 {
                     TenNguoiDung = chiTietDonHang.MaDonHangNavigation.MaNguoiDungNavigation.TenNguoiDung ?? "",
-                    Sdt = chiTietDonHang.MaDonHangNavigation.MaNguoiDungNavigation.SoDienThoai ?? "",
+                    soDienThoai = chiTietDonHang.MaDonHangNavigation.MaNguoiDungNavigation.SoDienThoai ?? "",
                     DiaChi = chiTietDonHang.MaDonHangNavigation.MaNguoiDungNavigation.DiaChi ?? "",
                     Cccd = chiTietDonHang.MaDonHangNavigation.MaNguoiDungNavigation.Cccd ?? "",
                     NgaySinh = chiTietDonHang.MaDonHangNavigation.MaNguoiDungNavigation.NgaySinh ?? null,

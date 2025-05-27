@@ -32,7 +32,7 @@ const EditUser = () => {
         gioiTinh: "Nam",
         ngaySinh: new Date(),
         cccd: "",
-        sdt: "",
+        soDienThoai: "",
         diaChi: "",
         maTaiKhoan: "",
     });
@@ -115,7 +115,7 @@ const EditUser = () => {
                 gioiTinh: userData.gioiTinh || "Nam",
                 ngaySinh: userData.ngaySinh || new Date(),
                 cccd: userData.cccd || "",
-                sdt: userData.sdt || "",
+                soDienThoai: userData.soDienThoai || "",
                 diaChi: userData.diaChi || ""
             });
 
@@ -271,9 +271,9 @@ const EditUser = () => {
                                             <InputWithLabel label="Số điện thoại">
                                                 <SimpleInput
                                                     type="text"
-                                                    name="sdt"
+                                                    name="soDienThoai"
                                                     placeholder="Nhập số điện thoại..."
-                                                    value={userData.sdt || ''}
+                                                    value={userData.soDienThoai || ''}
                                                     onChange={handleUserChange}
                                                 />
                                             </InputWithLabel>

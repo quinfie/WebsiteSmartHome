@@ -4,10 +4,11 @@ import { usePhanCongDichVu } from "../contexts/PhanCongDichVuContext";
 import { useYeuCauDichVu } from "../contexts/YeuCauDichVuContext";
 import { useAuth } from "../contexts/AuthContext";
 import { PhanCongDichVuDto } from "../types/phancongdichvu";
-import { HiOutlinePlus, HiOutlineEye, HiOutlinePencil, HiOutlineTrash, HiOutlineCheckCircle, HiOutlineClipboardList, HiOutlineArchive, HiOutlineCheckCircle as HiCheckCircleIcon, HiOutlineClipboardCheck, HiOutlineCalendar } from "react-icons/hi";
+import { HiOutlineEye, HiOutlineCheckCircle, HiOutlineClipboardList, HiOutlineArchive, HiOutlineCheckCircle as HiCheckCircleIcon, HiOutlineClipboardCheck, HiOutlineCalendar } from "react-icons/hi";
 import { Sidebar, TableWrapper } from "../components";
 import { YeuCauDichVuDto } from "../types/yeucaudichvu";
 import PhanCongDichVuModal from '../components/PhanCongDichVuModal';
+import { phanCongDichVuApi } from '../api/phancongdichvu';
 
 const PhanCongDichVu = () => {
   const navigate = useNavigate();
@@ -22,10 +23,10 @@ const PhanCongDichVu = () => {
   const [showPhanCongModal, setShowPhanCongModal] = useState(false);
   const [selectedYeuCau, setSelectedYeuCau] = useState<YeuCauDichVuDto | null>(null);
 
-  const [searchTerm, setSearchTerm] = useState('');
   interface PhanCongFilterOptions {
     trangThaiYeuCau?: string;
     loaiDichVu?: string;
+    daPhanCong?: string;
   }
   const [filterOptions, setFilterOptions] = useState<PhanCongFilterOptions>({});
 
@@ -70,8 +71,17 @@ const PhanCongDichVu = () => {
     }
   }, [user?.vaiTro]);
 
-  const handlePhanCongClick = (yeuCau: YeuCauDichVuDto) => {
-    setSelectedYeuCau(yeuCau);
+  const handlePhanCongClick = async (yeuCau: YeuCauDichVuDto) => {
+    let phanCongHienTai = null;
+    if (yeuCau.daPhanCong) {
+      try {
+        const res = await phanCongDichVuApi.getByYeuCau(yeuCau.id);
+        phanCongHienTai = res && res.length > 0 ? res[0] : null;
+      } catch (e) {
+        phanCongHienTai = null;
+      }
+    }
+    setSelectedYeuCau({ ...yeuCau, phanCongHienTai });
     setShowPhanCongModal(true);
   };
 
@@ -79,11 +89,6 @@ const PhanCongDichVu = () => {
     setShowPhanCongModal(false);
     setSelectedYeuCau(null);
     fetchData();
-  };
-
-  const handleSearch = (keyword: string) => {
-    setSearchTerm(keyword);
-    console.log('Searching for:', keyword);
   };
 
   const handleFilterChange = (name: string, value: any) => {
@@ -141,27 +146,15 @@ const PhanCongDichVu = () => {
     { title: 'Yêu cầu đã hoàn thành', value: allRequests.filter(req => req.trangThaiYeuCau === 'Hoàn thành').length, icon: <HiCheckCircleIcon className="text-green-500 dark:text-green-400 text-xl" />, color: 'bg-green-100 dark:bg-green-900' },
   ];
 
-  const filterFields = [
-    { name: 'trangThaiYeuCau', label: 'Trạng thái', type: 'select' as const, options: [{ value: '', label: 'Tất cả' }, { value: 'Đang chờ xác nhận', label: 'Đang chờ xác nhận' }, { value: 'Đã xác nhận', label: 'Đã xác nhận' }, { value: 'Đã hủy', label: 'Đã hủy' }, { value: 'Hoàn thành', label: 'Hoàn thành' }], value: filterOptions.trangThaiYeuCau },
-    { name: 'loaiDichVu', label: 'Loại dịch vụ', type: 'select' as const, options: [{ value: '', label: 'Tất cả' }, { value: 'Bảo hành', label: 'Bảo hành' }, { value: 'Sửa chữa', label: 'Sửa chữa' }], value: filterOptions.loaiDichVu },
-  ];
-
   return (
     <div className="h-auto border-t border-blackSecondary border-1 flex dark:bg-blackPrimary bg-whiteSecondary">
       <Sidebar />
       <TableWrapper
         title="Phân công dịch vụ"
         subtitle="Quản lý phân công kỹ thuật viên"
-        onSearch={handleSearch}
-        searchPlaceholder="Tìm kiếm yêu cầu..."
-        filters={{
-          fields: filterFields,
-          onFilterChange: handleFilterChange,
-          onApplyFilters: handleApplyFilters,
-          onResetFilters: handleClearFilters
-        }}
+        onSearch={() => { }}
         isLoading={loading}
-        hasData={hasData}
+        hasData={allRequests.length > 0}
         emptyStateMessage={emptyStateMessage()}
         statCards={statCards}
         contextType="donhang"
@@ -179,168 +172,160 @@ const PhanCongDichVu = () => {
           </div>
         }
       >
-        {allRequests.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 px-4 pt-4">Tất cả Yêu cầu dịch vụ ({allRequests.length})</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 px-4 pb-4">Danh sách tất cả các yêu cầu dịch vụ.</p>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loại dịch vụ</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Trạng thái</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Đã phân công</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {allRequests.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/20">
-                      <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-white">{item.id}</td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.loaiDichVu}</td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {renderTrangThai(item.trangThaiYeuCau)}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {item.daPhanCong ? 'Đã phân công' : 'Chưa phân công'}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400 text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => navigate(`/dashboard/requestservice/view/${item.id}`)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                            title="Xem chi tiết"
-                          >
-                            <HiOutlineEye className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {/* BỘ LỌC TÙY CHỈNH */}
+        <div className="flex flex-wrap items-end gap-4 mb-6 px-4">
+          {/* Bộ lọc phân công */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-300 mb-1">Phân công</label>
+            <select
+              value={filterOptions.daPhanCong ?? ""}
+              onChange={e => handleFilterChange('daPhanCong', e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="">Tất cả</option>
+              <option value="true">Đã phân công</option>
+              <option value="false">Chưa phân công</option>
+            </select>
           </div>
-        )}
+          {/* Trạng thái */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-300 mb-1">Trạng thái</label>
+            <select
+              value={filterOptions.trangThaiYeuCau || ""}
+              onChange={e => handleFilterChange('trangThaiYeuCau', e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="">Tất cả</option>
+              <option value="Đang chờ xác nhận">Đang chờ xác nhận</option>
+              <option value="Đã xác nhận">Đã xác nhận</option>
+              <option value="Đã hủy">Đã hủy</option>
+              <option value="Hoàn thành">Hoàn thành</option>
+            </select>
+          </div>
+          {/* Loại dịch vụ */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-300 mb-1">Loại dịch vụ</label>
+            <select
+              value={filterOptions.loaiDichVu || ""}
+              onChange={e => handleFilterChange('loaiDichVu', e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="">Tất cả</option>
+              <option value="Bảo hành">Bảo hành</option>
+              <option value="Sửa chữa">Sửa chữa</option>
+            </select>
+          </div>
+          {/* Nút lọc và xóa lọc */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleApplyFilters}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            >
+              Lọc
+            </button>
+            <button
+              onClick={handleClearFilters}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+            >
+              Xóa lọc
+            </button>
+          </div>
+        </div>
 
-        {(user?.vaiTro === "Quản Lí" || user?.vaiTro === "Quản Trị Viên") && unassignedRequests.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 px-4 pt-4">Yêu cầu dịch vụ chưa phân công ({unassignedRequests.length})</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 px-4 pb-4">Chọn yêu cầu để phân công cho kỹ thuật viên.</p>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loại dịch vụ</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày hẹn</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Khách hàng</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {unassignedRequests.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/20">
-                      <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-white">{item.id}</td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.loaiDichVu}</td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {item.ngayHen ? new Date(item.ngayHen).toLocaleDateString('vi-VN') : 'N/A'}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.khachHang?.tenNguoiDung || 'N/A'}</td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400 text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => navigate(`/dashboard/requestservice/view/${item.id}`)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                            title="Xem chi tiết"
-                          >
-                            <HiOutlineEye className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={() => handlePhanCongClick(item)}
-                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                            title="Phân công"
-                          >
-                            <HiOutlineCheckCircle className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </td>
+        {/* Lọc danh sách theo filterOptions */}
+        {(() => {
+          let filteredRequests = allRequests;
+          if (filterOptions.daPhanCong === "true") {
+            filteredRequests = filteredRequests.filter(x => x.daPhanCong);
+          } else if (filterOptions.daPhanCong === "false") {
+            filteredRequests = filteredRequests.filter(x => !x.daPhanCong);
+          }
+          if (filterOptions.trangThaiYeuCau) {
+            filteredRequests = filteredRequests.filter(x => x.trangThaiYeuCau === filterOptions.trangThaiYeuCau);
+          }
+          if (filterOptions.loaiDichVu) {
+            filteredRequests = filteredRequests.filter(x => x.loaiDichVu === filterOptions.loaiDichVu);
+          }
+          return (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-6">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 px-4 pt-4">
+                Danh sách Yêu cầu dịch vụ ({filteredRequests.length})
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 px-4 pb-4">
+                Quản lý toàn bộ yêu cầu dịch vụ trong hệ thống. Sử dụng bộ lọc để tìm kiếm nhanh.
+              </p>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loại dịch vụ</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày hẹn</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày xử lý</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Trạng thái</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Đã phân công</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Khách hàng</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Thao tác</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredRequests.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-8 text-gray-400 dark:text-gray-500">
+                          Không có dữ liệu
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredRequests.map((item) => (
+                        <tr key={item.id} className="hover:bg-blue-50 dark:hover:bg-gray-700/20">
+                          <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-white">{item.id}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.loaiDichVu}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.ngayHen ? new Date(item.ngayHen).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.ngayXuLy ? new Date(item.ngayXuLy).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{renderTrangThai(item.trangThaiYeuCau)}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.daPhanCong ? 'Đã phân công' : 'Chưa phân công'}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.khachHang?.tenNguoiDung || 'N/A'}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400 text-right">
+                            <div className="flex items-center justify-end space-x-2">
+                              <button
+                                onClick={() => navigate(`/dashboard/requestservice/view/${item.id}`)}
+                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                title="Xem chi tiết"
+                              >
+                                <HiOutlineEye className="h-5 w-5" />
+                              </button>
+                              {item.daPhanCong ? (
+                                <button
+                                  onClick={() => handlePhanCongClick(item)}
+                                  className="flex items-center text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors border border-yellow-400 rounded-md px-2 py-1 bg-yellow-50/10 dark:bg-yellow-900/10 ml-1"
+                                  title="Cập nhật phân công"
+                                >
+                                  <HiOutlineCheckCircle className="h-5 w-5" />
+                                  <span className="ml-1 text-xs font-semibold hidden md:inline">Cập nhật phân công</span>
+                                </button>
+                              ) : (
+                                item.trangThaiYeuCau === "Đã xác nhận" && (
+                                  <button
+                                    onClick={() => handlePhanCongClick(item)}
+                                    className="flex items-center text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors border border-green-400 rounded-md px-2 py-1 bg-green-50/10 dark:bg-green-900/10 ml-1"
+                                    title="Phân công kỹ thuật viên"
+                                  >
+                                    <HiOutlineCheckCircle className="h-5 w-5" />
+                                    <span className="ml-1 text-xs font-semibold hidden md:inline">Phân công</span>
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
-
-        {user?.vaiTro === "Nhân Viên" && phanCongList.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 px-4 pt-4">Phân công của bạn ({phanCongList.length})</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 px-4 pb-4">Các yêu cầu dịch vụ đã được phân công cho bạn.</p>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Yêu cầu dịch vụ
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Ngày phân công
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Trạng thái phân công
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Ghi chú
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Thao tác
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {phanCongList.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/20">
-                      <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                        {item.yeuCauDichVu?.loaiDichVu || 'Không có tiêu đề'}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {item.ngayPhanCong ? new Date(item.ngayPhanCong).toLocaleDateString('vi-VN') : 'N/A'}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {renderTrangThai(item.trangThaiPhanCong)}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
-                        {item.ghiChu || 'Không có ghi chú'}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400 text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => navigate(`/dashboard/requestservice/view/${item.yeuCauDichVuId}`)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                            title="Xem chi tiết yêu cầu"
-                          >
-                            <HiOutlineEye className="h-5 w-5" />
-                          </button>
-                          {item.trangThaiPhanCong !== "Đã hoàn thành" && (
-                            <button
-                              onClick={() => navigate(`/phan-cong/edit/${item.id}`)}
-                              className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
-                              title="Cập nhật tiến độ"
-                            >
-                              <HiOutlinePencil className="h-5 w-5" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </TableWrapper>
 
       <PhanCongDichVuModal

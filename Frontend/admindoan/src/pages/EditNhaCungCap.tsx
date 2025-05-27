@@ -80,7 +80,7 @@ const EditNhaCungCap = () => {
       setSuccess("Cập nhật nhà cung cấp thành công!");
       // Delay navigation to show success message
       setTimeout(() => {
-        navigate("/dashboard/suppliers");
+        window.location.href = "/dashboard/suppliers"; // full reload
       }, 1500);
     } catch (err) {
       console.error("Lỗi khi cập nhật:", err);

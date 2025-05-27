@@ -49,7 +49,9 @@ const EditYeuCauDichVu = () => {
     e.preventDefault();
     console.log("Cập nhật yêu cầu dịch vụ:", id, form);
     // TODO: gọi API PUT cập nhật dữ liệu
-    navigate("/yeu-cau-dich-vu");
+    setTimeout(() => {
+      window.location.href = "/yeu-cau-dich-vu"; // full reload
+    }, 1500);
   };
 
   return (

@@ -206,7 +206,7 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4 transition-opacity duration-300">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-lg relative transform transition-all duration-300">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-2xl relative transform transition-all duration-300">
                 <button
                     className="absolute top-5 right-5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors text-3xl"
                     onClick={onClose}
@@ -215,8 +215,53 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                 </button>
                 <h2 className="text-2xl font-bold mb-7 text-gray-800 dark:text-white text-center">Cập nhật Yêu cầu Dịch vụ</h2>
 
+                {/* Thông tin chi tiết yêu cầu */}
+                <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Thông tin yêu cầu</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Sản phẩm</p>
+                            <p className="text-gray-800 dark:text-white font-medium">{item.tenSanPham}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Loại dịch vụ</p>
+                            <p className="text-gray-800 dark:text-white font-medium">{item.loaiDichVu}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Ngày hẹn</p>
+                            <p className="text-gray-800 dark:text-white font-medium">
+                                {item.ngayHen ? new Date(item.ngayHen).toLocaleDateString('vi-VN') : 'N/A'}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Trạng thái hiện tại</p>
+                            <p className="text-gray-800 dark:text-white font-medium">{item.trangThaiYeuCau}</p>
+                        </div>
+                        <div className="col-span-2">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Mô tả</p>
+                            <p className="text-gray-800 dark:text-white font-medium">{item.moTa || 'Không có mô tả'}</p>
+                        </div>
+                        {item.chiPhiYeuCau > 0 && (
+                            <div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Chi phí</p>
+                                <p className="text-gray-800 dark:text-white font-medium">
+                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.chiPhiYeuCau)}
+                                </p>
+                            </div>
+                        )}
+                        {item.ngayXuLy && (
+                            <div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Ngày xử lý</p>
+                                <p className="text-gray-800 dark:text-white font-medium">
+                                    {new Date(item.ngayXuLy).toLocaleDateString('vi-VN')}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 <div className="mb-8">
-                    <div className="flex border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex space-x-1 border-b border-gray-200 dark:border-gray-700">
                         <button
                             className={`flex-1 py-4 px-1 text-center text-sm font-semibold ${currentTab === 'trangThai' ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'} focus:outline-none transition-colors duration-200`}
                             onClick={() => setCurrentTab('trangThai')}
@@ -258,7 +303,7 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                         </div>
                     )}
 
-                    <div className="flex justify-end space-x-4 mt-6">
+                    <div className="flex justify-end space-x-3">
                         <button
                             type="button"
                             className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"

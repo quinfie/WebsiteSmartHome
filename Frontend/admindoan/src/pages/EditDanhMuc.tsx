@@ -34,6 +34,9 @@ const EditDanhMuc = () => {
     formData.append("moTa", moTa);
 
     await updateDanhMuc(formData); // Giả định API nhận FormData
+    setTimeout(() => {
+      window.location.href = "/dashboard/categories"; // full reload
+    }, 1500);
   };
 
   return (

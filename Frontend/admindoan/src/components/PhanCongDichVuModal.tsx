@@ -26,6 +26,8 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
     const [kyThuatVienId, setKyThuatVienId] = useState("");
     const [ghiChu, setGhiChu] = useState("");
     const [kyThuatVien, setKyThuatVien] = useState<NguoiDungDto[]>([]);
+    const [phanCongId, setPhanCongId] = useState<string | null>(null);
+    const [trangThaiPhanCong, setTrangThaiPhanCong] = useState<string>("");
 
     useEffect(() => {
         const fetchKyThuatVien = async () => {
@@ -42,6 +44,21 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
             fetchKyThuatVien();
         }
     }, [open]);
+
+    useEffect(() => {
+        if (yeuCau && (yeuCau as any).phanCongHienTai) {
+            const pc = (yeuCau as any).phanCongHienTai;
+            setPhanCongId(pc.id);
+            setKyThuatVienId(pc.kyThuatVienId || "");
+            setGhiChu(pc.ghiChu || "");
+            setTrangThaiPhanCong(pc.trangThaiPhanCong || "");
+        } else {
+            setPhanCongId(null);
+            setKyThuatVienId("");
+            setGhiChu("");
+            setTrangThaiPhanCong("");
+        }
+    }, [yeuCau, open]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,19 +79,25 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
                 return;
             }
 
-            console.log("Submitting PhanCong:", {
-                yeuCauDichVuId: yeuCau.id,
-                kyThuatVienId: kyThuatVienId,
-                ghiChu: ghiChu
-            });
+            if (phanCongId) {
+                // Update
+                await phanCongDichVuApi.updatePhanCong({
+                    id: phanCongId,
+                    kyThuatVienId,
+                    ghiChu,
+                    trangThaiPhanCong
+                });
+                setSuccess("Cập nhật phân công thành công!");
+            } else {
+                // Create
+                await phanCongDichVuApi.create({
+                    yeuCauDichVuId: yeuCau.id,
+                    kyThuatVienId: kyThuatVienId,
+                    ghiChu: ghiChu
+                });
+                setSuccess("Phân công thành công!");
+            }
 
-            await phanCongDichVuApi.create({
-                yeuCauDichVuId: yeuCau.id,
-                kyThuatVienId: kyThuatVienId,
-                ghiChu: ghiChu
-            });
-
-            setSuccess("Phân công thành công!");
             setTimeout(() => {
                 onRefresh();
                 onClose();
@@ -116,7 +139,7 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
                             <option value="">Chọn kỹ thuật viên...</option>
                             {kyThuatVien.map(ktv => (
                                 <option key={ktv.id} value={ktv.id}>
-                                    {ktv.tenNguoiDung} - {ktv.sdt}
+                                    {ktv.tenNguoiDung} - {ktv.soDienThoai}
                                 </option>
                             ))}
                         </select>
@@ -132,6 +155,22 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
                             className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             placeholder="Nhập ghi chú..."
                         ></textarea>
+                    </div>
+
+                    <div>
+                        <label htmlFor="trangThaiPhanCong" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-400">Trạng thái phân công</label>
+                        <select
+                            id="trangThaiPhanCong"
+                            value={trangThaiPhanCong}
+                            onChange={e => setTrangThaiPhanCong(e.target.value)}
+                            className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            disabled={!phanCongId}
+                        >
+                            <option value="">Chọn trạng thái...</option>
+                            <option value="Đang chờ xử lý">Đang chờ xử lý</option>
+                            <option value="Đang thực hiện">Đang thực hiện</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                        </select>
                     </div>
 
                     {error && (

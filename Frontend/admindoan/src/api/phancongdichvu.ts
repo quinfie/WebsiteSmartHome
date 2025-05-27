@@ -57,5 +57,15 @@ export const phanCongDichVuApi = {
   getById: async (id: string): Promise<PhanCongCalendarDto> => {
     const res = await axios.get(`/PhanCongDichVu/${id}`);
     return res.data.data;
+  },
+
+  updatePhanCong: async (dto: { id: string; kyThuatVienId: string; ghiChu?: string; trangThaiPhanCong: string }): Promise<PhanCongDichVuDto> => {
+    const backendDto = {
+      MaKyThuatVien: dto.kyThuatVienId,
+      GhiChu: dto.ghiChu,
+      TrangThaiPhanCong: dto.trangThaiPhanCong
+    };
+    const res = await axios.put(`/PhanCongDichVu/${dto.id}`, backendDto);
+    return res.data.data;
   }
 };
