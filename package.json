@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "lucide-react": "^0.508.0",
-    "react-helmet": "^6.1.0"
+    "react-helmet": "^6.1.0",
+    "react-hot-toast": "^2.5.2"
   }
 }
