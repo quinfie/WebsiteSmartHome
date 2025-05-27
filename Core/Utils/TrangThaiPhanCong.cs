@@ -7,13 +7,13 @@ namespace WebsiteSmartHome.Core.Utils
         [Description("Đang chờ xử lý")]
         DangChoXuLy,
 
-        [Description("Đã tiếp nhận")]
-        DaTiepNhan,
-
-        [Description("Đang thực hiện")]
-        DangThucHien,
-
         [Description("Hoàn thành")]
-        HoanThanh
+        HoanThanh,
+
+        [Description("Đã xác nhận")]
+        DaXacNhan,
+
+        [Description("Đã hủy")]
+        DaHuy
     }
 }

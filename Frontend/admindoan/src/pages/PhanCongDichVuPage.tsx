@@ -294,27 +294,20 @@ const PhanCongDichVu = () => {
                               >
                                 <HiOutlineEye className="h-5 w-5" />
                               </button>
-                              {item.daPhanCong ? (
+                              {!item.daPhanCong && item.trangThaiYeuCau === "Đã xác nhận" ? (
                                 <button
                                   onClick={() => handlePhanCongClick(item)}
-                                  className="flex items-center text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors border border-yellow-400 rounded-md px-2 py-1 bg-yellow-50/10 dark:bg-yellow-900/10 ml-1"
-                                  title="Cập nhật phân công"
+                                  className="flex items-center text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors border border-green-400 rounded-md px-2 py-1 bg-green-50/10 dark:bg-green-900/10 ml-1"
+                                  title="Phân công kỹ thuật viên"
                                 >
                                   <HiOutlineCheckCircle className="h-5 w-5" />
-                                  <span className="ml-1 text-xs font-semibold hidden md:inline">Cập nhật phân công</span>
+                                  <span className="ml-1 text-xs font-semibold hidden md:inline">Phân công</span>
                                 </button>
-                              ) : (
-                                item.trangThaiYeuCau === "Đã xác nhận" && (
-                                  <button
-                                    onClick={() => handlePhanCongClick(item)}
-                                    className="flex items-center text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors border border-green-400 rounded-md px-2 py-1 bg-green-50/10 dark:bg-green-900/10 ml-1"
-                                    title="Phân công kỹ thuật viên"
-                                  >
-                                    <HiOutlineCheckCircle className="h-5 w-5" />
-                                    <span className="ml-1 text-xs font-semibold hidden md:inline">Phân công</span>
-                                  </button>
-                                )
-                              )}
+                              ) : item.daPhanCong ? (
+                                <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200 ml-1">
+                                  Đã phân công
+                                </span>
+                              ) : null}
                             </div>
                           </td>
                         </tr>
