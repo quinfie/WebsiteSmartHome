@@ -28,6 +28,7 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
     const [kyThuatVien, setKyThuatVien] = useState<NguoiDungDto[]>([]);
     const [phanCongId, setPhanCongId] = useState<string | null>(null);
     const [trangThaiPhanCong, setTrangThaiPhanCong] = useState<string>("");
+    const [ngayXuLy, setNgayXuLy] = useState<Date | null>(null);
 
     useEffect(() => {
         const fetchKyThuatVien = async () => {
@@ -52,11 +53,23 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
             setKyThuatVienId(pc.kyThuatVienId || "");
             setGhiChu(pc.ghiChu || "");
             setTrangThaiPhanCong(pc.trangThaiPhanCong || "");
+            const backendNgayXuLy = pc.yeuCauDichVu?.ngayXuLy;
+            if (backendNgayXuLy) {
+                try {
+                    setNgayXuLy(new Date(backendNgayXuLy));
+                } catch (e) {
+                    console.error("Error parsing ngayXuLy from backend:", e);
+                    setNgayXuLy(null);
+                }
+            } else {
+                setNgayXuLy(null);
+            }
         } else {
             setPhanCongId(null);
             setKyThuatVienId("");
             setGhiChu("");
             setTrangThaiPhanCong("");
+            setNgayXuLy(null);
         }
     }, [yeuCau, open]);
 
@@ -81,12 +94,23 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
 
             if (phanCongId) {
                 // Update
-                await phanCongDichVuApi.updatePhanCong({
+                const updateDto: any = {
                     id: phanCongId,
                     kyThuatVienId,
                     ghiChu,
                     trangThaiPhanCong
-                });
+                };
+
+                if (trangThaiPhanCong === "Đã xác nhận") {
+                    if (!ngayXuLy) {
+                        setError("Vui lòng chọn ngày xử lý.");
+                        setLoading(false);
+                        return;
+                    }
+                    updateDto.ngayXuLy = ngayXuLy.toISOString();
+                }
+
+                await phanCongDichVuApi.updatePhanCong(updateDto);
                 setSuccess("Cập nhật phân công thành công!");
             } else {
                 // Create
@@ -133,13 +157,16 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
                         <select
                             id="kyThuatVien"
                             value={kyThuatVienId}
-                            onChange={e => setKyThuatVienId(e.target.value)}
+                            onChange={e => {
+                                setKyThuatVienId(e.target.value);
+                                console.log("Selected technician ID:", e.target.value);
+                            }}
                             className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
                             <option value="">Chọn kỹ thuật viên...</option>
                             {kyThuatVien.map(ktv => (
                                 <option key={ktv.id} value={ktv.id}>
-                                    {ktv.tenNguoiDung} - {ktv.soDienThoai}
+                                    {ktv.tenNguoiDung}
                                 </option>
                             ))}
                         </select>
@@ -166,12 +193,25 @@ const PhanCongDichVuModal: React.FC<PhanCongDichVuModalProps> = ({
                             className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             disabled={!phanCongId}
                         >
-                            <option value="">Chọn trạng thái...</option>
-                            <option value="Đang chờ xử lý">Đang chờ xử lý</option>
-                            <option value="Đang thực hiện">Đang thực hiện</option>
+                            <option value="Đang chờ xác nhận">Đang chờ xác nhận</option>
+                            <option value="Đã xác nhận">Đã xác nhận</option>
                             <option value="Hoàn thành">Hoàn thành</option>
+                            <option value="Đã hủy">Đã hủy</option>
                         </select>
                     </div>
+
+                    {trangThaiPhanCong === "Đã xác nhận" && (
+                        <div>
+                            <label htmlFor="ngayXuLy" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-400">Ngày xử lý</label>
+                            <input
+                                id="ngayXuLy"
+                                type="date"
+                                className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                value={ngayXuLy ? ngayXuLy.toISOString().split('T')[0] : ''}
+                                onChange={e => setNgayXuLy(e.target.value ? new Date(e.target.value) : null)}
+                            />
+                        </div>
+                    )}
 
                     {error && (
                         <div className="p-3 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-900 dark:text-red-400 border border-red-300 dark:border-red-700" role="alert">

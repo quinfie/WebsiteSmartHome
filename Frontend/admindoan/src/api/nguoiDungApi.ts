@@ -50,14 +50,29 @@ export const nguoiDungService = {
   // PUT: api/NguoiDung/{id}
   update: async (id: string, data: NguoiDungUpdateDto): Promise<string> => {
     try {
-      const response = await api.put(`/NguoiDung/${id}`, data, {
+      // Format date as YYYY-MM-DD and convert to PascalCase for backend
+      const formattedData = {
+        TenNguoiDung: data.tenNguoiDung,
+        GioiTinh: data.gioiTinh,
+        NgaySinh: data.ngaySinh ? new Date(data.ngaySinh).toISOString().split('T')[0] : null,
+        Cccd: data.cccd,
+        Sdt: data.sdt,
+        DiaChi: data.diaChi,
+        MaVaiTro: data.maVaiTro
+      };
+
+      console.log('Sending data to backend:', formattedData); // Log for debugging
+
+      const response = await api.put(`/NguoiDung/${id}`, formattedData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
       return response.data.data;
-    } catch (error) {
+    } catch (error: any) {
+      // Log full error details
       console.error('Update user error:', error);
+      console.error('Error response:', error.response?.data);
       throw error;
     }
   },
@@ -89,6 +104,21 @@ export const nguoiDungService = {
       return response.data.data;
     } catch (error) {
       console.error('Search users error:', error);
+      throw error;
+    }
+  },
+
+  getUsersByRole: async (roleName: string, isVip: boolean = false): Promise<NguoiDungDto[]> => {
+    try {
+      const response = await api.get(`/NguoiDung/by-role/${roleName}`, {
+        params: { isVip },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error('Get users by role error:', error);
       throw error;
     }
   }

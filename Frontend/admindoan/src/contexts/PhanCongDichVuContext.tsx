@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { phanCongDichVuApi } from "../api/phancongdichvu";
 import {
   CreatePhanCongDichVuDto,
-  PhanCongDichVuDto,
+  PhanCongDichVuDto
 } from "../types/phancongdichvu";
 
 interface PhanCongDichVuContextType {

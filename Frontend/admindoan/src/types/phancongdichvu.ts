@@ -1,3 +1,5 @@
+import { YeuCauDichVuDto } from './yeucaudichvu';
+
 export interface CreatePhanCongDichVuDto {
     yeuCauDichVuId: string;
     kyThuatVienId: string;
@@ -13,18 +15,16 @@ export interface CreatePhanCongDichVuDto {
     ngayHoanThanh?: string;
     trangThaiPhanCong: string;
     ghiChu?: string;
-    kyThuatVien?: {
-      id: string;
-      tenNguoiDung: string;
-      email: string;
-      soDienThoai: string;
-    };
     yeuCauDichVu?: {
       id: string;
       tieuDe: string;
       moTa: string;
       trangThaiYeuCau: string;
       loaiDichVu: string;
+      ngayHen?: string;
+      ngayXuLy?: string;
+      daPhanCong: boolean;
+      chiPhiYeuCau?: number;
       khachHang?: {
         id: string;
         tenNguoiDung: string;
@@ -33,6 +33,17 @@ export interface CreatePhanCongDichVuDto {
         diaChi: string;
       };
     };
+    kyThuatVien?: {
+      id: string;
+      tenNguoiDung: string;
+      email: string;
+      soDienThoai: string;
+    };
+  }
+  
+  export interface UpdatePhanCongDichVuDto {
+    ghiChu?: string;
+    trangThaiPhanCong?: 'Đang chờ xác nhận' | 'Đã xác nhận' | 'Hoàn thành' | 'Đã hủy';
   }
   
   export interface PhanCongCalendarDto {
@@ -57,5 +68,6 @@ export interface CreatePhanCongDichVuDto {
     diaChiKhachHang: string;
     ngayHetHanBaoHanh: string;
     ngayHoanThanh?: string;
+    ngayXuLy?: string;
   }
   

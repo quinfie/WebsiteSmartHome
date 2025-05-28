@@ -1,4 +1,11 @@
 import axios from './axios.config';
+import { 
+    ThongKeDonHangDto, 
+    ThongKeSanPhamDto, 
+    ThongKeDanhMucDto, 
+    ThongKeDichVuDto, 
+    ThongKeDanhGiaDto 
+} from '../types/thongke';
 
 interface BaseResponse<T> {
   data: T;
@@ -635,4 +642,41 @@ const generateSampleUserData = (): { month: string; users: number }[] => {
   }
   
   return result;
+};
+
+export const thongKeService = {
+    getThongKeDonHang: async (startDate: string, endDate: string): Promise<ThongKeDonHangDto[]> => {
+        const response = await axios.get(`/ThongKe/donhang`, {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    },
+
+    getThongKeSanPham: async (startDate: string, endDate: string): Promise<ThongKeSanPhamDto[]> => {
+        const response = await axios.get(`/ThongKe/sanpham`, {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    },
+
+    getThongKeTheoDanhMuc: async (startDate: string, endDate: string): Promise<ThongKeDanhMucDto[]> => {
+        const response = await axios.get(`/ThongKe/danhmuc`, {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    },
+
+    getThongKeDichVu: async (startDate: string, endDate: string): Promise<ThongKeDichVuDto[]> => {
+        const response = await axios.get(`/ThongKe/dichvu`, {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    },
+
+    getThongKeDanhGia: async (startDate: string, endDate: string): Promise<ThongKeDanhGiaDto[]> => {
+        const response = await axios.get(`/ThongKe/danhgia`, {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    }
 };

@@ -166,12 +166,22 @@ export default function CheckoutSuccess() {
                         <h2 className="text-xl font-semibold text-white mb-4">Thông tin đơn hàng</h2>
                         {orderDetails ? (
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-300">Tổng tiền hàng:</span>
-                                    <span className="text-white font-medium">
-                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(orderDetails.tongTien)}
-                                    </span>
-                                </div>
+                                {orderDetails.chiTietDonHangs && orderDetails.chiTietDonHangs.length > 0 && (
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-center text-gray-400 border-b border-[#243447] pb-2">
+                                            <span>Tên sản phẩm</span>
+                                            <span>Đơn giá</span>
+                                        </div>
+                                        {orderDetails.chiTietDonHangs.map((item, index) => (
+                                            <div key={index} className="flex justify-between items-center">
+                                                <span className="text-white">{item.tenSanPham}</span>
+                                                <span className="text-white font-medium">
+                                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.donGia)}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
 
                                 {orderDetails.tenKhuyenMai && khuyenMai && (
                                     <>
@@ -207,29 +217,10 @@ export default function CheckoutSuccess() {
                                     <span className="text-white font-medium">Tổng thanh toán:</span>
                                     <span className="text-blue-400 text-xl font-bold">
                                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                                            calculateTotalAfterDiscount(orderDetails) + (orderDetails.phiVanChuyen || 30000)
+                                            calculateTotalAfterDiscount(orderDetails)
                                         )}
                                     </span>
                                 </div>
-
-                                {orderDetails.chiTietDonHangs && orderDetails.chiTietDonHangs.length > 0 && (
-                                    <div className="mt-6">
-                                        <h3 className="text-white font-medium mb-3">Chi tiết sản phẩm:</h3>
-                                        <div className="space-y-3">
-                                            {orderDetails.chiTietDonHangs.map((item, index) => (
-                                                <div key={index} className="flex justify-between items-center bg-[#1b2a3b] p-3 rounded">
-                                                    <div>
-                                                        <p className="text-white">{item.tenSanPham}</p>
-                                                        <p className="text-gray-400 text-sm">Số lượng: {item.soLuong}</p>
-                                                    </div>
-                                                    <span className="text-blue-400">
-                                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.donGia * item.soLuong)}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
 
                                 <p className="text-gray-300 mt-6">
                                     Đơn hàng của bạn đã được tiếp nhận và đang được xử lý. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận đơn hàng.
@@ -270,6 +261,7 @@ export default function CheckoutSuccess() {
                                     <div className="h-4 bg-[#1b2a3b] rounded w-1/2 mx-auto"></div>
                                 </div>
                             ))}
+
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

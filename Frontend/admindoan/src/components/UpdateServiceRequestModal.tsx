@@ -11,7 +11,7 @@ interface UpdateServiceRequestModalProps {
     onRefresh: () => void;
 }
 
-type UpdateType = 'trangThai' | 'chiPhi' | 'ngayXuLy' | 'tienDo';
+type UpdateType = 'trangThai' | 'chiPhi' | 'tienDo';
 
 const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
     open,
@@ -28,17 +28,13 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
     // Form states
     const [trangThai, setTrangThai] = useState<StatusType>(item.trangThaiYeuCau || "");
     const [chiPhi, setChiPhi] = useState(item.chiPhiYeuCau || 0);
-    const [ngayXuLy, setNgayXuLy] = useState<string>(item.ngayXuLy ? new Date(item.ngayXuLy).toISOString().split('T')[0] : "");
     const [moTa, setMoTa] = useState(item.moTa || "");
-    const [ngayXuLyInputForStatus, setNgayXuLyInputForStatus] = useState<string>(item.ngayXuLy ? new Date(item.ngayXuLy).toISOString().split('T')[0] : "");
 
     useEffect(() => {
         if (open && item) {
             setTrangThai(item.trangThaiYeuCau || "");
             setChiPhi(item.chiPhiYeuCau || 0);
-            setNgayXuLy(item.ngayXuLy ? new Date(item.ngayXuLy).toISOString().split('T')[0] : "");
             setMoTa(item.moTa || "");
-            setNgayXuLyInputForStatus(item.ngayXuLy ? new Date(item.ngayXuLy).toISOString().split('T')[0] : "");
             setError("");
             setSuccess("");
             setCurrentTab('trangThai');
@@ -60,17 +56,7 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                         setLoading(false);
                         return;
                     }
-                    let dateToSend: string | null = null;
-                    if (trangThai === "Đã xác nhận") {
-                        if (!ngayXuLyInputForStatus) {
-                            setError("Ngày xử lý là bắt buộc khi chuyển trạng thái sang Đã xác nhận.");
-                            setLoading(false);
-                            return;
-                        }
-                        dateToSend = ngayXuLyInputForStatus;
-                    }
-
-                    await yeucaudichvuApi.updateTrangThai(item.id, trangThai.trim(), dateToSend);
+                    await yeucaudichvuApi.updateTrangThai(item.id, trangThai.trim());
                     setSuccess("Cập nhật trạng thái thành công!");
                     break;
                 case 'chiPhi':
@@ -82,25 +68,9 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                     await yeucaudichvuApi.updateChiPhi(item.id, Number(chiPhi));
                     setSuccess("Cập nhật chi phí thành công!");
                     break;
-                case 'ngayXuLy':
-                    if (!ngayXuLy) {
-                        setError("Ngày xử lý không được để trống.");
-                        setLoading(false);
-                        return;
-                    }
-                    const ngayHen = new Date(item.ngayHen);
-                    const ngayXuLyDate = new Date(ngayXuLy);
-                    if (ngayXuLyDate < ngayHen) {
-                        setError("Ngày xử lý không được phép trước ngày hẹn.");
-                        setLoading(false);
-                        return;
-                    }
-                    await yeucaudichvuApi.updateNgayXuLy(item.id, new Date(ngayXuLy));
-                    setSuccess("Cập nhật ngày xử lý thành công!");
-                    break;
                 case 'tienDo':
                     await yeucaudichvuApi.updateMoTa(item.id, moTa, false);
-                    setSuccess("Cập nhật tiến độ thành công!");
+                    setSuccess("Cập nhật mô tả thành công!");
                     break;
             }
             setTimeout(() => {
@@ -140,18 +110,6 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                                 ))}
                             </select>
                         </div>
-                        {trangThai === "Đã xác nhận" && (
-                            <div>
-                                <label htmlFor="ngayXuLyForStatus" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-400">Ngày xử lý <span className="text-red-500">*</span></label>
-                                <input
-                                    id="ngayXuLyForStatus"
-                                    type="date"
-                                    value={ngayXuLyInputForStatus}
-                                    onChange={e => setNgayXuLyInputForStatus(e.target.value)}
-                                    className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                />
-                            </div>
-                        )}
                     </div>
                 );
             case 'chiPhi':
@@ -170,21 +128,6 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                         </div>
                     </div>
                 );
-            case 'ngayXuLy':
-                return (
-                    <div className="space-y-5">
-                        <div>
-                            <label htmlFor="ngayXuLy" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-400">Ngày xử lý</label>
-                            <input
-                                id="ngayXuLy"
-                                type="date"
-                                value={ngayXuLy}
-                                onChange={e => setNgayXuLy(e.target.value)}
-                                className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            />
-                        </div>
-                    </div>
-                );
             case 'tienDo':
                 return (
                     <div className="space-y-5">
@@ -196,7 +139,7 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                                 onChange={handleMoTaChange}
                                 rows={4}
                                 className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Nhập thông tin tiến độ..."
+                                placeholder="Nhập thông tin mô tả..."
                             ></textarea>
                         </div>
                     </div>
@@ -216,7 +159,7 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                 <h2 className="text-2xl font-bold mb-7 text-gray-800 dark:text-white text-center">Cập nhật Yêu cầu Dịch vụ</h2>
 
                 {/* Thông tin chi tiết yêu cầu */}
-                <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+                <div className="mb-6">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Thông tin yêu cầu</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -241,26 +184,16 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                             <p className="text-sm text-gray-500 dark:text-gray-400">Mô tả</p>
                             <p className="text-gray-800 dark:text-white font-medium">{item.moTa || 'Không có mô tả'}</p>
                         </div>
-                        {item.chiPhiYeuCau > 0 && (
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Chi phí</p>
-                                <p className="text-gray-800 dark:text-white font-medium">
-                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.chiPhiYeuCau)}
-                                </p>
-                            </div>
-                        )}
-                        {item.ngayXuLy && (
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Ngày xử lý</p>
-                                <p className="text-gray-800 dark:text-white font-medium">
-                                    {new Date(item.ngayXuLy).toLocaleDateString('vi-VN')}
-                                </p>
-                            </div>
-                        )}
+                        <div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Chi phí</p>
+                            <p className="text-gray-800 dark:text-white font-medium">
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.chiPhiYeuCau)}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="mb-8">
+                <div className="mb-6">
                     <div className="flex space-x-1 border-b border-gray-200 dark:border-gray-700">
                         <button
                             className={`flex-1 py-4 px-1 text-center text-sm font-semibold ${currentTab === 'trangThai' ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'} focus:outline-none transition-colors duration-200`}
@@ -275,16 +208,10 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                             Chi phí
                         </button>
                         <button
-                            className={`flex-1 py-4 px-1 text-center text-sm font-semibold ${currentTab === 'ngayXuLy' ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'} focus:outline-none transition-colors duration-200`}
-                            onClick={() => setCurrentTab('ngayXuLy')}
-                        >
-                            Ngày xử lý
-                        </button>
-                        <button
                             className={`flex-1 py-4 px-1 text-center text-sm font-semibold ${currentTab === 'tienDo' ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'} focus:outline-none transition-colors duration-200`}
                             onClick={() => setCurrentTab('tienDo')}
                         >
-                            Tiến độ
+                            Mô tả
                         </button>
                     </div>
                 </div>
@@ -303,7 +230,7 @@ const UpdateServiceRequestModal: React.FC<UpdateServiceRequestModalProps> = ({
                         </div>
                     )}
 
-                    <div className="flex justify-end space-x-3">
+                    <div className="flex justify-end space-x-4">
                         <button
                             type="button"
                             className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"

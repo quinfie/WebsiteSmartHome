@@ -59,10 +59,10 @@ namespace WebsiteSmartHome.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchNguoiDung([FromQuery] string keyword)
+        public async Task<ActionResult<BaseResponse<IEnumerable<NguoiDungDto>>>> Search([FromQuery] string? keyword)
         {
-            var result = await _nguoiDungService.SearchNguoiDungAsync(keyword);
-            return Ok(BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Tìm kiếm người dùng thành công"));
+            var result = await _nguoiDungService.SearchNguoiDungAsync(keyword ?? string.Empty);
+            return BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Tìm kiếm người dùng thành công");
         }
 
         [HttpGet("ky-thuat-vien")]
@@ -71,6 +71,13 @@ namespace WebsiteSmartHome.Controllers
         {
             var result = await _nguoiDungService.GetKyThuatVienAsync();
             return Ok(BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Lấy danh sách kỹ thuật viên thành công"));
+        }
+
+        [HttpGet("by-role/{roleName}")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<NguoiDungDto>>>> GetUsersByRole(string roleName, [FromQuery] bool isVip = false)
+        {
+            var result = await _nguoiDungService.GetUsersByRoleAsync(roleName, isVip);
+            return BaseResponse<IEnumerable<NguoiDungDto>>.OkResponse(result, "Lấy danh sách người dùng theo vai trò thành công");
         }
     }
 }

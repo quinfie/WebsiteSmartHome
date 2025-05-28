@@ -20,7 +20,7 @@ export const yeucaudichvuApi = {
       // Convert to PascalCase for backend
       const requestBody = {
         MaChiTietDonHang: Number(dto.maChiTietDonHang),
-        MoTa: dto.moTa.trim(),
+        MoTa: dto.moTa?.trim(),
         NgayHen: dto.ngayHen // Format: YYYY-MM-DD
       };
       
@@ -111,8 +111,8 @@ export const yeucaudichvuApi = {
   // Cập nhật trạng thái yêu cầu dịch vụ
   updateTrangThai: async (id: string, trangThai: string, ngayXuLy?: string | null): Promise<YeuCauDichVuDto> => {
     const response = await api.put(`/YeuCauDichVu/trang-thai/${id}`, {
-      TrangThai: trangThai,
-      NgayXuLy: ngayXuLy
+      trangThai: trangThai,
+      ngayXuLy: ngayXuLy
     });
     return response.data.data;
   },
@@ -120,7 +120,7 @@ export const yeucaudichvuApi = {
   // Cập nhật chi phí yêu cầu dịch vụ (dành cho nhân viên)
   updateChiPhi: async (id: string, chiPhi: number): Promise<YeuCauDichVuDto> => {
     try {
-      const dto: UpdateChiPhiYeuCauDto = { ChiPhiYeuCau: chiPhi };
+      const dto: UpdateChiPhiYeuCauDto = { chiPhiYeuCau: chiPhi };
       const response = await api.put(`/YeuCauDichVu/${id}/chi-phi`, dto);
       return response.data.data;
     } catch (error: any) {
@@ -256,6 +256,16 @@ export const yeucaudichvuApi = {
       if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
       }
+      throw error;
+    }
+  },
+
+  getYeuCauCuaNhanVien: async (maNhanVien: string): Promise<YeuCauDichVuDto[]> => {
+    try {
+      const response = await api.get(`/YeuCauDichVu/nhan-vien/${maNhanVien}`);
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Error fetching employee service requests:', error);
       throw error;
     }
   }

@@ -83,6 +83,7 @@ builder.Services.AddScoped<IKhuyenMaiService, KhuyenMaiService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAccountVerificationService, AccountVerificationService>();
 builder.Services.AddScoped<IProductSuggestionService, ProductSuggestionService>();
+builder.Services.AddScoped<IThongKeService, ThongKeService>();
 
 // Add VNPAY configuration
 builder.Services.Configure<VNPayConfig>(builder.Configuration.GetSection(VNPayConfig.ConfigName));

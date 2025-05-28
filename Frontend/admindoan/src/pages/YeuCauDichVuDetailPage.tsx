@@ -244,56 +244,6 @@ const YeuCauDichVuDetailPage: React.FC = () => {
                             </div>
                         )}
                     </div>
-
-                    {/* Right Column - Actions */}
-                    <div className="lg:col-span-1 space-y-6">
-                        {/* Action Buttons */}
-                        <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
-                            <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white border-b pb-4 border-gray-200 dark:border-gray-700 flex items-center">
-                                <i className="fas fa-cogs mr-2 text-teal-500"></i> Thao tác
-                            </h2>
-                            <div className="space-y-4">
-                                {/* Nút Phân công: Chỉ hiện khi là Quản lý, trạng thái 'Đang chờ xác nhận' VÀ chưa phân công */}
-                                {user?.vaiTro === "Quản lí" && !yeuCau.daPhanCong && yeuCau.trangThaiYeuCau === "Đang chờ xác nhận" && (
-                                    <button
-                                        onClick={() => setShowPhanCongModal(true)}
-                                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                    >
-                                        <i className="fas fa-user-plus mr-2"></i> Phân công
-                                    </button>
-                                )}
-
-                                {/* Nút Xác nhận yêu cầu: Chỉ hiện khi là Quản lý, trạng thái 'Đang chờ xác nhận' VÀ đã phân công */}
-                                {user?.vaiTro === "Quản lí" && yeuCau.trangThaiYeuCau === "Đang chờ xác nhận" && yeuCau.daPhanCong === true && (
-                                    <button
-                                        onClick={handleConfirmRequest}
-                                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                    >
-                                        <i className="fas fa-check mr-2"></i> Xác nhận yêu cầu
-                                    </button>
-                                )}
-
-                                {/* Nút Hoàn thành: Chỉ hiện khi là Kỹ thuật viên hoặc Quản lý, trạng thái 'Đã xác nhận' */}
-                                {user?.vaiTro === "Kỹ thuật viên" && yeuCau.trangThaiYeuCau === "Đã xác nhận" && (
-                                    <button
-                                        onClick={handleCompleteRequest}
-                                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                    >
-                                        <i className="fas fa-check-circle mr-2"></i> Hoàn thành
-                                    </button>
-                                )}
-
-                                {yeuCau.trangThaiYeuCau !== "Đã hủy" && yeuCau.trangThaiYeuCau !== "Hoàn thành" && (
-                                    <button
-                                        onClick={handleCancelRequest}
-                                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                    >
-                                        <i className="fas fa-times mr-2"></i> Hủy yêu cầu
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 

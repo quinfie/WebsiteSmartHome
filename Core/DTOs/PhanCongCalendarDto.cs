@@ -22,11 +22,13 @@ namespace WebsiteSmartHome.Core.DTOs
         public int ThoiGianBaoHanh { get; set; } = 0;
         public DateTime NgayHetHanBaoHanh { get; set; }
         public DateTime? NgayHoanThanh { get; set; }
+        public DateTime? NgayXuLy { get; set; }
         // Thông tin khách hàng
         public string KhachHangId { get; set; } = string.Empty;
         public string TenKhachHang { get; set; } = string.Empty;
         public string EmailKhachHang { get; set; } = string.Empty;
         public string SoDienThoaiKhachHang { get; set; } = string.Empty;
         public string DiaChiKhachHang { get; set; } = string.Empty;
+        public string KyThuatVienId { get; set; } = string.Empty;
     }
 }

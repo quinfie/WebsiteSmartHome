@@ -20,6 +20,8 @@ import ServiceRequestDetailPage from './ServiceRequestDetail';
 import Checkout from './Checkout';
 import { Outlet } from 'react-router-dom';
 import PaymentCallback from './PaymentCallback';
+import PaymentSuccess from './PaymentSuccess';
+import PaymentFailed from './PaymentFailed';
 
 // The ecommerce routes configuration
 export const ecommerceRoutes: RouteObject[] = [
@@ -146,8 +148,20 @@ export const ecommerceRoutes: RouteObject[] = [
             {
                 path: 'payment-callback',
                 element: <PaymentCallback />
+            },
+            {
+                path: 'payment-success',
+                element: <PaymentSuccess />
+            },
+            {
+                path: 'payment-failed',
+                element: <PaymentFailed />
             }
         ]
+    },
+    {
+        path: 'api/vnpay/payment-callback',
+        element: <PaymentCallback />
     }
 ];
 

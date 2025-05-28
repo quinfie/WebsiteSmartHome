@@ -23,6 +23,7 @@ const PhanCongCalendarComponent: React.FC<PhanCongCalendarComponentProps> = ({ p
 
     useEffect(() => {
         const generateCalendar = () => {
+            console.log("PhanCongEvents received:", phanCongEvents);
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             const date = currentDate.getDate();
@@ -49,8 +50,19 @@ const PhanCongCalendarComponent: React.FC<PhanCongCalendarComponentProps> = ({ p
                 currentDay.setDate(startDate.getDate() + i);
 
                 const dayEvents = phanCongEvents.filter(event => {
-                    const eventDate = new Date(event.ngayPhanCong);
-                    return eventDate.toDateString() === currentDay.toDateString();
+                    if (!event.ngayXuLy) {
+                        return false;
+                    }
+                    const eventDate = new Date(event.ngayXuLy);
+
+                    if (isNaN(eventDate.getTime())) {
+                        console.error("Invalid date for event:", event.ngayXuLy, event);
+                        return false;
+                    }
+
+                    return eventDate.getFullYear() === currentDay.getFullYear() &&
+                        eventDate.getMonth() === currentDay.getMonth() &&
+                        eventDate.getDate() === currentDay.getDate();
                 });
 
                 calendarDays.push({
@@ -83,7 +95,7 @@ const PhanCongCalendarComponent: React.FC<PhanCongCalendarComponentProps> = ({ p
             id: event.id,
             type: 'service',
             title: event.loaiDichVu,
-            date: event.ngayPhanCong,
+            date: event.ngayXuLy || '',
             status: event.trangThaiPhanCong,
             description: event.moTaYeuCau,
             serviceType: event.loaiDichVu,

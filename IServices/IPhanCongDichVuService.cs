@@ -5,7 +5,7 @@ namespace WebsiteSmartHome.IServices
     public interface IPhanCongDichVuService
     {
         Task<PhanCongDichVuDto> PhanCongAsync(CreatePhanCongDichVuDto dto);
-        Task<PhanCongDichVuDto> UpdateTrangThaiAsync(string id, string trangThai);
+        Task<PhanCongDichVuDto> UpdateTrangThaiAsync(string phanCongId, string trangThai);
         Task<PhanCongDichVuDto> HoanThanhAsync(string phanCongId);
 
         // Phương thức mới

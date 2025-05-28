@@ -7,54 +7,57 @@ export type TrangThaiYeuCau = "Đang chờ xác nhận" | "Đã xác nhận" | "
 export interface YeuCauDichVuDto {
   id: string;
   maChiTietDonHang: number;
-  loaiDichVu: LoaiDichVu;
-  trangThaiYeuCau: TrangThaiYeuCau;
+  loaiDichVu: 'Bảo hành' | 'Sửa chữa';
+  trangThaiYeuCau: 'Đang chờ xác nhận' | 'Đã xác nhận' | 'Hoàn thành' | 'Đã hủy';
   chiPhiYeuCau: number;
   ngayHen: string;
-  ngayXuLy?: Date;
-  moTa?: string;
+  ngayXuLy: string | null;
+  moTa: string | null;
   daPhanCong: boolean;
   tenSanPham?: string;
   khachHang?: {
     id: string;
     tenNguoiDung: string;
+    email: string;
     soDienThoai: string;
     diaChi: string;
     gioiTinh: string;
     cccd: string;
-    ngaySinh?: Date;
+    ngaySinh: string;
   };
-  phanCongHienTai?: any;
 }
 
-export interface YeuCauDichVuKhachHangDto {
-  id: string;
-  tenSanPham: string;
-  loaiDichVu: LoaiDichVu;
-  trangThaiYeuCau: TrangThaiYeuCau;
-  ngayHen: string;
-  moTa?: string;
-  chiPhiYeuCau: number;
+export interface YeuCauDichVuKhachHangDto extends YeuCauDichVuDto {
+  khachHang: {
+    id: string;
+    tenNguoiDung: string;
+    email: string;
+    soDienThoai: string;
+    diaChi: string;
+    gioiTinh: string;
+    cccd: string;
+    ngaySinh: string;
+  };
 }
 
 export interface CreateYeuCauDichVuDto {
   maChiTietDonHang: number;
-  moTa: string;
+  loaiDichVu: 'Bảo hành' | 'Sửa chữa';
   ngayHen: string;
+  moTa?: string;
 }
 
 export interface UpdateChiPhiYeuCauDto {
-  ChiPhiYeuCau: number;
+  chiPhiYeuCau: number;
 }
 
 export interface UpdateMoTaDto {
-  MoTa: string;
-  IsKetQua: boolean;
+  moTa: string;
 }
 
 // DTO for updating service request status
 export interface UpdateTrangThaiYeuCauDto {
-    TrangThai: string;
-    NgayXuLy?: Date;
+  trangThaiYeuCau: 'Đang chờ xác nhận' | 'Đã xác nhận' | 'Hoàn thành' | 'Đã hủy';
+  ngayXuLy?: string;
 }
   

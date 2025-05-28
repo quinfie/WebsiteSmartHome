@@ -35,33 +35,47 @@ export default function Checkout() {
     }, [orderId]);
 
     const handleVNPayPayment = async () => {
-        if (!orderId) {
-            toast.error('Không tìm thấy ID đơn hàng.');
+        if (!orderId || !orderDetail) {
+            toast.error('Không tìm thấy thông tin đơn hàng.');
             return;
         }
 
         try {
-            console.log('Initiating VNPAY payment for order:', orderId);
-            // Call backend API to create VNPAY payment URL
+            // Cập nhật trạng thái đơn hàng trước khi chuyển sang VNPAY
+            const updateData = {
+                trangThaiDonHang: 'Chờ xác nhận',
+                phuongThucThanhToan: 'VNPAY',
+                maKhuyenMai: orderDetail.maKhuyenMai,
+                chiTietDonHangs: orderDetail.chiTietDonHangs?.map(item => ({
+                    maSanPham: item.maSanPham,
+                    soLuongMua: item.soLuong,
+                    donGiaMua: item.donGia
+                })) || []
+            };
+
+            // Cập nhật trạng thái đơn hàng
+            const updateResponse = await updateDonHang(orderId, updateData);
+            if (!updateResponse.success) {
+                throw new Error('Không thể cập nhật trạng thái đơn hàng');
+            }
+
+            // Tạo URL thanh toán VNPAY
             const response = await paymentApi.createVNPayPayment({
-                orderId: orderId
+                orderType: "other",
+                amount: orderDetail.tongTien,
+                orderDescription: `Thanh toán đơn hàng ${orderId}`,
+                name: "Khách hàng"
             });
 
-            console.log('VNPAY payment response:', response);
-
             if (response.success && response.data && response.data.paymentUrl) {
-                console.log('Redirecting to VNPAY URL:', response.data.paymentUrl);
-                // Redirect user to VNPAY payment URL
+                // Chuyển hướng đến trang thanh toán VNPAY
                 window.location.href = response.data.paymentUrl;
             } else {
-                console.error('Invalid VNPAY response:', response);
-                // Handle cases where API call is successful but data or paymentUrl is missing
-                toast.error(response.message || 'Không thể tạo URL thanh toán. Vui lòng thử lại sau.');
+                throw new Error('Không thể tạo URL thanh toán');
             }
         } catch (error: any) {
-            console.error('Error creating VNPay payment:', error);
-            // Display more specific error if available from backend
-            toast.error(error.message || 'Đã có lỗi xảy ra khi tạo thanh toán VNPAY. Vui lòng thử lại sau.');
+            console.error('Error in VNPAY payment process:', error);
+            toast.error(error.message || 'Đã có lỗi xảy ra trong quá trình thanh toán');
         }
     };
 
@@ -76,17 +90,13 @@ export default function Checkout() {
             return;
         }
 
-        // Log the current payment method
-        console.log('Current payment method:', paymentMethod);
-
         if (paymentMethod === 'vnpay') {
-            // If VNPAY is selected, initiate VNPAY payment process
             await handleVNPayPayment();
         } else {
-            // If COD is selected, update order status to 'Đã xác nhận' using the full update endpoint
             try {
                 const updateData = {
-                    trangThaiDonHang: 'Đã xác nhận',
+                    trangThaiDonHang: 'Chờ xác nhận',
+                    phuongThucThanhToan: 'COD',
                     maKhuyenMai: orderDetail.maKhuyenMai,
                     chiTietDonHangs: orderDetail.chiTietDonHangs?.map(item => ({
                         maSanPham: item.maSanPham,
@@ -95,19 +105,17 @@ export default function Checkout() {
                     })) || []
                 };
 
-                // Call the updateDonHang API
                 const response = await updateDonHang(orderId, updateData);
 
                 if (response.success) {
                     toast.success('Đặt hàng thành công!');
-                    // Navigate to orders page or success page for COD
-                    navigate('/ecommerce/orders'); // Or a specific COD success page
+                    navigate('/ecommerce/orders');
                 } else {
                     toast.error(response.message || 'Không thể đặt hàng COD. Vui lòng thử lại sau.');
                 }
             } catch (error: any) {
                 console.error('Error placing COD order:', error);
-                toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra khi đặt hàng COD. Vui lòng thử lại sau.');
+                toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra khi đặt hàng COD.');
             }
         }
     };

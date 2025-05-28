@@ -27,9 +27,7 @@ namespace WebsiteSmartHome.Services
             }
 
             // Kiểm tra yêu cầu đã được phân công chưa
-            var existingPhanCong = await _unitOfWork.GetRepository<PhanCongDichVu>()
-                .GetAllAsync();
-            if (existingPhanCong.Any(p => p.MaYeuCau == Guid.Parse(dto.MaYeuCau)))
+            if (yeuCau.DaPhanCong == true)
             {
                 throw new BaseException.ValidationException("already_assigned", "Yêu cầu đã được phân công");
             }
@@ -51,7 +49,7 @@ namespace WebsiteSmartHome.Services
                 MaKyThuatVien = Guid.Parse(dto.MaKyThuatVien),
                 GhiChu = dto.GhiChu,
                 NgayPhanCong = DateTime.Now,
-                TrangThaiPhanCong = TrangThaiPhanCong.DangChoXuLy.ToString().GetDescription(typeof(TrangThaiPhanCong))
+                TrangThaiPhanCong = TrangThaiPhanCong.DangChoXacNhan.ToString().GetDescription(typeof(TrangThaiPhanCong))
             };
             await _unitOfWork.GetRepository<PhanCongDichVu>().InsertAsync(entity);
 
@@ -88,6 +86,19 @@ namespace WebsiteSmartHome.Services
             }
 
             entity.TrangThaiPhanCong = trangThai;
+
+            // Nếu trạng thái mới là "Hoàn thành", cập nhật trạng thái Yêu Cầu Dịch Vụ và NgayHoanThanh
+            if (trangThai == TrangThaiPhanCong.HoanThanh.ToString().GetDescription(typeof(TrangThaiPhanCong)))
+            {
+                var yeuCau = await _unitOfWork.GetRepository<YeuCauDichVu>().GetByIdAsync(entity.MaYeuCau);
+                if (yeuCau != null)
+                {
+                    yeuCau.TrangThaiYeuCau = TrangThaiYeuCauDichVu.HoanThanh.ToString().GetDescription(typeof(TrangThaiYeuCauDichVu));
+                }
+                // Luôn cập nhật NgayHoanThanh khi trạng thái là Hoàn thành
+                entity.NgayHoanThanh = DateTime.Now;
+            }
+
             await _unitOfWork.SaveAsync();
 
             return new PhanCongDichVuDto
@@ -146,6 +157,13 @@ namespace WebsiteSmartHome.Services
             var entities = await _unitOfWork.GetRepository<PhanCongDichVu>()
                 .GetEntitiesWithCondition(pc => pc.MaYeuCau == Guid.Parse(yeuCauId))
                 .Include(pc => pc.MaKyThuatVienNavigation)
+                .Include(pc => pc.MaYeuCauNavigation)
+                    .ThenInclude(yc => yc.MaChiTietDonHangNavigation)
+                        .ThenInclude(ctdh => ctdh.MaDonHangNavigation)
+                            .ThenInclude(dh => dh.MaNguoiDungNavigation)
+                .Include(pc => pc.MaYeuCauNavigation)
+                     .ThenInclude(yc => yc.MaChiTietDonHangNavigation)
+                         .ThenInclude(ctdh => ctdh.MaSanPhamNavigation)
                 .ToListAsync();
 
             return entities.Select(entity => new PhanCongDichVuDto
@@ -156,7 +174,28 @@ namespace WebsiteSmartHome.Services
                 GhiChu = entity.GhiChu,
                 NgayPhanCong = entity.NgayPhanCong,
                 NgayHoanThanh = entity.NgayHoanThanh,
-                TrangThaiPhanCong = entity.TrangThaiPhanCong
+                TrangThaiPhanCong = entity.TrangThaiPhanCong,
+                KyThuatVien = entity.MaKyThuatVienNavigation != null ? new PhanCongDichVuDto.KyThuatVienDetailDto
+                {
+                    Id = entity.MaKyThuatVienNavigation.Id.ToString(),
+                    TenNguoiDung = entity.MaKyThuatVienNavigation.TenNguoiDung,
+                    SoDienThoai = entity.MaKyThuatVienNavigation.SoDienThoai
+                } : null,
+                yeuCauDichVu = entity.MaYeuCauNavigation != null ? new PhanCongDichVuDto.YeuCauDichVuDetailDto
+                {
+                    id = entity.MaYeuCauNavigation.Id.ToString(),
+                    tieuDe = "",
+                    moTa = entity.MaYeuCauNavigation.MoTa,
+                    trangThaiYeuCau = entity.MaYeuCauNavigation.TrangThaiYeuCau,
+                    loaiDichVu = entity.MaYeuCauNavigation.LoaiDichVu,
+                    khachHang = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation?.MaDonHangNavigation?.MaNguoiDungNavigation != null ? new PhanCongDichVuDto.YeuCauDichVuDetailDto.KhachHangDetailDto
+                    {
+                        id = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.Id.ToString(),
+                        tenNguoiDung = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.TenNguoiDung,
+                        soDienThoai = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.SoDienThoai,
+                        diaChi = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.DiaChi
+                    } : null
+                } : null
             }).ToList();
         }
 
@@ -164,7 +203,14 @@ namespace WebsiteSmartHome.Services
         {
             var entities = await _unitOfWork.GetRepository<PhanCongDichVu>()
                 .GetEntitiesWithCondition(pc => pc.MaKyThuatVien == Guid.Parse(kyThuatVienId))
+                .Include(pc => pc.MaKyThuatVienNavigation)
                 .Include(pc => pc.MaYeuCauNavigation)
+                    .ThenInclude(yc => yc.MaChiTietDonHangNavigation)
+                        .ThenInclude(ctdh => ctdh.MaDonHangNavigation)
+                            .ThenInclude(dh => dh.MaNguoiDungNavigation)
+                .Include(pc => pc.MaYeuCauNavigation)
+                    .ThenInclude(yc => yc.MaChiTietDonHangNavigation)
+                        .ThenInclude(ctdh => ctdh.MaSanPhamNavigation)
                 .ToListAsync();
 
             return entities.Select(entity => new PhanCongDichVuDto
@@ -175,53 +221,90 @@ namespace WebsiteSmartHome.Services
                 GhiChu = entity.GhiChu,
                 NgayPhanCong = entity.NgayPhanCong,
                 NgayHoanThanh = entity.NgayHoanThanh,
-                TrangThaiPhanCong = entity.TrangThaiPhanCong
+                TrangThaiPhanCong = entity.TrangThaiPhanCong,
+                KyThuatVien = entity.MaKyThuatVienNavigation != null ? new PhanCongDichVuDto.KyThuatVienDetailDto
+                {
+                    Id = entity.MaKyThuatVienNavigation.Id.ToString(),
+                    TenNguoiDung = entity.MaKyThuatVienNavigation.TenNguoiDung,
+                    SoDienThoai = entity.MaKyThuatVienNavigation.SoDienThoai
+                } : null,
+                yeuCauDichVu = entity.MaYeuCauNavigation != null ? new PhanCongDichVuDto.YeuCauDichVuDetailDto
+                {
+                    id = entity.MaYeuCauNavigation.Id.ToString(),
+                    tieuDe = "",
+                    moTa = entity.MaYeuCauNavigation.MoTa,
+                    trangThaiYeuCau = entity.MaYeuCauNavigation.TrangThaiYeuCau,
+                    loaiDichVu = entity.MaYeuCauNavigation.LoaiDichVu,
+                    khachHang = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation?.MaDonHangNavigation?.MaNguoiDungNavigation != null ? new PhanCongDichVuDto.YeuCauDichVuDetailDto.KhachHangDetailDto
+                    {
+                        id = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.Id.ToString(),
+                        tenNguoiDung = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.TenNguoiDung,
+                        soDienThoai = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.SoDienThoai,
+                        diaChi = entity.MaYeuCauNavigation.MaChiTietDonHangNavigation.MaDonHangNavigation.MaNguoiDungNavigation.DiaChi
+                    } : null
+                } : null
             }).ToList();
         }
 
         public async Task<List<PhanCongCalendarDto>> GetPhanCongCalendarByKyThuatVienAsync(string kyThuatVienId)
         {
+            // Kiểm tra người dùng có tồn tại và là nhân viên không
+            var nguoiDung = await _unitOfWork.GetRepository<NguoiDung>()
+                .GetEntitiesWithCondition(nd => nd.Id == Guid.Parse(kyThuatVienId))
+                .Include(nd => nd.MaVaiTroNavigation)
+                .FirstOrDefaultAsync();
+
+            if (nguoiDung == null)
+            {
+                throw new BaseException.NotFoundException("not_found", "Người dùng không tồn tại");
+            }
+
+            if (nguoiDung.MaVaiTroNavigation?.TenVaiTro != RoleHelper.NhanVien.ToString().GetDescription(typeof(RoleHelper)))
+            {
+                throw new BaseException.ValidationException("unauthorized", "Chỉ nhân viên mới có thể xem lịch phân công của mình");
+            }
+
             var phanCongs = await _unitOfWork.GetRepository<PhanCongDichVu>()
                 .FindByCondition(pc => pc.MaKyThuatVien == Guid.Parse(kyThuatVienId))
+                .Include(pc => pc.MaYeuCauNavigation)
                 .ToListAsync();
 
             var result = new List<PhanCongCalendarDto>();
 
             foreach (var pc in phanCongs)
             {
-                // 1. Lấy yêu cầu dịch vụ
-                var yeuCau = await _unitOfWork.GetRepository<YeuCauDichVu>().GetByIdAsync(pc.MaYeuCau);
+                // 1. Sử dụng YeuCauDichVu đã được Include
+                var yeuCau = pc.MaYeuCauNavigation;
 
-                // 2. Lấy chi tiết đơn hàng từ yêu cầu dịch vụ
+                // Khai báo các biến cần thiết ở đầu scope loop
                 ChiTietDonHang? chiTietDonHang = null;
+                DonHang? donHang = null;
+                NguoiDung? khachHang = null;
+                SanPham? sanPham = null;
+                DateTime ngayHetHanBaoHanh = DateTime.Now; // Default value
+
                 if (yeuCau != null)
                 {
+                    // 2. Lấy chi tiết đơn hàng từ yêu cầu dịch vụ
                     chiTietDonHang = await _unitOfWork.GetRepository<ChiTietDonHang>().GetByIdAsync(yeuCau.MaChiTietDonHang);
+
+                    if (chiTietDonHang != null)
+                    {
+                        // 3. Lấy đơn hàng từ chi tiết đơn hàng
+                        donHang = await _unitOfWork.GetRepository<DonHang>().GetByIdAsync(chiTietDonHang.MaDonHang);
+
+                        // 4. Lấy thông tin sản phẩm
+                        sanPham = await _unitOfWork.GetRepository<SanPham>().GetByIdAsync(chiTietDonHang.MaSanPham);
+                    }
                 }
 
-                // 3. Lấy đơn hàng từ chi tiết đơn hàng
-                DonHang? donHang = null;
-                if (chiTietDonHang != null)
-                {
-                    donHang = await _unitOfWork.GetRepository<DonHang>().GetByIdAsync(chiTietDonHang.MaDonHang);
-                }
-
-                // 4. Lấy khách hàng từ đơn hàng
-                NguoiDung? khachHang = null;
+                // 5. Lấy khách hàng từ đơn hàng (sau khi đã lấy được donHang)
                 if (donHang != null)
                 {
                     khachHang = await _unitOfWork.GetRepository<NguoiDung>().GetByIdAsync(donHang.MaNguoiDung);
                 }
 
-                // 5. Lấy thông tin sản phẩm
-                SanPham? sanPham = null;
-                if (chiTietDonHang != null)
-                {
-                    sanPham = await _unitOfWork.GetRepository<SanPham>().GetByIdAsync(chiTietDonHang.MaSanPham);
-                }
-
-                // Tính ngày hết hạn bảo hành
-                DateTime ngayHetHanBaoHanh = DateTime.Now;
+                // Tính ngày hết hạn bảo hành (sau khi đã lấy được donHang và sanPham)
                 if (sanPham != null && donHang != null)
                 {
                     // Ngày hết hạn = Ngày mua hàng + Thời gian bảo hành (tháng)
@@ -251,7 +334,8 @@ namespace WebsiteSmartHome.Services
                     KhachHangId = khachHang?.Id.ToString() ?? string.Empty,
                     TenKhachHang = khachHang?.TenNguoiDung ?? string.Empty,
                     SoDienThoaiKhachHang = khachHang?.SoDienThoai ?? string.Empty,
-                    DiaChiKhachHang = khachHang?.DiaChi ?? string.Empty
+                    DiaChiKhachHang = khachHang?.DiaChi ?? string.Empty,
+                    NgayXuLy = yeuCau?.NgayXuLy
                 });
             }
 
@@ -310,7 +394,8 @@ namespace WebsiteSmartHome.Services
                 KhachHangId = khachHang?.Id.ToString() ?? string.Empty,
                 TenKhachHang = khachHang?.TenNguoiDung ?? string.Empty,
                 SoDienThoaiKhachHang = khachHang?.SoDienThoai ?? string.Empty,
-                DiaChiKhachHang = khachHang?.DiaChi ?? string.Empty
+                DiaChiKhachHang = khachHang?.DiaChi ?? string.Empty,
+                NgayXuLy = yeuCau?.NgayXuLy
             };
         }
     }
