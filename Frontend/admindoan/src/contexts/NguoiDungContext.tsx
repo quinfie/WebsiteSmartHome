@@ -21,6 +21,7 @@ interface FilterOptions {
   tuNgaySinh?: Date;
   denNgaySinh?: Date;
   diaChi?: string;
+  maVaiTro?:string;
 }
 
 interface SortOptions {
@@ -66,6 +67,7 @@ export const NguoiDungProvider = ({ children }: { children: ReactNode }) => {
     tuNgaySinh: undefined,
     denNgaySinh: undefined,
     diaChi: "",
+    maVaiTro:"",
   });
   const [sortOptions, setSortOptions] = useState<SortOptions>({
     sortBy: "TenNguoiDung",

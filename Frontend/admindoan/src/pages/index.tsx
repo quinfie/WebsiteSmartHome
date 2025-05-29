@@ -20,7 +20,6 @@ export { default as HelpDesk } from "./HelpDesk";
 export { default as Notifications } from "./Notifications";
 export { default as EditUser } from "./EditUser";
 export { default as DanhGiaDetail } from "./DanhGiaDetail";
-
 // Create components
 export { default as CreateProduct } from "./CreateSanPham";
 export { default as CreateCategory } from "./CreateDanhMuc";
@@ -32,7 +31,6 @@ export { default as CreateSupplier } from "./CreateNhaCungCap";
 export { default as CreateStorage } from "./CreateKho";
 export { default as CreateRequestService } from "./CreateYeuCauDichVu";
 export { default as CreateAssignRequest } from "./CreatePhanCongDichVu";
-
 // Edit components
 export { default as EditProduct } from "./EditSanPham";
 export { default as EditCategory } from "./EditDanhMuc";

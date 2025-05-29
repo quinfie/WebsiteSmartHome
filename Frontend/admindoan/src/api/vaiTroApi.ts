@@ -1,49 +1,37 @@
-import api from "./axios.config";
+import axios from "./axios.config";
+import { VaiTroDto } from "../types/vaitro";
+import { BaseResponse } from "../types/baseResponse";
 
-export const vaiTroService = {
-  // Lấy toàn bộ vai trò
-  getAll: async () => {
-    const res = await api.get("/vaitro");
-    return res.data; // Mảng VaiTroDto: { id, tenVaiTro }
-  },
+export const getAllVaiTro = async (): Promise<VaiTroDto[]> => {
+  const res = await axios.get<BaseResponse<VaiTroDto[]>>("/api/VaiTro");
+  return res.data.data;
+};
 
-  // Lấy vai trò theo ID
-  getById: async (id: string) => {
-    const res = await api.get(`/vaitro/${id}`);
-    return res.data;
-  },
+export const getVaiTroById = async (id: string): Promise<VaiTroDto> => {
+  const res = await axios.get<BaseResponse<VaiTroDto>>(`/api/VaiTro/${id}`);
+  return res.data.data;
+};
 
-  // Tạo vai trò mới
-  create: async (tenVaiTro: string) => {
-    const res = await api.post("/vaitro", { tenVaiTro });
-    return res.data;
-  },
+export const createVaiTro = async (tenVaiTro: string): Promise<VaiTroDto> => {
+  const res = await axios.post<BaseResponse<VaiTroDto>>("/api/VaiTro", tenVaiTro, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data.data;
+};
 
-  // Cập nhật vai trò
-  update: async (id: string, tenVaiTro: string) => {
-    const res = await api.put(`/vaitro/${id}`, { tenVaiTro });
-    return res.data;
-  },
+export const updateVaiTro = async (id: string, tenVaiTro: string): Promise<boolean> => {
+  const res = await axios.put<BaseResponse<boolean>>(`/api/VaiTro/${id}`, tenVaiTro, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data.data;
+};
 
-  // Xóa vai trò
-  delete: async (id: string) => {
-    const res = await api.delete(`/vaitro/${id}`);
-    return res.data;
-  },
+export const deleteVaiTro = async (id: string): Promise<boolean> => {
+  const res = await axios.delete<BaseResponse<boolean>>(`/api/VaiTro/${id}`);
+  return res.data.data;
+};
 
-  // Tìm kiếm vai trò theo từ khoá
-  search: async (keyword: string) => {
-    const res = await api.get(`/vaitro/search`, {
-      params: { keyword }
-    });
-    return res.data;
-  },
-
-  // Lấy ID vai trò theo tên (nếu có endpoint hỗ trợ, ví dụ /vaitro/by-name)
-  getIdByName: async (tenVaiTro: string) => {
-    const res = await api.get(`/vaitro/by-name`, {
-      params: { rolename: tenVaiTro }
-    });
-    return res.data; // Giả sử trả về GUID
-  }
+export const searchVaiTro = async (keyword: string): Promise<VaiTroDto[]> => {
+  const res = await axios.get<BaseResponse<VaiTroDto[]>>(`/api/VaiTro/search?keyword=${keyword}`);
+  return res.data.data;
 };

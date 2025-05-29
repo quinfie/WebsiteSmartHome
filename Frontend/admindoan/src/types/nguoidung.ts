@@ -9,6 +9,7 @@ export interface NguoiDungDto {
   diaChi: string;
   maTaiKhoan?: string;
   maVaiTro?: string;
+  
 }
 
 export interface NguoiDungUpdateDto {
@@ -30,3 +31,4 @@ export interface NguoiDungCreateDto {
   maTaiKhoan: string;
   tenVaiTro: string;
 } 
+

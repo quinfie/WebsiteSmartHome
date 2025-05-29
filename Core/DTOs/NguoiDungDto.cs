@@ -11,6 +11,8 @@ namespace WebsiteSmartHome.Core.DTOs
         public required string Cccd { get; set; }
         public required string soDienThoai { get; set; }
         public required string DiaChi { get; set; }
+
+        
     }
 
     public class NguoiDungCreateDto

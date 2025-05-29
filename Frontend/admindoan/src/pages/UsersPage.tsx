@@ -35,6 +35,7 @@ const Users: React.FC = () => {
     totalItems
   } = useNguoiDung();
 
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [keyword, setKeyword] = useState(searchTerm || '');
   const [showFilters, setShowFilters] = useState(false);
   const [message, setMessage] = useState("");
@@ -406,6 +407,8 @@ const Users: React.FC = () => {
               </div>
             ) : (
               <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                
+
                 <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
               </div>
             )}
