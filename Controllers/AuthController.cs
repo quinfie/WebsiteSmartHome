@@ -23,6 +23,21 @@ namespace WebsiteSmartHome.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<BaseResponse<AuthResponseDto>>> Login([FromBody] LoginRequestDto request)
         {
+            if (request == null)
+            {
+                return BadRequest(new { error = "Request không hợp lệ" });
+            }
+
+            if (string.IsNullOrEmpty(request.Username))
+            {
+                return BadRequest(new { error = "Tên đăng nhập không được để trống" });
+            }
+
+            if (string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest(new { error = "Mật khẩu không được để trống" });
+            }
+
             var result = await _authService.LoginAsync(request);
             return BaseResponse<AuthResponseDto>.OkResponse(result, "Đăng nhập thành công");
         }

@@ -8,13 +8,14 @@ export const authService = {
         Username: data.username,
         Password: data.password,
       };
-      const response = await api.post('/Auth/login', data);
+      const response = await api.post('/Auth/login', payload);
       return response.data.data;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     }
   },
+  
 
   register: async (data: RegisterRequestDto): Promise<AuthResponseDto> => {
     try {
