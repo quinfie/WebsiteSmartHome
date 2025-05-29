@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Net;
-using System.Net.Mail;
 using System.Text;
 
 namespace WebsiteSmartHome.Services
@@ -15,22 +14,18 @@ namespace WebsiteSmartHome.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        private readonly string _smtpHost;
-        private readonly int _smtpPort;
-        private readonly string _smtpUsername;
-        private readonly string _smtpPassword;
-        private readonly string _fromEmail;
         private readonly string _frontendUrl;
+        private readonly string _sendGridApiKey;
+        private readonly string _fromEmail;
+        private readonly string _fromName;
 
         public EmailService(IConfiguration configuration)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _smtpHost = _configuration["EmailSettings:SmtpHost"];
-            _smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
-            _smtpUsername = _configuration["EmailSettings:SmtpUsername"];
-            _smtpPassword = _configuration["EmailSettings:SmtpPassword"];
-            _fromEmail = _configuration["EmailSettings:FromEmail"];
-            _frontendUrl = _configuration["FrontendUrl"];
+            _frontendUrl = _configuration["AppSettings:WebLink"]?.TrimEnd('/') ?? "http://localhost:5133";
+            _sendGridApiKey = _configuration["SendGrid:ApiKey"] ?? throw new ArgumentNullException("SendGrid:ApiKey is not configured");
+            _fromEmail = _configuration["SendGrid:FromEmail"] ?? throw new ArgumentNullException("SendGrid:FromEmail is not configured");
+            _fromName = _configuration["SendGrid:FromName"] ?? "WebsiteSmartHome";
         }
 
         public async Task SendVerificationEmailAsync(string email, string? verificationToken = null)
@@ -91,13 +86,7 @@ namespace WebsiteSmartHome.Services
 
         public async Task SendOrderConfirmationEmailAsync(string email, string orderId, decimal totalAmount)
         {
-            string? webLink = _configuration["AppSettings:WebLink"]?.TrimEnd('/');
-            if (string.IsNullOrWhiteSpace(webLink))
-            {
-                throw new InvalidOperationException("WebLink is not configured.");
-            }
-
-            string orderUrl = $"{webLink}/orders/{orderId}";
+            string orderUrl = $"{_frontendUrl}/orders/{orderId}";
 
             string subject = "Order Confirmation - Smart Home";
             string body = $@"
@@ -124,27 +113,8 @@ namespace WebsiteSmartHome.Services
 
         private async Task SendEmailAsync(string email, string subject, string body)
         {
-            var apiKey = _configuration["SendGrid:ApiKey"];
-            if (string.IsNullOrEmpty(apiKey))
-            {
-                throw new InvalidOperationException("SendGrid API key is not configured.");
-            }
-
-            var client = new SendGridClient(apiKey);
-
-            var fromEmail = _configuration["SendGrid:FromEmail"]?.Trim();
-            var fromName = _configuration["SendGrid:FromName"]?.Trim();
-
-            if (string.IsNullOrWhiteSpace(fromEmail))
-            {
-                throw new InvalidOperationException("SendGrid FromEmail is not configured or is empty.");
-            }
-            if (!fromEmail.Equals("nlbthanh@gmail.com", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException($"SendGrid FromEmail ('{fromEmail}') does not match the verified sender email 'nlbthanh@gmail.com'.");
-            }
-
-            var from = new EmailAddress(fromEmail, fromName);
+            var client = new SendGridClient(_sendGridApiKey);
+            var from = new EmailAddress(_fromEmail, _fromName);
             var to = new EmailAddress(email);
             var msg = MailHelper.CreateSingleEmail(from, to, subject, null, body);
             msg.HtmlContent = body;
