@@ -28,8 +28,8 @@ namespace WebsiteSmartHome.Services
                 Id = e.Id.ToString(),
                 MaChiTietDonHang = e.MaChiTietDonHang,
                 NgayBaoTri = e.NgayBaoTri,
-                LoaiBaoTri = GetDesriptionHelper.GetDescription(e.LoaiBaoTri, typeof(TypeServiceHelper)),
-                TrangThai = GetDesriptionHelper.GetDescription(e.TrangThai, typeof(TrangThaiLichBaoTri)),
+                LoaiBaoTri = e.LoaiBaoTri,
+                TrangThai = e.TrangThai,
                 NguonPhatSinh = e.NguonPhatSinh,
                 MaYeuCauDichVu = e.MaYeuCauDichVu?.ToString()
             }).ToList();

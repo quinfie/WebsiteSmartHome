@@ -20,7 +20,7 @@ namespace WebsiteSmartHome.Controllers
 
         // Lấy tất cả lịch bảo trì
         [HttpGet]
-        [Authorize(Policy = "RequireManageRole")]
+        //[Authorize(Policy = "RequireManageRole")]
         public async Task<ActionResult<BaseResponse<List<LichBaoTriDto>>>> GetAll()
         {
             var lichBaoTris = await _lichBaoTriService.GetAllLichBaoTriAsync();
