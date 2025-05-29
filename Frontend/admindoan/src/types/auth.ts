@@ -73,5 +73,11 @@ export interface ChangePasswordDto {
 
 export interface ForgotPasswordDto {
   email: string;
+}
+
+export interface ResetPasswordDto {
+  token: string;
+  email: string;
+  newPassword: string;
 } 
 

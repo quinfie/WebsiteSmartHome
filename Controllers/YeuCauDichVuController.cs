@@ -201,6 +201,19 @@ namespace WebsiteSmartHome.Controllers
         }
 
         /// <summary>
+        /// Lấy danh sách yêu cầu dịch vụ được phân công cho nhân viên
+        /// </summary>
+        /// <param name="maNhanVien">Mã nhân viên</param>
+        /// <returns>Danh sách các yêu cầu dịch vụ được phân công cho nhân viên</returns>
+        [HttpGet("nhan-vien/{maNhanVien}")]
+        [Authorize(Policy = "RequireStaffRole")]
+        public async Task<ActionResult<BaseResponse<List<YeuCauDichVuDto>>>> GetYeuCauCuaNhanVien(string maNhanVien)
+        {
+            var result = await _yeuCauDichVuService.GetYeuCauTheoKyThuatVienAsync(maNhanVien);
+            return Ok(BaseResponse<List<YeuCauDichVuDto>>.OkResponse(result, "Lấy danh sách yêu cầu của nhân viên thành công"));
+        }
+
+        /// <summary>
         /// Đếm số lượng yêu cầu dịch vụ theo trạng thái
         /// </summary>
         /// <param name="trangThai">Trạng thái cần đếm</param>

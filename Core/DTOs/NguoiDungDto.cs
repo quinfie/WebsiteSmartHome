@@ -11,8 +11,8 @@ namespace WebsiteSmartHome.Core.DTOs
         public required string Cccd { get; set; }
         public required string soDienThoai { get; set; }
         public required string DiaChi { get; set; }
-
-        
+        public decimal TongTienMua { get; set; }
+        public bool IsVip { get; set; }
     }
 
     public class NguoiDungCreateDto
@@ -35,6 +35,7 @@ namespace WebsiteSmartHome.Core.DTOs
         public string? DiaChi { get; set; }
         public string? Cccd { get; set; }
         public string? Sdt { get; set; }
+        public string? MaVaiTro { get; set; }
     }
 
     public class UpdateNguoiDungDto

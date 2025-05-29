@@ -7,6 +7,7 @@ import { HiOutlineInformationCircle } from "react-icons/hi";
 import { HiOutlineClipboardList } from "react-icons/hi";
 import { HiOutlineX } from "react-icons/hi";
 import { HiOutlineUser } from "react-icons/hi";
+import { HiOutlineChartBar } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -26,8 +27,6 @@ const Sidebar = () => {
   const navInactiveClass =
     "block flex items-center self-stretch gap-4 py-4 px-6 dark:bg-blackPrimary dark:hover:bg-blackSecondary cursor-pointer max-xl:py-3 dark:text-whiteSecondary hover:bg-white text-blackPrimary bg-whiteSecondary";
 
-  const toggleLanding = () => setIsLandingOpen(!isLandingOpen);
-  const toggleAuth = () => setIsAuthOpen(!isAuthOpen);
 
   return (
     <div className="relative">
@@ -54,20 +53,40 @@ const Sidebar = () => {
 
           {/* Phân công dịch vụ cho Nhân viên, Quản lý và Quản trị viên */}
           {(user?.vaiTro === "Nhân Viên" || user?.vaiTro === "Quản Lí" || user?.vaiTro === "Quản Trị Viên") && (
-            <NavLink
-              to="/dashboard/assignrequest"
-              className={({ isActive }) =>
-                isActive ? navActiveClass : navInactiveClass
-              }
-            >
-              <HiOutlineClipboardList className="text-xl" />
-              <span className="text-lg">Phân công dịch vụ</span>
-            </NavLink>
+            <>
+              <NavLink
+                to="/dashboard/requestservice"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineClipboardList className="text-xl" />
+                <span className="text-lg">Yêu cầu dịch vụ</span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/assignrequest"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineClipboardList className="text-xl" />
+                <span className="text-lg">Phân công dịch vụ</span>
+              </NavLink>
+            </>
           )}
 
           {/* Các mục menu chính cho Quản lý và Quản trị viên */}
-          {(user?.vaiTro === "Quản lí" || user?.vaiTro === "Quản Trị Viên") && (
+          {(user?.vaiTro === "Quản Lí" || user?.vaiTro === "Quản Trị Viên") && (
             <>
+              <NavLink
+                to="/dashboard/thong-ke"
+                className={({ isActive }) =>
+                  isActive ? navActiveClass : navInactiveClass
+                }
+              >
+                <HiOutlineChartBar className="text-xl" />
+                <span className="text-lg">Thống kê</span>
+              </NavLink>
               <NavLink
                 to="/dashboard/products"
                 className={({ isActive }) =>
@@ -125,15 +144,6 @@ const Sidebar = () => {
               </NavLink>
 
                 
-              <NavLink
-                to="/dashboard/requestservice"
-                className={({ isActive }) =>
-                  isActive ? navActiveClass : navInactiveClass
-                }
-              >
-                <HiOutlineStar className="text-xl" />
-                <span className="text-lg">Yêu cầu dịch vụ</span>
-              </NavLink>
               <NavLink
                 to="/dashboard/promotions"
                 className={({ isActive }) =>

@@ -153,9 +153,8 @@ export default function CustomerOrders() {
                     </div>
 
                     {error && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex items-center">
-                            <i className="fas fa-exclamation-circle mr-2"></i>
-                            <span>{error}</span>
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                            <p className="font-medium">{error}</p>
                         </div>
                     )}
 
@@ -170,7 +169,9 @@ export default function CustomerOrders() {
                                 <i className="fas fa-box-open text-blue-400 text-3xl"></i>
                             </div>
                             <h2 className="text-2xl font-medium text-white mb-3">Chưa có đơn hàng nào</h2>
-                            <p className="text-gray-400 mb-8 max-w-md mx-auto">Bạn chưa có đơn hàng nào trong lịch sử mua sắm. Hãy khám phá các sản phẩm và tạo đơn hàng đầu tiên của bạn!</p>
+                            <p className="text-gray-400 mb-8 max-w-md mx-auto">
+                                Bạn chưa có đơn hàng nào trong lịch sử mua sắm. Hãy khám phá các sản phẩm và tạo đơn hàng đầu tiên của bạn!
+                            </p>
                             <button
                                 onClick={() => navigate('/ecommerce')}
                                 className="inline-block bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-6 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg"
@@ -180,109 +181,93 @@ export default function CustomerOrders() {
                             </button>
                         </div>
                     ) : (
-                        <>
-                            <div className="grid gap-4">
-                                {getCurrentOrders().map((order) => (
-                                    <div key={order.id} className="bg-white/5 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-white/10 hover:border-blue-500/50 transition duration-300">
-                                        <div className="p-6">
-                                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                                <div className="flex items-start gap-4">
-                                                    <div className="bg-blue-500/20 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                        <i className="fas fa-shopping-bag text-blue-400"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-3 mb-2">
-                                                            <h2 className="text-lg font-semibold text-white">
-                                                                Đơn hàng #{order.id.slice(-8).toUpperCase()}
-                                                            </h2>
-                                                            <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(order.trangThaiDonHang)}`}>
-                                                                {order.trangThaiDonHang}
-                                                            </span>
-                                                        </div>
-                                                        <div className="grid grid-cols-2 gap-4 text-sm">
-                                                            <div>
-                                                                <p className="text-gray-400">Ngày đặt:</p>
-                                                                <p className="text-white">{formatDate(order.ngayDat)}</p>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-gray-400">Số sản phẩm:</p>
-                                                                <p className="text-white">{getTotalItems(order)} sản phẩm</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                        <div className="grid gap-4">
+                            {getCurrentOrders().map((order) => (
+                                <div key={order.id} className="bg-white/5 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-white/10 hover:border-blue-500/50 transition duration-300">
+                                    <div className="p-6">
+                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                            <div className="flex items-start gap-4">
+                                                <div className="bg-blue-500/20 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <i className="fas fa-shopping-bag text-blue-400"></i>
                                                 </div>
-                                                <div className="flex flex-col items-end gap-2">
-                                                    <span className="text-blue-400 font-bold text-xl">
-                                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.tongTien)}
-                                                    </span>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => navigate(`/ecommerce/orders/${order.id}`)}
-                                                            className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center text-sm"
-                                                        >
-                                                            <i className="fas fa-search mr-2"></i>
-                                                            Chi tiết
-                                                        </button>
-                                                        {order.trangThaiDonHang === 'Chờ xác nhận' && (
-                                                            <button
-                                                                onClick={() => handleCancelOrder(order.id)}
-                                                                className="text-red-400 hover:text-red-300 transition-colors font-medium flex items-center text-sm"
-                                                            >
-                                                                <i className="fas fa-times mr-2"></i>
-                                                                Hủy
-                                                            </button>
-                                                        )}
-                                                        {order.trangThaiDonHang === 'Hoàn thành' && !order.isReviewed && (
-                                                            <button
-                                                                onClick={() => handleReview(order.id)}
-                                                                className="text-green-400 hover:text-green-300 transition-colors font-medium flex items-center text-sm"
-                                                            >
-                                                                <i className="fas fa-star mr-2"></i>
-                                                                Đánh giá
-                                                            </button>
-                                                        )}
+                                                <div>
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <h2 className="text-lg font-semibold text-white">
+                                                            Đơn hàng #{order.id.slice(-8).toUpperCase()}
+                                                        </h2>
+                                                        <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(order.trangThaiDonHang)}`}>
+                                                            {order.trangThaiDonHang}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-sm text-gray-400">
+                                                        <p>Ngày đặt: {formatDate(order.ngayDat)}</p>
+                                                        <p>Số lượng sản phẩm: {getTotalItems(order)}</p>
+                                                        <p>Tổng tiền: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.tongTien)}</p>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div className="flex items-center gap-3">
+                                                {order.trangThaiDonHang === 'Chờ xác nhận' && (
+                                                    <button
+                                                        onClick={() => handleCancelOrder(order.id)}
+                                                        className="px-4 py-2 text-red-500 border border-red-500 rounded hover:bg-red-500 hover:text-white transition-colors duration-200"
+                                                    >
+                                                        Hủy đơn
+                                                    </button>
+                                                )}
+                                                {order.trangThaiDonHang === 'Hoàn thành' && !order.isReviewed && (
+                                                    <button
+                                                        onClick={() => handleReview(order.id)}
+                                                        className="px-4 py-2 text-yellow-500 border border-yellow-500 rounded hover:bg-yellow-500 hover:text-white transition-colors duration-200"
+                                                    >
+                                                        Đánh giá
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => navigate(`/ecommerce/orders/${order.id}`)}
+                                                    className="px-4 py-2 text-blue-500 border border-blue-500 rounded hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                                                >
+                                                    Chi tiết
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-
-                            {/* Pagination */}
-                            {totalPages > 1 && (
-                                <div className="flex justify-center items-center gap-2 mt-8">
-                                    <button
-                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                        disabled={currentPage === 1}
-                                        className="px-4 py-2 rounded-lg bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
-                                    >
-                                        <i className="fas fa-chevron-left"></i>
-                                    </button>
-                                    <div className="flex items-center gap-2">
-                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                            <button
-                                                key={page}
-                                                onClick={() => setCurrentPage(page)}
-                                                className={`w-10 h-10 rounded-lg flex items-center justify-center ${currentPage === page
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-white/5 text-white hover:bg-white/10'
-                                                    } transition-colors`}
-                                            >
-                                                {page}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <button
-                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                        disabled={currentPage === totalPages}
-                                        className="px-4 py-2 rounded-lg bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
-                                    >
-                                        <i className="fas fa-chevron-right"></i>
-                                    </button>
                                 </div>
-                            )}
-                        </>
+                            ))}
+                        </div>
+                    )}
+
+                    {totalPages > 1 && (
+                        <div className="flex justify-center mt-8">
+                            <nav className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 rounded-lg bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                >
+                                    <i className="fas fa-chevron-left"></i>
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${currentPage === page
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-white/5 text-white hover:bg-white/10'
+                                            } transition-colors`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 rounded-lg bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                >
+                                    <i className="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
                     )}
                 </div>
             </div>

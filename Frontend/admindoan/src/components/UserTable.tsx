@@ -1,80 +1,122 @@
-import { nanoid } from "nanoid";
-import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import React from "react";
+import { HiOutlinePencil, HiOutlineTrash, HiOutlineStar } from "react-icons/hi";
+import { NguoiDungDto } from "../types/nguoidung";
 
 interface UserTableProps {
-  users: any[];
+  users: NguoiDungDto[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  showVipStatus?: boolean;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, showVipStatus = false }) => {
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("vi-VN");
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  };
+
   return (
-    <table className="mt-6 w-full whitespace-nowrap text-left max-lg:block max-lg:overflow-x-scroll">
-      <colgroup>
-        <col className="w-full sm:w-2/12" />
-        <col className="sm:w-1/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-        <col className="sm:w-2/12" />
-      </colgroup>
-      <thead className="border-b border-white/10 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-        <tr>
-          <th scope="col" className="py-2 pl-4 pr-4 font-semibold sm:pl-6 lg:pl-8">Tên người dùng</th>
-          <th scope="col" className="py-2 px-4 font-semibold">Giới tính</th>
-          <th scope="col" className="py-2 px-4 font-semibold">Ngày sinh</th>
-          <th scope="col" className="py-2 px-4 font-semibold">CCCD</th>
-          <th scope="col" className="py-2 px-4 font-semibold">Số điện thoại</th>
-          <th scope="col" className="py-2 px-4 font-semibold">Địa chỉ</th>
-          <th scope="col" className="py-2 pl-0 pr-4 text-right font-semibold sm:pr-6 lg:pr-8">Hành động</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-white/5">
-        {users.map((user) => (
-          <tr key={user.id || nanoid()}>
-            <td className="py-4 pl-4 pr-4 sm:pl-6 lg:pl-8">
-              <span className="truncate text-sm font-medium leading-6 dark:text-whiteSecondary text-blackPrimary">
-                {user.tenNguoiDung}
-              </span>
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {user.gioiTinh}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {user.ngaySinh ? new Date(user.ngaySinh).toLocaleDateString() : ""}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {user.cccd}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {user.soDienThoai}
-            </td>
-            <td className="py-4 px-4 text-sm leading-6 dark:text-whiteSecondary text-blackPrimary">
-              {user.diaChi}
-            </td>
-            <td className="py-4 pl-0 pr-4 text-right text-sm leading-6 dark:text-whiteSecondary text-blackPrimary sm:pr-6 lg:pr-8">
-              <div className="flex gap-x-1 justify-end">
-                <button
-                  className="dark:bg-blackPrimary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
-                  aria-label="Chỉnh sửa"
-                  onClick={() => onEdit(user.id)}
-                >
-                  <HiOutlinePencil className="text-lg" />
-                </button>
-                <button
-                  className="dark:bg-blackPrimary bg-whiteSecondary dark:text-whiteSecondary text-blackPrimary border border-gray-600 w-8 h-8 flex justify-center items-center hover:border-gray-400"
-                  aria-label="Xóa"
-                  onClick={() => onDelete(user.id)}
-                >
-                  <HiOutlineTrash className="text-lg" />
-                </button>
-              </div>
-            </td>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Tên người dùng
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Giới tính
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Ngày sinh
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              CCCD
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Số điện thoại
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Địa chỉ
+            </th>
+            {showVipStatus && (
+              <>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Tổng tiền mua
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Trạng thái
+                </th>
+              </>
+            )}
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Thao tác
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {users.map((user) => (
+            <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                <div className="flex items-center gap-2">
+                  {user.tenNguoiDung}
+                  {showVipStatus && user.isVip && (
+                    <HiOutlineStar className="text-yellow-500 h-5 w-5" title="Khách hàng VIP" />
+                  )}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {user.gioiTinh}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {formatDate(user.ngaySinh)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {user.cccd}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {user.soDienThoai}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {user.diaChi}
+              </td>
+              {showVipStatus && (
+                <>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {user.tongTienMua ? formatCurrency(user.tongTienMua) : '0'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isVip
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      }`}>
+                      {user.isVip ? 'VIP' : 'Thường'}
+                    </span>
+                  </td>
+                </>
+              )}
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button
+                  onClick={() => onEdit(user.id)}
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
+                >
+                  <HiOutlinePencil className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => onDelete(user.id)}
+                  className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                >
+                  <HiOutlineTrash className="h-5 w-5" />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

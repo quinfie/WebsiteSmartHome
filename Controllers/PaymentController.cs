@@ -58,8 +58,8 @@ namespace WebsiteSmartHome.Controllers
 
                 if (response.Success)
                 {
-                    // Cập nhật trạng thái đơn hàng thành "Đã thanh toán"
-                    await _donHangService.UpdateOrderStatusAsync(response.OrderId, "Đã thanh toán");
+                    // Cập nhật trạng thái đơn hàng thành "Đã xác nhận"
+                    await _donHangService.UpdateOrderStatusAsync(response.OrderId, "Đã xác nhận");
                 }
 
                 // Redirect to frontend payment callback page

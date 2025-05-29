@@ -122,10 +122,23 @@ namespace WebsiteSmartHome.Services
             var entity = await _unitOfWork.GetRepository<YeuCauDichVu>().GetByIdAsync(Guid.Parse(id));
             if (entity == null) throw new BaseException.ValidationException("invalid_yeu_cau", "Yêu cầu không tồn tại");
 
+            // Kiểm tra ngày xử lý phải sau ngày hẹn
+            var ngayHen = entity.NgayHen.ToDateTime(TimeOnly.MinValue);
+            if (ngayXuLy <= ngayHen || ngayXuLy <= DateTime.UtcNow)
+            {
+                throw new BaseException.ValidationException("invalid_ngay_xu_ly", "Ngày xử lý không được phép trước ngày hẹn hoặc sau trước ngày hiện tại.");
+            }
+
+            // Kiểm tra trạng thái yêu cầu
+            if (entity.TrangThaiYeuCau != "Đã xác nhận")
+            {
+                throw new BaseException.ValidationException("invalid_status", "Chỉ có thể cập nhật ngày xử lý cho yêu cầu đã được xác nhận.");
+            }
+
             entity.NgayXuLy = ngayXuLy;
             await _unitOfWork.SaveAsync();
 
-            return MapToDto(entity);
+            return await MapToDtoAsync(entity);
         }
 
         public async Task<YeuCauDichVuDto> UpdateMoTaAsync(string id, string moTa, bool isKetQua = false)
@@ -150,32 +163,32 @@ namespace WebsiteSmartHome.Services
             ValidationHelper.ValidateTrangThaiYeuCau(trangThai);
 
             // Logic kiểm tra và cập nhật NgayXuLy khi trạng thái là "Đã xác nhận"
-            if (trangThai == "Đã xác nhận")
-            {
-                // Kiểm tra ràng buộc: Nếu trạng thái là "Đã xác nhận", DaPhanCong phải là true
-                // if (!entity.DaPhanCong)
-                // {
-                //     throw new BaseException.ValidationException("missing_assignment", "Yêu cầu cần được phân công trước khi xác nhận.");
-                // }
+            // if (trangThai == "Đã xác nhận")
+            // {
+            //     // Kiểm tra ràng buộc: Nếu trạng thái là "Đã xác nhận", DaPhanCong phải là true
+            //     // if (!entity.DaPhanCong)
+            //     // {
+            //     //     throw new BaseException.ValidationException("missing_assignment", "Yêu cầu cần được phân công trước khi xác nhận.");
+            //     // }
 
-                if (!ngayXuLy.HasValue)
-                {
-                    throw new BaseException.ValidationException("missing_ngay_xu_ly", "Ngày xử lý là bắt buộc khi chuyển trạng thái sang Đã xác nhận");
-                }
+            //     if (!ngayXuLy.HasValue)
+            //     {
+            //         throw new BaseException.ValidationException("missing_ngay_xu_ly", "Ngày xử lý là bắt buộc khi chuyển trạng thái sang Đã xác nhận");
+            //     }
 
-                //Tùy chọn: Thêm validation cho NgayXuLy nếu cần(ví dụ: không được trong quá khứ, phải sau NgayHen...)
-                var ngayHen = entity.NgayHen.ToDateTime(TimeOnly.MinValue);
-                if (ngayXuLy.Value <= ngayHen)
-                {
-                    throw new BaseException.ValidationException("invalid_ngay_xu_ly", "Ngày xử lý không được phép trước ngày hẹn.");
-                }
+            //     //Tùy chọn: Thêm validation cho NgayXuLy nếu cần(ví dụ: không được trong quá khứ, phải sau NgayHen...)
+            //     var ngayHen = entity.NgayHen.ToDateTime(TimeOnly.MinValue);
+            //     if (ngayXuLy.Value <= ngayHen)
+            //     {
+            //         throw new BaseException.ValidationException("invalid_ngay_xu_ly", "Ngày xử lý không được phép trước ngày hẹn.");
+            //     }
 
-                entity.NgayXuLy = ngayXuLy.Value; // Update NgayXuLy
-            }
-            else // Nếu trạng thái không phải "Đã xác nhận", có thể set NgayXuLy về null nếu cần
-            {
-                entity.NgayXuLy = null; // Tùy chỉnh: set null hoặc giữ giá trị cũ
-            }
+            //     entity.NgayXuLy = ngayXuLy.Value; // Update NgayXuLy
+            // }
+            // else // Nếu trạng thái không phải "Đã xác nhận", có thể set NgayXuLy về null nếu cần
+            // {
+            //     entity.NgayXuLy = null; // Tùy chỉnh: set null hoặc giữ giá trị cũ
+            // }
 
             entity.TrangThaiYeuCau = trangThai; // Cập nhật trạng thái
             await _unitOfWork.SaveAsync();
@@ -198,7 +211,7 @@ namespace WebsiteSmartHome.Services
         {
             // Kiểm tra quyền quản lý
             var quanLi = await _unitOfWork.GetRepository<NguoiDung>().GetByIdAsync(Guid.Parse(quanLiId));
-            if (quanLi == null || quanLi.MaVaiTroNavigation.TenVaiTro != "Quản lý")
+            if (quanLi == null || quanLi.MaVaiTroNavigation.TenVaiTro != "Quản Lí")
             {
                 throw new BaseException.UnauthorizedException("invalid_role", "Không có quyền xác nhận yêu cầu");
             }
@@ -211,15 +224,9 @@ namespace WebsiteSmartHome.Services
             }
 
             // Kiểm tra trạng thái hiện tại
-            if (yeuCau.TrangThaiYeuCau != "Chờ xác nhận")
+            if (yeuCau.TrangThaiYeuCau != "Đang Chờ xác nhận")
             {
                 throw new BaseException.ValidationException("invalid_status", "Yêu cầu không ở trạng thái chờ xác nhận");
-            }
-
-            // Kiểm tra ngày hẹn
-            if (yeuCau.NgayHen.ToDateTime(TimeOnly.MinValue) < DateTime.Today)
-            {
-                throw new BaseException.ValidationException("invalid_date", "Ngày hẹn không hợp lệ");
             }
 
             // Kiểm tra chi phí cho sửa chữa

@@ -57,6 +57,7 @@ import TongQuanPage from "./pages/TongQuanPage";
 import YeuCauDichVuDetailPage from "./pages/YeuCauDichVuDetailPage";
 import PhanCongCalendarPage from "./pages/PhanCongCalendarPage";
 import PhanCongDetailPage from "./pages/PhanCongDetailPage";
+import ThongKePage from "./pages/ThongKePage";
 
 // Import ecommerce routes
 import { ecommerceRoutes } from "./pages/ecommerce/routes";
@@ -86,14 +87,11 @@ const AppProviders = ({ children }: { children: ReactNode }) => (
               <NguoiDungProvider>
                 <KhoProvider>
                   <DanhGiaProvider>
-                 
                     {children}
-                    
                   </DanhGiaProvider>
                 </KhoProvider>
               </NguoiDungProvider>
             </PhanCongDichVuProvider>
-            
           </YeuCauDichVuProvider>
         </DonHangProvider>
       </DanhMucProvider>
@@ -102,8 +100,6 @@ const AppProviders = ({ children }: { children: ReactNode }) => (
 );
 
 const router = createBrowserRouter([
-
-  
   {
     path: "/",
     element: <Navigate to="/ecommerce" replace />,
@@ -116,6 +112,8 @@ const router = createBrowserRouter([
     path: "/register",
     element: <Navigate to="/ecommerce/register" replace />,
   },
+  // Add ecommerce routes first to ensure they take precedence
+  ...ecommerceRoutes,
   // Add redirects for old routes
   {
     path: "/danh-muc/tao-moi",
@@ -136,6 +134,14 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <RoleBasedDashboardRedirect />,
+      },
+      {
+        path: "thong-ke",
+        element: (
+          <ProtectedRoute allowedRoles={["Quản Trị Viên", "Quản Lí"]}>
+            <ThongKePage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "profile",
@@ -368,17 +374,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-
-  // Add ecommerce routes
-  ...ecommerceRoutes,
-
-  // Remove duplicate route since it's already in ecommerceRoutes
-  {
-    path: "tongquan",
-    element: <TongQuanPage />,
-  },
-
-  // Catch all other routes
+  // Catch all route - redirect to ecommerce
   {
     path: "*",
     element: <Navigate to="/ecommerce" replace />,

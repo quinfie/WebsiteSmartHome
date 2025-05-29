@@ -26,6 +26,9 @@ namespace WebsiteSmartHome.Core.DTOs
         // Add nested YeuCauDichVu DTO
         public YeuCauDichVuDetailDto? yeuCauDichVu { get; set; }
 
+        // Add nested KyThuatVien DTO
+        public KyThuatVienDetailDto? KyThuatVien { get; set; }
+
         public class YeuCauDichVuDetailDto
         {
             public string id { get; set; } = string.Empty;
@@ -33,6 +36,26 @@ namespace WebsiteSmartHome.Core.DTOs
             public string? moTa { get; set; }
             public string? trangThaiYeuCau { get; set; }
             public string? loaiDichVu { get; set; }
+
+            // Add nested KhachHang DTO
+            public KhachHangDetailDto? khachHang { get; set; }
+
+            public class KhachHangDetailDto
+            {
+                public string id { get; set; } = string.Empty;
+                public string? tenNguoiDung { get; set; }
+                public string? email { get; set; }
+                public string? soDienThoai { get; set; }
+                public string? diaChi { get; set; }
+            }
+        }
+
+        public class KyThuatVienDetailDto
+        {
+            public string Id { get; set; } = string.Empty;
+            public string? TenNguoiDung { get; set; }
+            public string? Email { get; set; }
+            public string? SoDienThoai { get; set; }
         }
     }
 }

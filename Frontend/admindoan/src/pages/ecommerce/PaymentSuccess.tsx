@@ -1,101 +1,196 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ViewResponseCreateDonHangDto } from '../../types/donhang';
-import { getDonHangById } from '../../api/donhang'
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { updateDonHang, getDonHangById } from '../../api/donhang';
 import { toast } from 'react-hot-toast';
+import { HiOutlineShoppingBag, HiOutlineCash, HiOutlineClock, HiOutlineHome, HiOutlineReceiptTax } from 'react-icons/hi';
+import { ViewResponseCreateDonHangDto } from '../../types/donhang';
 
 export default function PaymentSuccess() {
-    const location = useLocation();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const [order, setOrder] = useState<ViewResponseCreateDonHangDto | null>(null);
     const [loading, setLoading] = useState(true);
+    const [orderInfo, setOrderInfo] = useState({
+        transactionId: '',
+        amount: '',
+        bankCode: '',
+        payDate: ''
+    });
 
     useEffect(() => {
-        const searchParams = new URLSearchParams(location.search);
-        const orderId = searchParams.get('orderId');
+        const processSuccessfulPayment = async () => {
+            const vnp_OrderInfo = searchParams.get('vnp_OrderInfo') || '';
+            const vnp_TransactionId = searchParams.get('vnp_TransactionNo');
+            const vnp_BankCode = searchParams.get('vnp_BankCode');
+            const vnp_PayDate = searchParams.get('vnp_PayDate');
+            const vnp_Amount = searchParams.get('vnp_Amount');
 
-        if (orderId) {
-            getDonHangById(orderId)
-                .then(response => {
-                    if (response.success && response.data) {
-                        setOrder(response.data);
+            // Lấy orderId (GUID) từ vnp_OrderInfo
+            const guidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+            const match = vnp_OrderInfo.match(guidRegex);
+            const orderId = match ? match[0] : null;
+
+            if (!orderId) {
+                toast.error('Không tìm thấy mã đơn hàng hợp lệ');
+                navigate('/ecommerce/payment-failed', { replace: true });
+                return;
+            }
+
+            console.log('OrderId extracted:', orderId);
+
+            setOrderInfo({
+                transactionId: vnp_TransactionId || '',
+                amount: vnp_Amount ? `${Number(vnp_Amount) / 100} VNĐ` : '',
+                bankCode: vnp_BankCode || '',
+                payDate: vnp_PayDate || ''
+            });
+
+            try {
+                // Lấy thông tin đơn hàng hiện tại
+                const orderResponse = await getDonHangById(orderId);
+                if (!orderResponse.success) {
+                    throw new Error('Không thể lấy thông tin đơn hàng');
+                }
+
+                const orderDetail: ViewResponseCreateDonHangDto = orderResponse.data;
+
+                // Cập nhật trạng thái đơn hàng
+                const updateData = {
+                    trangThaiDonHang: 'Đã xác nhận',
+                    phuongThucThanhToan: 'VNPAY',
+                    daThanhToan: true,
+                    maKhuyenMai: orderDetail.maKhuyenMai,
+                    chiTietDonHangs: orderDetail.chiTietDonHangs?.map(item => ({
+                        maSanPham: item.maSanPham,
+                        soLuongMua: item.soLuong,
+                        donGiaMua: item.donGia
+                    })) || []
+                };
+
+                console.log('Cập nhật đơn hàng với ID:', orderId);
+
+                try {
+                    const response = await updateDonHang(orderId, updateData);
+                    if (response.success) {
+                        toast.success('Đơn hàng đã được xác nhận và thanh toán thành công!');
+                        setLoading(false);
                     } else {
-                        toast.error(response.message || 'Không thể tải chi tiết đơn hàng.');
+                        throw new Error('Không thể cập nhật trạng thái đơn hàng');
                     }
-                    setLoading(false);
-                })
-                .catch(error => {
-                    console.error('Error fetching order:', error);
-                    toast.error(error.response?.data?.message || 'Đã xảy ra lỗi khi tải chi tiết đơn hàng.');
-                    setLoading(false);
-                });
-        } else {
-            toast.error('Không tìm thấy ID đơn hàng trong URL.');
-            setLoading(false);
-        }
-    }, [location, navigate]);
+                } catch (updateError: any) {
+                    // Kiểm tra nếu lỗi là do optimistic concurrency
+                    if (updateError.message.includes('optimistic concurrency')) {
+                        // Đơn hàng có thể đã được cập nhật trước đó
+                        toast.success('Đơn hàng đã được xác nhận trước đó!');
+                        setLoading(false);
+                    } else {
+                        throw updateError;
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                toast.error('Có lỗi xảy ra khi xử lý thanh toán');
+                navigate('/ecommerce/payment-failed', { replace: true });
+            }
+        };
 
-    if (loading) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                </div>
-            </div>
-        );
-    }
+        processSuccessfulPayment();
+    }, [searchParams, navigate]);
 
-    if (!order) {
-        return (
-            <div className="container mx-auto px-4 py-8 text-white text-center">
-                Không tìm thấy chi tiết đơn hàng hoặc đã xảy ra lỗi khi tải.
-            </div>
-        );
-    }
+    const handleViewOrder = () => {
+        navigate('/ecommerce/orders');
+    };
+
+    const handleGoHome = () => {
+        navigate('/ecommerce');
+    };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="max-w-2xl mx-auto bg-[#182233] rounded-lg shadow-md p-8">
-                <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
+        <div className="min-h-screen bg-gradient-to-b from-[#0f172a] to-[#1e293b] py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto">
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center p-8">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                        <p className="mt-4 text-white">Đang xử lý thanh toán...</p>
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Thanh toán thành công!</h2>
-                    <p className="text-gray-300 mb-6">
-                        Cảm ơn bạn đã đặt hàng. Đơn hàng của bạn đã được xác nhận.
-                    </p>
-                </div>
+                ) : (
+                    <div className="bg-[#182233] rounded-2xl shadow-xl overflow-hidden">
+                        {/* Header Section */}
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+                            <div className="flex items-center justify-center">
+                                <div className="bg-white/20 rounded-full p-3">
+                                    <HiOutlineShoppingBag className="h-8 w-8 text-white" />
+                                </div>
+                            </div>
+                            <h1 className="mt-4 text-2xl font-bold text-center text-white">
+                                Thanh toán thành công!
+                            </h1>
+                            <p className="mt-2 text-center text-blue-100">
+                                Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được xác nhận.
+                            </p>
+                        </div>
 
-                {
-                    <div className="border-t border-gray-700 pt-6">
-                        <h3 className="text-lg font-semibold text-white mb-4">Thông tin đơn hàng</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Mã đơn hàng:</span>
-                                <span className="text-white">{order.id}</span>
+                        {/* Payment Details */}
+                        <div className="px-8 py-6">
+                            <div className="space-y-6">
+                                {/* Transaction ID */}
+                                <div className="flex items-center p-4 bg-[#1e293b] rounded-lg">
+                                    <HiOutlineReceiptTax className="h-6 w-6 text-blue-400" />
+                                    <div className="ml-4 flex-1">
+                                        <p className="text-sm text-gray-400">Mã giao dịch</p>
+                                        <p className="text-white font-medium">{orderInfo.transactionId}</p>
+                                    </div>
+                                </div>
+
+                                {/* Amount */}
+                                <div className="flex items-center p-4 bg-[#1e293b] rounded-lg">
+                                    <HiOutlineCash className="h-6 w-6 text-green-400" />
+                                    <div className="ml-4 flex-1">
+                                        <p className="text-sm text-gray-400">Số tiền thanh toán</p>
+                                        <p className="text-white font-medium">{orderInfo.amount}</p>
+                                    </div>
+                                </div>
+
+                                {/* Bank */}
+                                <div className="flex items-center p-4 bg-[#1e293b] rounded-lg">
+                                    <svg className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    <div className="ml-4 flex-1">
+                                        <p className="text-sm text-gray-400">Ngân hàng</p>
+                                        <p className="text-white font-medium">{orderInfo.bankCode}</p>
+                                    </div>
+                                </div>
+
+                                {/* Time */}
+                                <div className="flex items-center p-4 bg-[#1e293b] rounded-lg">
+                                    <HiOutlineClock className="h-6 w-6 text-yellow-400" />
+                                    <div className="ml-4 flex-1">
+                                        <p className="text-sm text-gray-400">Thời gian thanh toán</p>
+                                        <p className="text-white font-medium">{orderInfo.payDate}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Tổng tiền:</span>
-                                <span className="text-white">{new Intl.NumberFormat('vi-VN').format(order.tongTien)} đ</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Trạng thái:</span>
-                                <span className="text-green-400">{order.trangThaiDonHang}</span>
+
+                            {/* Actions */}
+                            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                                <button
+                                    onClick={handleViewOrder}
+                                    className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                                >
+                                    <HiOutlineShoppingBag className="h-5 w-5" />
+                                    Xem đơn hàng
+                                </button>
+                                <button
+                                    onClick={handleGoHome}
+                                    className="flex-1 bg-gray-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                                >
+                                    <HiOutlineHome className="h-5 w-5" />
+                                    Về trang chủ
+                                </button>
                             </div>
                         </div>
                     </div>
-                }
-
-                <div className="mt-8 text-center">
-                    <button
-                        onClick={() => navigate('/ecommerce/orders')}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        Xem đơn hàng của tôi
-                    </button>
-                </div>
+                )}
             </div>
         </div>
     );

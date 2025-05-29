@@ -166,6 +166,25 @@ namespace WebsiteSmartHome.Services
                 }
             }
 
+            // Cập nhật vai trò nếu có thay đổi
+            if (!string.IsNullOrEmpty(dto.MaVaiTro) && dto.MaVaiTro != existing.MaVaiTro.ToString())
+            {
+                if (Guid.TryParse(dto.MaVaiTro, out Guid vaiTroId))
+                {
+                    // Kiểm tra vai trò tồn tại
+                    var vaiTro = await _unitOfWork.GetRepository<VaiTro>().GetByIdAsync(vaiTroId);
+                    if (vaiTro == null)
+                    {
+                        throw new BaseException.NotFoundException("role_not_found", "Không tìm thấy vai trò được chỉ định");
+                    }
+                    existing.MaVaiTro = vaiTroId;
+                }
+                else
+                {
+                    throw new BaseException.BadRequestException("invalid_role_id", "Mã vai trò không hợp lệ");
+                }
+            }
+
             // Cập nhật
             existing.TenNguoiDung = dto.TenNguoiDung!;
             existing.GioiTinh = dto.GioiTinh!;
@@ -257,6 +276,52 @@ namespace WebsiteSmartHome.Services
                 soDienThoai = x.SoDienThoai!,
                 DiaChi = x.DiaChi
             });
+        }
+
+        private async Task<decimal> CalculateTotalPurchaseAmount(Guid userId)
+        {
+            var donHangs = await _unitOfWork.GetRepository<DonHang>()
+                .GetEntitiesWithCondition(dh => 
+                    dh.MaNguoiDung == userId && 
+                    dh.TrangThaiDonHang == "Hoàn thành")
+                .ToListAsync();
+
+            return donHangs.Sum(dh => dh.TongTien);
+        }
+
+        public async Task<IEnumerable<NguoiDungDto>> GetUsersByRoleAsync(string roleName, bool isVip = false)
+        {
+            var query = _unitOfWork.GetRepository<NguoiDung>().Entities
+                .Include(x => x.MaVaiTroNavigation)
+                .Where(x => x.MaVaiTroNavigation.TenVaiTro == roleName);
+
+            var users = await query.ToListAsync();
+            var userDtos = new List<NguoiDungDto>();
+
+            foreach (var user in users)
+            {
+                var totalPurchase = await CalculateTotalPurchaseAmount(user.Id);
+                var isUserVip = totalPurchase >= 100000000; // 100 million VND
+
+                // If VIP filter is on, only include VIP users
+                if (roleName == "Khách Hàng" && isVip != isUserVip)
+                    continue;
+
+                userDtos.Add(new NguoiDungDto
+                {
+                    Id = user.Id.ToString(),
+                    TenNguoiDung = user.TenNguoiDung,
+                    GioiTinh = user.GioiTinh!,
+                    NgaySinh = user.NgaySinh,
+                    Cccd = user.Cccd!,
+                    soDienThoai = user.SoDienThoai!,
+                    DiaChi = user.DiaChi,
+                    TongTienMua = totalPurchase,
+                    IsVip = isUserVip
+                });
+            }
+
+            return userDtos;
         }
     }
 }

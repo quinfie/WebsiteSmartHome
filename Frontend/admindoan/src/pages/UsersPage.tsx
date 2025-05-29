@@ -2,56 +2,75 @@ import React, { useEffect, useState } from "react";
 import {
   HiOutlineChevronRight,
   HiOutlinePlus,
-  HiOutlineSearch,
-  HiOutlineFilter,
-  HiOutlineX,
   HiOutlineUser,
-  HiOutlineUsers
+  HiOutlineUsers,
+  HiOutlineOfficeBuilding,
+  HiOutlineUserGroup
 } from "react-icons/hi";
 import {
-  Pagination,
-  RowsPerPage,
   Sidebar,
   UserTable,
   WhiteButton,
 } from "../components";
-import { AiOutlineExport } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import { useNguoiDung } from "../contexts/NguoiDungContext";
+import { toast } from "react-hot-toast";
+import { nguoiDungService } from "../api/nguoiDungApi";
+import { NguoiDungDto } from "../types/nguoidung";
 
 const Users: React.FC = () => {
-  const {
-    users,
-    isLoading,
-    fetchUsers,
-    searchAndSortUsers,
-    deleteUser,
-    searchTerm,
-    setSearchTerm,
-    filterOptions,
-    setFilterOptions,
-    sortOptions,
-    handleSortOptionsChange,
-    totalItems
-  } = useNguoiDung();
-
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [keyword, setKeyword] = useState(searchTerm || '');
-  const [showFilters, setShowFilters] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [localFilterOptions, setLocalFilterOptions] = useState({
-    gioiTinh: filterOptions.gioiTinh || '',
-    tuNgaySinh: filterOptions.tuNgaySinh,
-    denNgaySinh: filterOptions.denNgaySinh,
-    diaChi: filterOptions.diaChi || ''
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
+  const [usersByRole, setUsersByRole] = useState<{
+    quanLi: NguoiDungDto[];
+    nhanVien: NguoiDungDto[];
+    khachHang: NguoiDungDto[];
+    khachHangVIP: NguoiDungDto[];
+  }>({
+    quanLi: [],
+    nhanVien: [],
+    khachHang: [],
+    khachHangVIP: []
   });
 
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchUsersByRole();
+  }, []);
+
+  const fetchUsersByRole = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const [quanLi, nhanVien, khachHang, khachHangVIP] = await Promise.all([
+        nguoiDungService.getUsersByRole("Quản Lí"),
+        nguoiDungService.getUsersByRole("Nhân Viên"),
+        nguoiDungService.getUsersByRole("Khách Hàng", false),
+        nguoiDungService.getUsersByRole("Khách Hàng", true)
+      ]);
+
+      setUsersByRole({
+        quanLi: quanLi || [],
+        nhanVien: nhanVien || [],
+        khachHang: khachHang || [],
+        khachHangVIP: khachHangVIP || []
+      });
+    } catch (err: any) {
+      console.error('Error fetching users:', err);
+      setError(err.message || "Có lỗi xảy ra khi tải dữ liệu");
+      toast.error(err.message || "Có lỗi xảy ra khi tải dữ liệu");
+      setUsersByRole({
+        quanLi: [],
+        nhanVien: [],
+        khachHang: [],
+        khachHangVIP: []
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleEdit = (id: string) => {
     navigate(`/dashboard/users/${id}/edit`);
@@ -61,106 +80,32 @@ const Users: React.FC = () => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
 
     try {
-      await deleteUser(id);
-      setMessage("Xóa người dùng thành công!");
-      setTimeout(() => setMessage(""), 3000);
+      await nguoiDungService.delete(id);
+      toast.success("Xóa người dùng thành công!");
+      fetchUsersByRole(); // Refresh data
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.errorMessage || "Lỗi khi xóa người dùng!";
-      setError(errorMessage);
-      setTimeout(() => setError(""), 3000);
+      toast.error(err.message || "Lỗi khi xóa người dùng!");
     }
   };
 
-  const handleSearch = () => {
-    setFilterOptions({
-      ...filterOptions,
-      keyword
-    });
-    searchAndSortUsers();
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    let newSortOptions;
-
-    // Xử lý các tùy chọn sắp xếp - Phải dùng đúng tên field như trong backend
-    switch (value) {
-      case 'az':
-        newSortOptions = { sortBy: 'TenNguoiDung', ascending: true };
-        break;
-      case 'za':
-        newSortOptions = { sortBy: 'TenNguoiDung', ascending: false };
-        break;
-      case 'newest':
-        newSortOptions = { sortBy: 'NgaySinh', ascending: false };
-        break;
-      case 'oldest':
-        newSortOptions = { sortBy: 'NgaySinh', ascending: true };
-        break;
+  const getUsersForActiveTab = () => {
+    switch (activeTab) {
+      case "quanLi":
+        return usersByRole.quanLi;
+      case "nhanVien":
+        return usersByRole.nhanVien;
+      case "khachHang":
+        return usersByRole.khachHang;
+      case "khachHangVIP":
+        return usersByRole.khachHangVIP;
       default:
-        newSortOptions = { sortBy: 'TenNguoiDung', ascending: true };
+        return [
+          ...usersByRole.quanLi,
+          ...usersByRole.nhanVien,
+          ...usersByRole.khachHang,
+          ...usersByRole.khachHangVIP
+        ];
     }
-
-    // Sử dụng handleSortOptionsChange để cập nhật và áp dụng ngay lập tức
-    handleSortOptionsChange(newSortOptions);
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    if (name === 'tuNgaySinh' || name === 'denNgaySinh') {
-      setLocalFilterOptions({
-        ...localFilterOptions,
-        [name]: value ? new Date(value) : undefined
-      });
-    } else {
-      setLocalFilterOptions({
-        ...localFilterOptions,
-        [name]: value
-      });
-    }
-  };
-
-  const handleApplyFilters = () => {
-    // Áp dụng bộ lọc vào context và tìm kiếm
-    setFilterOptions({
-      ...filterOptions,
-      ...localFilterOptions
-    });
-    searchAndSortUsers();
-    setShowFilters(false);
-  };
-
-  const handleClearFilters = () => {
-    const clearedOptions = {
-      gioiTinh: '',
-      tuNgaySinh: undefined,
-      denNgaySinh: undefined,
-      diaChi: ''
-    };
-    setLocalFilterOptions(clearedOptions);
-    setFilterOptions({
-      ...filterOptions,
-      ...clearedOptions
-    });
-    searchAndSortUsers();
-  };
-
-  const getCurrentSortOption = () => {
-    const { sortBy, ascending } = sortOptions;
-
-    if (sortBy === 'TenNguoiDung' && ascending) return 'az';
-    if (sortBy === 'TenNguoiDung' && !ascending) return 'za';
-    if (sortBy === 'NgaySinh' && !ascending) return 'newest';
-    if (sortBy === 'NgaySinh' && ascending) return 'oldest';
-
-    return 'default';
   };
 
   return (
@@ -189,10 +134,6 @@ const Users: React.FC = () => {
                   </p>
                 </div>
                 <div className="flex gap-x-2 max-[370px]:flex-col max-[370px]:gap-2 max-[370px]:items-center">
-                  <button className="dark:bg-blackPrimary bg-white/80 backdrop-blur-sm border border-gray-600 w-32 py-2 text-lg hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 flex items-center justify-center gap-x-2 rounded-lg shadow-md">
-                    <AiOutlineExport className="dark:text-whiteSecondary text-blackPrimary text-base" />
-                    <span className="dark:text-whiteSecondary text-blackPrimary font-medium">Xuất</span>
-                  </button>
                   <WhiteButton
                     link="/dashboard/users/create"
                     text="Thêm người dùng"
@@ -208,217 +149,135 @@ const Users: React.FC = () => {
             </div>
           </div>
 
-          {/* Dashboard Summary */}
+          {/* Role Statistics Cards */}
           <div className="px-4 sm:px-6 lg:px-8 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-700 dark:to-blue-800 rounded-xl shadow-lg p-4 flex items-center justify-between transform hover:scale-105 transition-all duration-300 text-white">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div
+                onClick={() => setActiveTab("quanLi")}
+                className={`cursor-pointer ${activeTab === "quanLi" ? "ring-2 ring-blue-500" : ""} bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-700 dark:to-blue-800 rounded-xl shadow-lg p-4 flex items-center justify-between transform hover:scale-105 transition-all duration-300 text-white`}
+              >
                 <div>
-                  <h3 className="text-xl font-semibold">Tổng người dùng</h3>
-                  <p className="text-3xl font-bold mt-1">{totalItems || users.length}</p>
+                  <h3 className="text-xl font-semibold">Quản Lí</h3>
+                  <p className="text-3xl font-bold mt-1">{usersByRole.quanLi.length}</p>
+                </div>
+                <div className="p-3 bg-white/20 rounded-full">
+                  <HiOutlineOfficeBuilding className="h-8 w-8" />
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab("nhanVien")}
+                className={`cursor-pointer ${activeTab === "nhanVien" ? "ring-2 ring-purple-500" : ""} bg-gradient-to-r from-purple-500 to-purple-600 dark:from-purple-700 dark:to-purple-800 rounded-xl shadow-lg p-4 flex items-center justify-between transform hover:scale-105 transition-all duration-300 text-white`}
+              >
+                <div>
+                  <h3 className="text-xl font-semibold">Nhân Viên</h3>
+                  <p className="text-3xl font-bold mt-1">{usersByRole.nhanVien.length}</p>
+                </div>
+                <div className="p-3 bg-white/20 rounded-full">
+                  <HiOutlineUserGroup className="h-8 w-8" />
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab("khachHang")}
+                className={`cursor-pointer ${activeTab === "khachHang" ? "ring-2 ring-green-500" : ""} bg-gradient-to-r from-green-500 to-green-600 dark:from-green-700 dark:to-green-800 rounded-xl shadow-lg p-4 flex items-center justify-between transform hover:scale-105 transition-all duration-300 text-white`}
+              >
+                <div>
+                  <h3 className="text-xl font-semibold">Khách Hàng</h3>
+                  <p className="text-3xl font-bold mt-1">{usersByRole.khachHang.length}</p>
                 </div>
                 <div className="p-3 bg-white/20 rounded-full">
                   <HiOutlineUser className="h-8 w-8" />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-purple-500 to-purple-600 dark:from-purple-700 dark:to-purple-800 rounded-xl shadow-lg p-4 flex items-center justify-between transform hover:scale-105 transition-all duration-300 text-white">
+              <div
+                onClick={() => setActiveTab("khachHangVIP")}
+                className={`cursor-pointer ${activeTab === "khachHangVIP" ? "ring-2 ring-yellow-500" : ""} bg-gradient-to-r from-yellow-500 to-yellow-600 dark:from-yellow-700 dark:to-yellow-800 rounded-xl shadow-lg p-4 flex items-center justify-between transform hover:scale-105 transition-all duration-300 text-white`}
+              >
                 <div>
-                  <h3 className="text-xl font-semibold">Nam</h3>
-                  <p className="text-3xl font-bold mt-1">{users.filter(u => u.gioiTinh === 'Nam').length}</p>
-                </div>
-                <div className="p-3 bg-white/20 rounded-full">
-                  <HiOutlineUser className="h-8 w-8" />
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-pink-500 to-pink-600 dark:from-pink-700 dark:to-pink-800 rounded-xl shadow-lg p-4 flex items-center justify-between transform hover:scale-105 transition-all duration-300 text-white">
-                <div>
-                  <h3 className="text-xl font-semibold">Nữ</h3>
-                  <p className="text-3xl font-bold mt-1">{users.filter(u => u.gioiTinh === 'Nữ').length}</p>
-                </div>
-                <div className="p-3 bg-white/20 rounded-full">
-                  <HiOutlineUser className="h-8 w-8" />
+                  <h3 className="text-xl font-semibold">Khách Hàng VIP</h3>
+                  <p className="text-3xl font-bold mt-1">{usersByRole.khachHangVIP.length}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Search and Sort Bar */}
-          <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center mt-5 max-sm:flex-col max-sm:gap-2">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <HiOutlineSearch className="text-gray-400 text-lg absolute top-3 left-3" />
-                <input
-                  type="text"
-                  className="w-60 h-10 border dark:bg-gray-800 bg-white border-gray-300 dark:border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 indent-10 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 rounded-lg transition-all duration-300"
-                  placeholder="Tìm kiếm người dùng..."
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  onKeyDown={handleKeyDown}
+          {/* Tab Navigation */}
+          <div className="px-4 sm:px-6 lg:px-8 mb-6">
+            <div className="border-b border-gray-200 dark:border-gray-700">
+              <nav className="flex space-x-8" aria-label="Tabs">
+                <button
+                  onClick={() => setActiveTab("all")}
+                  className={`${activeTab === "all"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300 dark:hover:text-gray-300"
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                >
+                  Tất cả người dùng
+                </button>
+                <button
+                  onClick={() => setActiveTab("quanLi")}
+                  className={`${activeTab === "quanLi"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300 dark:hover:text-gray-300"
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                >
+                  Quản Lí
+                </button>
+                <button
+                  onClick={() => setActiveTab("nhanVien")}
+                  className={`${activeTab === "nhanVien"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300 dark:hover:text-gray-300"
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                >
+                  Nhân Viên
+                </button>
+                <button
+                  onClick={() => setActiveTab("khachHang")}
+                  className={`${activeTab === "khachHang"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300 dark:hover:text-gray-300"
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                >
+                  Khách Hàng
+                </button>
+                <button
+                  onClick={() => setActiveTab("khachHangVIP")}
+                  className={`${activeTab === "khachHangVIP"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300 dark:hover:text-gray-300"
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                >
+                  Khách Hàng VIP
+                </button>
+              </nav>
+            </div>
+          </div>
+
+          {/* Loading and Error States */}
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+            </div>
+          ) : error ? (
+            <div className="px-4 sm:px-6 lg:px-8">
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
+                <p className="font-bold">Lỗi</p>
+                <p>{error}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="px-4 sm:px-6 lg:px-8">
+              <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <UserTable
+                  users={getUsersForActiveTab()}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  showVipStatus={activeTab === "all" || activeTab === "khachHangVIP"}
                 />
               </div>
-              <button
-                onClick={handleSearch}
-                className="h-10 px-4 bg-blue-600 text-white rounded-lg flex items-center gap-1 hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md"
-              >
-                <HiOutlineSearch />
-                Tìm
-              </button>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`h-10 px-4 border rounded-lg flex items-center gap-1 transform hover:scale-105 transition-all duration-200 shadow-md
-                  ${showFilters
-                    ? 'bg-blue-100 border-blue-500 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                    : 'border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-500 dark:hover:border-blue-500 dark:hover:text-blue-400'}`}
-              >
-                <HiOutlineFilter />
-                Bộ lọc
-              </button>
-            </div>
-            <div>
-              <select
-                className="w-60 h-10 dark:bg-gray-800 bg-white border border-gray-300 dark:border-gray-600 dark:text-whiteSecondary text-blackPrimary outline-0 pl-3 pr-8 cursor-pointer hover:border-blue-500 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 rounded-lg transition-all duration-300"
-                name="sort"
-                id="sort"
-                value={getCurrentSortOption()}
-                onChange={handleSort}
-              >
-                <option value="default">Sắp xếp theo</option>
-                <option value="az">Tên A-Z</option>
-                <option value="za">Tên Z-A</option>
-                <option value="newest">Ngày sinh mới nhất</option>
-                <option value="oldest">Ngày sinh cũ nhất</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Filter panel */}
-          {showFilters && (
-            <div className="px-4 sm:px-6 lg:px-8 mt-3 bg-white dark:bg-gray-800 p-6 rounded-xl transition-all duration-300 shadow-lg border border-gray-200 dark:border-gray-700 animate-fadeIn">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                  <HiOutlineFilter className="text-blue-500" />
-                  Lọc người dùng nâng cao
-                </h3>
-                <button onClick={() => setShowFilters(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  <HiOutlineX size={20} />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Giới tính</label>
-                  <select
-                    name="gioiTinh"
-                    value={localFilterOptions.gioiTinh}
-                    onChange={handleFilterChange}
-                    className="w-full h-10 border dark:bg-gray-700 bg-white border-gray-300 dark:border-gray-600 dark:text-white text-gray-900 rounded-lg px-3 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 focus:border-blue-500"
-                  >
-                    <option value="">Tất cả</option>
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Từ ngày sinh</label>
-                  <input
-                    type="date"
-                    name="tuNgaySinh"
-                    value={localFilterOptions.tuNgaySinh?.toISOString().split('T')[0] || ''}
-                    onChange={handleFilterChange}
-                    className="w-full h-10 border dark:bg-gray-700 bg-white border-gray-300 dark:border-gray-600 dark:text-white text-gray-900 rounded-lg px-3 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Đến ngày sinh</label>
-                  <input
-                    type="date"
-                    name="denNgaySinh"
-                    value={localFilterOptions.denNgaySinh?.toISOString().split('T')[0] || ''}
-                    onChange={handleFilterChange}
-                    className="w-full h-10 border dark:bg-gray-700 bg-white border-gray-300 dark:border-gray-600 dark:text-white text-gray-900 rounded-lg px-3 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Địa chỉ</label>
-                  <input
-                    type="text"
-                    name="diaChi"
-                    value={localFilterOptions.diaChi}
-                    onChange={handleFilterChange}
-                    className="w-full h-10 border dark:bg-gray-700 bg-white border-gray-300 dark:border-gray-600 dark:text-white text-gray-900 rounded-lg px-3 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 focus:border-blue-500"
-                    placeholder="Địa chỉ"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end mt-6 gap-3">
-                <button
-                  onClick={handleClearFilters}
-                  className="px-5 py-2 border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
-                >
-                  Xóa bộ lọc
-                </button>
-                <button
-                  onClick={handleApplyFilters}
-                  className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700"
-                >
-                  Áp dụng
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Hiển thị thông báo lỗi hoặc thành công */}
-          {message && (
-            <div className="px-4 sm:px-6 lg:px-8 mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md animate-fadeIn flex items-center gap-2">
-              <span className="font-bold">Thành công:</span> {message}
-            </div>
-          )}
-          {error && (
-            <div className="px-4 sm:px-6 lg:px-8 mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md animate-fadeIn flex items-center gap-2">
-              <span className="font-bold">Lỗi:</span> {error}
-            </div>
-          )}
-
-          {/* Loading and Data Section */}
-          <div className="px-4 sm:px-6 lg:px-8 mt-6">
-            {isLoading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-              </div>
-            ) : users.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 dark:bg-blue-900 mb-4">
-                  <HiOutlineUsers className="h-12 w-12 text-blue-500 dark:text-blue-300" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Không có người dùng</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">Không tìm thấy người dùng phù hợp với bộ lọc đã chọn.</p>
-                <button
-                  onClick={handleClearFilters}
-                  className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md"
-                >
-                  Xóa bộ lọc
-                </button>
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                
-
-                <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
-              </div>
-            )}
-          </div>
-
-          {/* Pagination Section */}
-          {users.length > 0 && (
-            <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-sm:flex-col gap-4 max-sm:pt-6 max-sm:pb-0">
-              <RowsPerPage />
-              <Pagination />
             </div>
           )}
         </div>

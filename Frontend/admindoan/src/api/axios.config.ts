@@ -58,22 +58,22 @@ api.interceptors.response.use(
                  'Có lỗi xảy ra';
       }
 
-      // // Handle 401 Unauthorized
-      // if (error.response.status === 401) {
-      //   console.log('401 Unauthorized - Current token:', localStorage.getItem('token'));
+      // Handle 401 Unauthorized
+      if (error.response.status === 401) {
+        console.log('401 Unauthorized - Current token:', localStorage.getItem('token'));
         
-      //   // Clear auth data
-      //   localStorage.removeItem('token');
-      //   localStorage.removeItem('userInfo');
-      //   localStorage.removeItem('vaiTro');
+        // Clear auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('vaiTro');
         
-      //   // Add small delay to ensure error message is shown
-      //   await new Promise(resolve => setTimeout(resolve, 100));
+        // Add small delay to ensure error message is shown
+        await new Promise(resolve => setTimeout(resolve, 100));
         
-      //   // Redirect to login
-      //   window.location.href = '/ecommerce/login';
-      //   return Promise.reject(new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'));
-      // }
+        // Redirect to login
+        window.location.href = '/ecommerce/login';
+        return Promise.reject(new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'));
+      }
 
       // Handle 404 Not Found
       if (error.response.status === 404) {

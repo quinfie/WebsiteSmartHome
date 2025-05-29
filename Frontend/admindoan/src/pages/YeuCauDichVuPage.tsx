@@ -14,9 +14,11 @@ import { useNavigate } from "react-router-dom";
 import { useYeuCauDichVu } from "../contexts/YeuCauDichVuContext";
 import { useAuth } from "../contexts/AuthContext";
 import { yeucaudichvuApi } from "../api/yeucaudichvu";
+import { phanCongDichVuApi } from "../api/phancongdichvu";
 import StatusBadge, { StatusType } from '../components/StatusBadge';
 import UpdateServiceRequestModal from '../components/UpdateServiceRequestModal';
 import { YeuCauDichVuDto } from "../types/yeucaudichvu";
+import { PhanCongDichVuDto } from "../types/phancongdichvu";
 import PhanCongDichVuModal from '../components/PhanCongDichVuModal';
 
 // Table component tách riêng
@@ -165,7 +167,7 @@ const CustomYeuCauDichVuTable: React.FC<{
                       >
                         <HiOutlineTrash size={18} />
                       </button>
-                      {userRole === "Quản lý" && !item.daPhanCong && item.trangThaiYeuCau === "Đã xác nhận" && (
+                      {userRole === "Quản Lí" && !item.daPhanCong && item.trangThaiYeuCau === "Đã xác nhận" && (
                         <button
                           onClick={() => handlePhanCong(item)}
                           className="p-1.5 text-green-600 hover:bg-gray-100 dark:text-green-400 dark:hover:bg-gray-700 transition-colors"
@@ -199,22 +201,30 @@ const YeuCauDichVu = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      let data: any[] = [];
-      if (user?.vaiTro === "Khách hàng") {
+      let data: YeuCauDichVuDto[] = [];
+
+      if (user?.vaiTro === "Nhân Viên") {
+        // Lấy yêu cầu dịch vụ của nhân viên
+        data = await yeucaudichvuApi.getYeuCauCuaNhanVien(user.maNguoiDung);
+      } else if (user?.vaiTro === "Khách Hàng") {
+        // Lấy yêu cầu dịch vụ của khách hàng
         data = await getYeuCauCuaToi();
       } else {
+        // Lấy tất cả yêu cầu dịch vụ cho quản lý và admin
         data = await getAllYeuCau(statusFilter || undefined, serviceTypeFilter || undefined);
       }
-      if (searchKeyword.trim()) {
-        data = data.filter((item: any) =>
-          (item.tenSanPham?.toLowerCase().includes(searchKeyword.toLowerCase()) || false) ||
-          (item.moTa?.toLowerCase().includes(searchKeyword.toLowerCase()) || false) ||
-          (typeof item.maChiTietDonHang !== 'undefined' && item.maChiTietDonHang?.toString().includes(searchKeyword))
+
+      // Lọc theo từ khóa tìm kiếm
+      if (searchKeyword) {
+        data = data.filter(item =>
+          item.tenSanPham?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          item.loaiDichVu.toLowerCase().includes(searchKeyword.toLowerCase())
         );
       }
+
       setServiceRequests(data);
     } catch (error) {
-      alert("Không thể tải danh sách yêu cầu dịch vụ!");
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -290,9 +300,8 @@ const YeuCauDichVu = () => {
                   className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 dark:text-white"
                 >
                   <option value="">Tất cả trạng thái</option>
-                  <option value="Chờ xác nhận">Chờ xác nhận</option>
+                  <option value="Chờ xác nhận">Đang chờ xác nhận</option>
                   <option value="Đã xác nhận">Đã xác nhận</option>
-                  <option value="Đang xử lý">Đang xử lý</option>
                   <option value="Hoàn thành">Hoàn thành</option>
                   <option value="Đã hủy">Đã hủy</option>
                 </select>
@@ -306,13 +315,6 @@ const YeuCauDichVu = () => {
                 <option value="Bảo hành">Bảo hành</option>
                 <option value="Sửa chữa">Sửa chữa</option>
               </select>
-              <button
-                type="button"
-                className="dark:bg-blackPrimary bg-white/80 backdrop-blur-sm border border-gray-600 w-32 py-2.5 text-lg hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 flex items-center justify-center gap-x-2 rounded-lg shadow-md"
-              >
-                <AiOutlineExport className="dark:text-whiteSecondary text-blackPrimary text-base" />
-                <span className="dark:text-whiteSecondary text-blackPrimary font-medium">Xuất</span>
-              </button>
             </div>
           </div>
         </div>

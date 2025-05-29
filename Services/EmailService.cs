@@ -6,82 +6,82 @@ using WebsiteSmartHome.IServices;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Net;
+using System.Net.Mail;
+using System.Text;
 
 namespace WebsiteSmartHome.Services
 {
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly string _smtpHost;
+        private readonly int _smtpPort;
+        private readonly string _smtpUsername;
+        private readonly string _smtpPassword;
+        private readonly string _fromEmail;
+        private readonly string _frontendUrl;
 
         public EmailService(IConfiguration configuration)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _smtpHost = _configuration["EmailSettings:SmtpHost"];
+            _smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+            _smtpUsername = _configuration["EmailSettings:SmtpUsername"];
+            _smtpPassword = _configuration["EmailSettings:SmtpPassword"];
+            _fromEmail = _configuration["EmailSettings:FromEmail"];
+            _frontendUrl = _configuration["FrontendUrl"];
         }
 
         public async Task SendVerificationEmailAsync(string email, string? verificationToken = null)
         {
-            // Tạo token JWT chứa email
-            var securityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var claims = new List<Claim> { new Claim(ClaimTypes.Email, email) };
-            var token = new JwtSecurityToken(claims: claims, expires: DateTime.Now.AddHours(24), signingCredentials: credentials);
-            var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+            var token = verificationToken ?? GenerateVerificationToken(email);
+            var verificationLink = $"{_frontendUrl}/verify-email?token={WebUtility.UrlEncode(token)}";
 
-            string? webLink = _configuration["AppSettings:WebLink"]?.TrimEnd('/');
-            if (string.IsNullOrWhiteSpace(webLink))
-            {
-                throw new InvalidOperationException("WebLink is not configured.");
-            }
-
-            string verificationUrl = $"{webLink}/api/auth/verify-email?token={jwtToken}";
-
-            string subject = "Verify Your Email - Smart Home";
-            string body = $@"
-<div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; text-align: center;'>
-    <div style='max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto;'>
-        <h1 style='color: #2196F3;'>Welcome to Smart Home!</h1>
-        <p style='font-size: 16px; color: #555;'>Thank you for signing up! To start using our services, please verify your email by clicking the button below:</p>
-        <a href='{verificationUrl}' 
-           style='display: inline-block; padding: 12px 25px; font-size: 16px; color: #ffffff; background-color: #2196F3; 
-                  text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px;'>
-           Verify Your Email
-        </a>
-        <p style='font-size: 14px; color: #777; margin-top: 20px;'>If the button does not work, copy and paste the following link into your browser:</p>
-        <p style='word-break: break-all;'><a href='{verificationUrl}' style='color: #2196F3;'>{verificationUrl}</a></p>
-        <hr style='border: none; height: 1px; background-color: #ddd; margin: 20px 0;'>
-        <p style='font-size: 14px; color: #999;'>If you did not sign up for Smart Home, please ignore this email.</p>
-        <p style='font-size: 14px; color: #999;'>© 2024 Smart Home. All rights reserved.</p>
-    </div>
-</div>";
+            var subject = "Xác thực tài khoản - Smart Home";
+            var body = $@"
+                <h2>Xác thực tài khoản của bạn</h2>
+                <p>Cảm ơn bạn đã đăng ký tài khoản tại Smart Home.</p>
+                <p>Vui lòng click vào liên kết dưới đây để xác thực tài khoản:</p>
+                <p><a href='{verificationLink}'>Xác thực tài khoản</a></p>
+                <p>Nếu bạn không yêu cầu xác thực tài khoản, vui lòng bỏ qua email này.</p>";
 
             await SendEmailAsync(email, subject, body);
         }
 
-        public async Task SendPasswordResetEmailAsync(string email, string resetToken)
+        private string GenerateVerificationToken(string email)
         {
-            string? webLink = _configuration["AppSettings:WebLink"]?.TrimEnd('/');
-            if (string.IsNullOrWhiteSpace(webLink))
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                throw new InvalidOperationException("WebLink is not configured.");
-            }
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Email, email),
+                    new Claim(ClaimTypes.Role, "verification")
+                }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-            string resetUrl = $"{webLink}/api/auth/reset-password?token={resetToken}";
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
 
-            string subject = "Password Reset Request - Smart Home";
-            string body = $@"
+        public async Task SendPasswordResetEmailAsync(string email, string newPassword)
+        {
+            var subject = "Mật khẩu mới - Smart Home";
+            var body = $@"
 <div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; text-align: center;'>
     <div style='max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto;'>
-        <h1 style='color: #2196F3;'>Password Reset Request</h1>
-        <p style='font-size: 16px; color: #555;'>You requested a password reset. Please click the button below to reset your password:</p>
-        <a href='{resetUrl}' 
-           style='display: inline-block; padding: 12px 25px; font-size: 16px; color: #ffffff; background-color: #2196F3; 
-                  text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px;'>
-           Reset Password
-        </a>
-        <p style='font-size: 14px; color: #777; margin-top: 20px;'>If the button does not work, copy and paste the following link into your browser:</p>
-        <p style='word-break: break-all;'><a href='{resetUrl}' style='color: #2196F3;'>{resetUrl}</a></p>
+        <h1 style='color: #2196F3;'>Mật khẩu mới của bạn</h1>
+        <p style='font-size: 16px; color: #555;'>Chúng tôi đã tạo một mật khẩu mới cho tài khoản của bạn.</p>
+        <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;'>
+            <p style='margin: 5px 0;'><strong>Mật khẩu mới:</strong> {newPassword}</p>
+        </div>
+        <p style='font-size: 16px; color: #555;'>Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.</p>
         <hr style='border: none; height: 1px; background-color: #ddd; margin: 20px 0;'>
-        <p style='font-size: 14px; color: #999;'>If you did not request a password reset, please ignore this email.</p>
+        <p style='font-size: 14px; color: #999;'>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng liên hệ với chúng tôi ngay lập tức.</p>
         <p style='font-size: 14px; color: #999;'>© 2024 Smart Home. All rights reserved.</p>
     </div>
 </div>";

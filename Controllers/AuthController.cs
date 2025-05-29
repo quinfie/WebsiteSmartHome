@@ -79,7 +79,7 @@ namespace WebsiteSmartHome.Controllers
         public async Task<BaseResponse<bool>> ForgotPassword([FromBody] ForgotPasswordDto forgotPassword)
         {
             await _authService.ForgotPasswordAsync(forgotPassword);
-            return BaseResponse<bool>.OkResponse(true, "Đặt lại mật khẩu thành công");
+            return BaseResponse<bool>.OkResponse(true, "Mật khẩu mới đã được gửi đến email của bạn");
         }
 
         [HttpGet("verify-email")]

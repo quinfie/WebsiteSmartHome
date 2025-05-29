@@ -1,9 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { getDonHangById } from '../../api/donhang';
-import { ViewResponseCreateDonHangDto } from '../../types/donhang';
-import { toast } from 'react-hot-toast';
-import { BaseResponse } from '../../types/common';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface VNPayResponseMapping {
     [key: string]: string;
@@ -38,151 +33,51 @@ const vnpayResponseMessages: VNPayResponseMapping = {
 };
 
 export default function PaymentFailed() {
-    const location = useLocation();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const searchParams = new URLSearchParams(location.search);
-    const orderId = searchParams.get('vnp_TxnRef');
-    const responseCode = searchParams.get('vnp_ResponseCode');
-    const errorMessage = searchParams.get('vnp_OrderInfo');
-    const transactionStatus = searchParams.get('vnp_TransactionStatus');
-    const failReason = searchParams.get('vnp_OrderInfo') || 'Giao dịch không thành công';
-    const bankCode = searchParams.get('vnp_BankCode');
-    const payDate = searchParams.get('vnp_PayDate');
-    const transactionNo = searchParams.get('vnp_TransactionNo');
-    const amount = searchParams.get('vnp_Amount');
+    const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
+    const vnp_Message = searchParams.get('vnp_OrderInfo');
 
-    const [order, setOrder] = useState<ViewResponseCreateDonHangDto | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (orderId) {
-            fetchOrderDetails(orderId);
-        } else {
-            setError("Không tìm thấy mã đơn hàng.");
-            setLoading(false);
-        }
-    }, [orderId]);
-
-    const fetchOrderDetails = async (id: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response: BaseResponse<ViewResponseCreateDonHangDto> = await getDonHangById(id);
-            if (response.success && response.data) {
-                setOrder(response.data);
-            } else {
-                setError(response.message || "Không thể tải chi tiết đơn hàng.");
-                setOrder(null);
-            }
-        } catch (err) {
-            setError("Đã xảy ra lỗi khi tải chi tiết đơn hàng.");
-            setOrder(null);
-            console.error("Error fetching order details:", err);
-        } finally {
-            setLoading(false);
-        }
+    const handleGoHome = () => {
+        navigate('/ecommerce');
     };
 
-    const getDisplayMessage = (code: string | null): string => {
-        if (!code) return "Giao dịch không thành công, không rõ nguyên nhân.";
-        return vnpayResponseMessages[code] || `Giao dịch không thành công (Mã lỗi: ${code}).`;
+    const handleRetryPayment = () => {
+        navigate('/ecommerce/cart');
     };
-
-    if (loading) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                </div>
-            </div>
-        );
-    }
-
-    // Show error state if order not loaded after trying
-    if (!order) {
-        return (
-            <div className="container mx-auto px-4 py-8 text-white text-center">
-                {error}
-            </div>
-        );
-    }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="max-w-2xl mx-auto bg-[#182233] rounded-lg shadow-md p-8">
-                <div className="text-center">
-                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Thanh toán thất bại</h2>
-                    <p className="text-gray-300 mb-6">
-                        {getDisplayMessage(responseCode)}
-                    </p>
-                    {failReason && failReason !== 'Giao dịch không thành công' && (
-                        <p className="text-sm text-gray-500 mt-1">Chi tiết: {failReason}</p>
-                    )}
-                    {bankCode && (
-                        <p className="text-sm text-gray-500 mt-1">Ngân hàng: {bankCode}</p>
-                    )}
-                    {transactionNo && (
-                        <p className="text-sm text-gray-500 mt-1">Mã giao dịch VNPAY: {transactionNo}</p>
-                    )}
-                    {payDate && (
-                        <p className="text-sm text-gray-500 mt-1">Thời gian: {new Date(payDate.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6')).toLocaleString()}</p>
-                    )}
-                    {amount && (
-                        <p className="text-sm text-gray-500 mt-1">Số tiền: {(parseInt(amount, 10) / 100).toLocaleString('vi-VN')} VND</p>
-                    )}
-                </div>
-
-                {order && (
-                    <div className="border-t border-gray-700 pt-6">
-                        <h3 className="text-lg font-semibold text-white mb-4">Thông tin đơn hàng</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Mã đơn hàng:</span>
-                                <span className="text-white">{order.id}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Tổng tiền:</span>
-                                <span className="text-white">{new Intl.NumberFormat('vi-VN').format(order.tongTien)} đ</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Trạng thái:</span>
-                                <span className="text-red-400">{order.trangThaiDonHang}</span>
-                            </div>
-                            {/* Add more order details here if needed */}
+        <div className="bg-gradient-to-b from-[#0f172a] to-[#1e293b] min-h-screen py-8 flex items-center justify-center">
+            <div className="container mx-auto px-4">
+                <div className="bg-[#182233] rounded-2xl shadow-lg p-8 text-center max-w-md mx-auto border border-[#243447]">
+                    <div className="flex flex-col items-center">
+                        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
+                            <i className="fas fa-times text-2xl text-red-500"></i>
+                        </div>
+                        <h3 className="text-xl font-semibold text-white mb-2">Thanh toán thất bại</h3>
+                        <p className="text-gray-400 mb-4">
+                            {vnp_Message || 'Đã xảy ra lỗi trong quá trình thanh toán'}
+                        </p>
+                        {vnp_ResponseCode && (
+                            <p className="text-red-400 text-sm mb-6">
+                                Mã lỗi: {vnp_ResponseCode}
+                            </p>
+                        )}
+                        <div className="flex gap-4">
+                            <button
+                                onClick={handleRetryPayment}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+                            >
+                                Thử lại
+                            </button>
+                            <button
+                                onClick={handleGoHome}
+                                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-md"
+                            >
+                                Về trang chủ
+                            </button>
                         </div>
                     </div>
-                )}
-
-                <div className="mt-8 text-center space-x-4">
-                    {orderId && (
-                        <button
-                            onClick={() => navigate(`/ecommerce/checkout/${orderId}`)}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                            Thử lại thanh toán
-                        </button>
-                    )}
-                    <button
-                        onClick={() => navigate('/ecommerce/orders')}
-                        className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                    >
-                        Xem đơn hàng của tôi
-                    </button>
-                    {/* Optionally add a button to go back to cart if orderId is not available */}
-                    {!orderId && (
-                        <button
-                            onClick={() => navigate('/ecommerce/cart')}
-                            className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                        >
-                            Quay lại giỏ hàng
-                        </button>
-                    )}
                 </div>
             </div>
         </div>

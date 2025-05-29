@@ -11,6 +11,7 @@ namespace WebsiteSmartHome.IServices
         Task DeleteNguoiDungAsync(string id);
         Task<IEnumerable<NguoiDungDto>> SearchNguoiDungAsync(string keyword);
         Task<IEnumerable<NguoiDungDto>> GetKyThuatVienAsync();
+        Task<IEnumerable<NguoiDungDto>> GetUsersByRoleAsync(string roleName, bool isVip = false);
     }
 
 }

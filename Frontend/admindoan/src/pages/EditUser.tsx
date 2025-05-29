@@ -10,8 +10,14 @@ import SelectInput from "../components/SelectInput";
 import { roles } from "../utils/data";
 import { nguoiDungService } from "../api/nguoiDungApi";
 import { taiKhoanService } from "../api/taiKhoanApi";
-import { NguoiDungDto } from "../types/nguoidung";
+import { vaiTroService } from "../api/vaiTroApi";
+import { NguoiDungDto, NguoiDungUpdateDto } from "../types/nguoidung";
 import { TaiKhoanDto } from "../types/taiKhoan";
+
+interface VaiTroDto {
+    id: string;
+    tenVaiTro: string;
+}
 
 const EditUser = () => {
     const navigate = useNavigate();
@@ -20,6 +26,7 @@ const EditUser = () => {
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [vaiTros, setVaiTros] = useState<VaiTroDto[]>([]);
 
     const [accountData, setAccountData] = useState<Partial<TaiKhoanDto>>({
         email: "",
@@ -35,20 +42,33 @@ const EditUser = () => {
         soDienThoai: "",
         diaChi: "",
         maTaiKhoan: "",
+        maVaiTro: "",
+        tenVaiTro: ""
     });
 
     const [hasTaiKhoan, setHasTaiKhoan] = useState(false);
 
     useEffect(() => {
-        const fetchUserData = async () => {
+        const fetchData = async () => {
             if (!id) return;
 
             try {
                 setIsLoading(true);
+
+                // Fetch vai trò list
+                const vaiTroResponse = await vaiTroService.getAll();
+                console.log('Vai tro data:', vaiTroResponse);
+                setVaiTros(vaiTroResponse.data || []);
+
+                // Fetch user data
                 const nguoiDungData = await nguoiDungService.getById(id);
+                console.log('User data:', nguoiDungData);
+                console.log('Current user role:', nguoiDungData.maVaiTro);
+
                 setUserData({
                     ...nguoiDungData,
                     ngaySinh: nguoiDungData.ngaySinh ? new Date(nguoiDungData.ngaySinh) : new Date(),
+                    maVaiTro: nguoiDungData.maVaiTro || "" // Sử dụng trực tiếp maVaiTro từ response
                 });
 
                 // Kiểm tra người dùng có tài khoản hay không
@@ -58,14 +78,14 @@ const EditUser = () => {
                     setAccountData(taiKhoanData);
                 }
             } catch (err: any) {
-                console.error("Lỗi khi lấy dữ liệu người dùng:", err);
-                setError("Không thể tải thông tin người dùng.");
+                console.error("Lỗi khi lấy dữ liệu:", err);
+                setError("Không thể tải thông tin.");
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchUserData();
+        fetchData();
     }, [id]);
 
     const handleAccountChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -78,11 +98,18 @@ const EditUser = () => {
 
     const handleUserChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        console.log('Handle user change:', name, value);
 
         if (name === 'ngaySinh') {
             setUserData(prev => ({
                 ...prev,
                 [name]: new Date(value)
+            }));
+        } else if (name === 'maVaiTro') {
+            // Khi chọn vai trò mới, cập nhật maVaiTro
+            setUserData(prev => ({
+                ...prev,
+                maVaiTro: value
             }));
         } else {
             setUserData(prev => ({
@@ -109,15 +136,24 @@ const EditUser = () => {
                 });
             }
 
-            // Cập nhật thông tin người dùng
-            await nguoiDungService.update(id, {
+            // Log dữ liệu trước khi gửi
+            console.log('User data before update:', userData);
+
+            // Tạo đối tượng update DTO với đúng format field
+            const updateDto: NguoiDungUpdateDto = {
                 tenNguoiDung: userData.tenNguoiDung || "",
                 gioiTinh: userData.gioiTinh || "Nam",
                 ngaySinh: userData.ngaySinh || new Date(),
                 cccd: userData.cccd || "",
-                soDienThoai: userData.soDienThoai || "",
-                diaChi: userData.diaChi || ""
-            });
+                sdt: userData.soDienThoai || "",
+                diaChi: userData.diaChi || "",
+                maVaiTro: userData.maVaiTro
+            };
+
+            console.log('Update DTO:', updateDto);
+
+            // Cập nhật thông tin người dùng
+            await nguoiDungService.update(id, updateDto);
 
             setMessage("Cập nhật người dùng thành công!");
             setTimeout(() => navigate("/dashboard/users"), 1500);
@@ -271,7 +307,7 @@ const EditUser = () => {
                                             <InputWithLabel label="Số điện thoại">
                                                 <SimpleInput
                                                     type="text"
-                                                    name="soDienThoai"
+                                                    name="sdt"
                                                     placeholder="Nhập số điện thoại..."
                                                     value={userData.soDienThoai || ''}
                                                     onChange={handleUserChange}
@@ -286,6 +322,21 @@ const EditUser = () => {
                                                 value={userData.diaChi || ''}
                                                 onChange={handleUserChange}
                                             />
+                                        </InputWithLabel>
+                                        <InputWithLabel label="Vai trò">
+                                            {vaiTros.length > 0 ? (
+                                                <SelectInput
+                                                    selectList={vaiTros.map(role => ({
+                                                        value: role.id,
+                                                        label: role.tenVaiTro
+                                                    }))}
+                                                    name="maVaiTro"
+                                                    value={userData.maVaiTro || ''}
+                                                    onChange={handleUserChange}
+                                                />
+                                            ) : (
+                                                <div>Loading roles...</div>
+                                            )}
                                         </InputWithLabel>
                                     </div>
                                 </div>
