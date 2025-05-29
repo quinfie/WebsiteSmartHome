@@ -3,9 +3,13 @@ import { HiOutlineChevronRight } from "react-icons/hi";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDanhMuc } from "../contexts/DanhMucContexts";
+import { DanhMucUpdateDto } from "../types/danhmuc";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const EditDanhMuc = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { getById: getDanhMucById, update: updateDanhMuc } = useDanhMuc();
 
   const [tenDanhMuc, setTenDanhMuc] = useState("");
@@ -28,15 +32,23 @@ const EditDanhMuc = () => {
     e.preventDefault();
     if (!id) return;
 
-    const formData = new FormData();
-    formData.append("id", id);
-    formData.append("tenDanhMuc", tenDanhMuc);
-    formData.append("moTa", moTa);
+    try {
+      const updateData: DanhMucUpdateDto = {
+        id: id,
+        tenDanhMuc: tenDanhMuc,
+        moTa: moTa
+      };
 
-    await updateDanhMuc(formData); // Giả định API nhận FormData
-    setTimeout(() => {
-      window.location.href = "/dashboard/categories"; // full reload
-    }, 1500);
+      await updateDanhMuc(updateData);
+      toast.success("Cập nhật danh mục thành công!");
+
+      // Đợi toast hiển thị 1.5s rồi mới chuyển trang
+      setTimeout(() => {
+        navigate("/dashboard/categories");
+      }, 1500);
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi cập nhật danh mục!");
+    }
   };
 
   return (

@@ -7,7 +7,6 @@ import { ViewResponseCreateDonHangDto } from '../../types/donhang';
 import { KhuyenMaiDto } from '../../types/khuyenmai';
 import { SanPhamDto } from '../../types/sanpham';
 import api from '../../api/axios.config';
-import { toast } from 'react-hot-toast';
 
 export default function CheckoutSuccess() {
     const [searchParams] = useSearchParams();
@@ -191,18 +190,6 @@ export default function CheckoutSuccess() {
                                                 {orderDetails.tenKhuyenMai} (Giảm {khuyenMai.phanTramGiam}%)
                                             </span>
                                         </div>
-                                        <div className="flex justify-between items-center bg-green-900/10 -mx-6 px-6 py-2">
-                                            <span className="text-green-400">Số tiền giảm:</span>
-                                            <span className="text-green-400 font-medium">
-                                                -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(calculateDiscount(orderDetails))}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center bg-green-900/10 -mx-6 px-6 py-2">
-                                            <span className="text-green-400">Tổng tiền sau giảm:</span>
-                                            <span className="text-green-400 font-medium">
-                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(calculateTotalAfterDiscount(orderDetails))}
-                                            </span>
-                                        </div>
                                     </>
                                 )}
 
@@ -217,7 +204,7 @@ export default function CheckoutSuccess() {
                                     <span className="text-white font-medium">Tổng thanh toán:</span>
                                     <span className="text-blue-400 text-xl font-bold">
                                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                                            calculateTotalAfterDiscount(orderDetails)
+                                            orderDetails.tongTien
                                         )}
                                     </span>
                                 </div>

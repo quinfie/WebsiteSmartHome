@@ -6,18 +6,24 @@ interface EditPhanCongModalProps {
     open: boolean;
     onClose: () => void;
     phanCong: PhanCongDichVuDto;
-    onSubmit: (data: { ghiChu?: string; trangThaiPhanCong?: string }) => void;
+    onSubmit: (data: { ghiChu?: string; trangThaiPhanCong?: string; ngayXuLy?: string }) => void;
 }
 
 const EditPhanCongModal = ({ open, onClose, phanCong, onSubmit }: EditPhanCongModalProps) => {
     const [ghiChu, setGhiChu] = useState(phanCong.ghiChu || '');
     const [trangThaiPhanCong, setTrangThaiPhanCong] = useState(phanCong.trangThaiPhanCong);
+    const [ngayXuLy, setNgayXuLy] = useState(
+        phanCong.yeuCauDichVu?.ngayXuLy
+            ? new Date(phanCong.yeuCauDichVu.ngayXuLy).toISOString().split('T')[0]
+            : ''
+    );
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit({
             ghiChu: ghiChu !== phanCong.ghiChu ? ghiChu : undefined,
-            trangThaiPhanCong: trangThaiPhanCong !== phanCong.trangThaiPhanCong ? trangThaiPhanCong : undefined
+            trangThaiPhanCong: trangThaiPhanCong !== phanCong.trangThaiPhanCong ? trangThaiPhanCong : undefined,
+            ngayXuLy: ngayXuLy
         });
     };
 
@@ -74,6 +80,19 @@ const EditPhanCongModal = ({ open, onClose, phanCong, onSubmit }: EditPhanCongMo
                                         <option value="Hoàn thành">Hoàn thành</option>
                                         <option value="Đã hủy">Đã hủy</option>
                                     </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="ngayXuLy" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Ngày xử lý
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="ngayXuLy"
+                                        name="ngayXuLy"
+                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                        value={ngayXuLy}
+                                        onChange={(e) => setNgayXuLy(e.target.value)}
+                                    />
                                 </div>
                                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                                     <button

@@ -176,12 +176,12 @@ const YeuCauDichVuDetailPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium leading-6 text-gray-700 dark:text-gray-400 flex items-center"><i className="fas fa-calendar-alt mr-2 text-purple-500"></i> Ngày Hẹn:</label>
-                                    <p className="mt-1 text-sm leading-6 text-gray-900 dark:text-white">{yeuCau.ngayHen ? new Date(yeuCau.ngayHen).toLocaleDateString('vi-VN') : 'N/A'}</p>
+                                    <p className="mt-1 text-sm leading-6 text-gray-900 dark:text-white">{yeuCau.ngayHen ?? 'N/A'}</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium leading-6 text-gray-700 dark:text-gray-400 flex items-center"><i className="fas fa-calendar-check mr-2 text-teal-500"></i> Ngày Xử Lý:</label>
                                     <p className="mt-1 text-sm leading-6 text-gray-900 dark:text-white">
-                                        {yeuCau.ngayXuLy ? new Date(yeuCau.ngayXuLy).toLocaleDateString('vi-VN') : 'N/A'}
+                                        {yeuCau.ngayXuLy ?? 'N/A'}
                                     </p>
                                 </div>
                                 <div>

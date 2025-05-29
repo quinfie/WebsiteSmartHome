@@ -130,16 +130,13 @@ export const yeucaudichvuApi = {
   },
 
   // Cập nhật ngày xử lý yêu cầu dịch vụ
-  updateNgayXuLy: async (id: string, ngayXuLy: Date): Promise<YeuCauDichVuDto> => {
-    const response = await api.put(
-      `/YeuCauDichVu/${id}/ngay-xu-ly`,
-      JSON.stringify(ngayXuLy),
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
+  updateNgayXuLy: async (id: string, ngayXuLy: string) => {
+    const formattedDate = new Date(ngayXuLy).toISOString();
+    const response = await api.put(`/YeuCauDichVu/${id}/ngay-xu-ly`, formattedDate, {
+      headers: {
+        'Content-Type': 'application/json'
       }
-    );
+    });
     return response.data.data;
   },
 

@@ -197,13 +197,18 @@ const PhanCongDichVu = () => {
   };
 
 
-  const handleEditSubmit = async (data: { ghiChu?: string; trangThaiPhanCong?: string }) => {
+  const handleEditSubmit = async (data: { ghiChu?: string; trangThaiPhanCong?: string; ngayXuLy?: string }) => {
     if (!editingPhanCong || !isEmployee) return;
 
     try {
       // Cập nhật ghi chú nếu có
       if (data.ghiChu !== undefined) {
         await phanCongDichVuApi.updateGhiChu(editingPhanCong.id, data.ghiChu);
+      }
+
+      // Cập nhật ngày xử lý nếu có
+      if (data.ngayXuLy !== undefined && editingPhanCong.yeuCauDichVu) {
+        await yeucaudichvuApi.updateNgayXuLy(editingPhanCong.yeuCauDichVu.id, data.ngayXuLy);
       }
 
       // Cập nhật trạng thái nếu có
@@ -312,8 +317,6 @@ const PhanCongDichVu = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loại dịch vụ</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày hẹn</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày xử lý</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Trạng thái</th>
                   {isAdminOrManager && (
                     <>
@@ -339,8 +342,6 @@ const PhanCongDichVu = () => {
                       <tr key={item.id}>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{item.id}</td>
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{yeuCau.loaiDichVu}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{yeuCau.ngayHen ? new Date(yeuCau.ngayHen).toLocaleDateString('vi-VN') : 'N/A'}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{yeuCau.ngayXuLy ? new Date(yeuCau.ngayXuLy).toLocaleDateString('vi-VN') : 'N/A'}</td>
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{renderTrangThai(yeuCau.trangThaiYeuCau)}</td>
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{yeuCau.daPhanCong ? 'Đã phân công' : 'Chưa phân công'}</td>
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{yeuCau.khachHang?.tenNguoiDung || 'N/A'}</td>
@@ -379,8 +380,7 @@ const PhanCongDichVu = () => {
                       <tr key={item.id}>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{item.id}</td>
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{yeuCau?.loaiDichVu}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{phanCong.ngayPhanCong ? new Date(phanCong.ngayPhanCong).toLocaleDateString('vi-VN') : 'N/A'}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{phanCong.ngayHoanThanh ? new Date(phanCong.ngayHoanThanh).toLocaleDateString('vi-VN') : 'N/A'}</td>
+
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{renderTrangThai(phanCong.trangThaiPhanCong)}</td>
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{phanCong.kyThuatVien?.tenNguoiDung || 'N/A'}</td>
                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{phanCong.ghiChu || 'N/A'}</td>
@@ -404,24 +404,48 @@ const PhanCongDichVu = () => {
                             </button>
                             {isEmployee && (
                               <>
-                                {phanCong.trangThaiPhanCong === "Đang chờ xác nhận" && (
+                                <div className="relative">
                                   <button
-                                    onClick={() => handleUpdateTrangThai(phanCong.id, "Đã xác nhận")}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const dateInput = e.currentTarget.nextElementSibling as HTMLInputElement;
+                                      if (dateInput) {
+                                        dateInput.showPicker();
+                                      }
+                                    }}
                                     className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-50 rounded hover:bg-green-100 focus:outline-none focus:ring-1 focus:ring-green-500 dark:bg-green-900/50 dark:text-green-300 dark:hover:bg-green-900"
-                                    title="Xác nhận phân công"
+                                    title="Cập nhật ngày xử lý"
                                   >
-                                    <HiOutlineCheckCircle className="h-3.5 w-3.5" />
+                                    <HiOutlineCalendar className="h-3.5 w-3.5" />
                                   </button>
-                                )}
-                                {phanCong.trangThaiPhanCong === "Đã xác nhận" && (
-                                  <button
-                                    onClick={() => handleUpdateTrangThai(phanCong.id, "Hoàn thành")}
-                                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-50 rounded hover:bg-green-100 focus:outline-none focus:ring-1 focus:ring-green-500 dark:bg-green-900/50 dark:text-green-300 dark:hover:bg-green-900"
-                                    title="Hoàn thành phân công"
-                                  >
-                                    <HiOutlineCheckCircle className="h-3.5 w-3.5" />
-                                  </button>
-                                )}
+                                  <input
+                                    type="date"
+                                    className="absolute opacity-0"
+                                    onChange={(e) => {
+                                      if (yeuCau?.id) {
+                                        yeucaudichvuApi.updateNgayXuLy(yeuCau.id, e.target.value)
+                                          .then(() => {
+                                            toast.success("Đã cập nhật ngày xử lý");
+                                            handleRefresh();
+                                          })
+                                          .catch((error) => {
+                                            console.error("Error updating ngayXuLy:", error);
+                                            toast.error(error.message || "Lỗi khi cập nhật ngày xử lý");
+                                          });
+                                      }
+                                    }}
+                                  />
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setEditingPhanCong(phanCong);
+                                    setShowEditModal(true);
+                                  }}
+                                  className="inline-flex items-center px-2 py-1 text-xs font-medium text-yellow-700 bg-yellow-50 rounded hover:bg-yellow-100 focus:outline-none focus:ring-1 focus:ring-yellow-500 dark:bg-yellow-900/50 dark:text-yellow-300 dark:hover:bg-yellow-900"
+                                  title="Chỉnh sửa phân công"
+                                >
+                                  <HiOutlinePencil className="h-3.5 w-3.5" />
+                                </button>
                               </>
                             )}
                           </div>

@@ -40,7 +40,7 @@ interface DanhMucContextType {
   fetchDanhMucs: () => Promise<void>;
   getById: (id: string) => Promise<DanhMucDto>;
   create: (data: DanhMucCreateDto) => Promise<DanhMucCreateDto>;
-  update: (data: FormData) => Promise<void>;
+  update: (data: DanhMucUpdateDto) => Promise<void>;
   remove: (id: string) => Promise<boolean>;
   search: (keyword: string) => Promise<DanhMucDto[]>;
 
@@ -155,10 +155,10 @@ export const DanhMucProvider = ({ children }: { children: ReactNode }) => {
     return newItem;
   };
 
-  const update = async (data: FormData) => {
+  const update = async (data: DanhMucUpdateDto) => {
     const token = localStorage.getItem('token');
     if (token) {
-      await updateDanhMuc(data);
+      await updateDanhMuc(data, token);
       await fetchDanhMucs();
     } else {
       throw new Error("Token not found");

@@ -25,10 +25,6 @@ const Header = () => {
   return (
     <header className="dark:bg-blackPrimary bg-whiteSecondary relative">
       <div className="flex justify-between items-center px-9 py-5 max-xl:flex-col max-xl:gap-y-7 max-[400px]:px-4">
-        <HiOutlineMenu
-          className="text-2xl dark:text-whiteSecondary text-blackPrimary absolute bottom-7 left-5 xl:hidden max-sm:static max-sm:order-1 cursor-pointer"
-          onClick={() => dispatch(setSidebar())}
-        />
         <SearchInput />
         <div className="flex gap-4 items-center max-xl:justify-center">
           {darkMode ? (
@@ -47,7 +43,7 @@ const Header = () => {
           </Link>
           <div className="flex gap-2 items-center">
             <img
-              src="/src/assets/profile.jpg"
+              src="/src/assets/public/download.png"
               alt="profile"
               className="rounded-full w-10 h-10 cursor-pointer"
               onClick={() => setShowUserModal(true)}

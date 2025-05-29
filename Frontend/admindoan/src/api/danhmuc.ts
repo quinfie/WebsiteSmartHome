@@ -1,4 +1,4 @@
-import { DanhMucCreateDto, DanhMucDto} from "../types/danhmuc";
+import { DanhMucCreateDto, DanhMucDto, DanhMucUpdateDto } from "../types/danhmuc";
 import axios from "./axios.config";
 import { getAccessToken } from "../utils/auth";
 
@@ -26,11 +26,11 @@ export const createDanhMuc = async (dto: DanhMucCreateDto): Promise<DanhMucCreat
 };
 
 // Cập nhật danh mục (PUT /api/DanhMuc)
-export const updateDanhMuc = async (data: FormData, token?: string) => {
+export const updateDanhMuc = async (data: DanhMucUpdateDto, token?: string) => {
     const response = await axios.put("/DanhMuc", data, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
       },
     });
     return response.data;

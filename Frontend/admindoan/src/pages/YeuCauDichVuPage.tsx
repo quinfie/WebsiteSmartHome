@@ -6,7 +6,8 @@ import {
   HiOutlinePencil,
   HiOutlineTrash,
   HiOutlineEye,
-  HiOutlineFilter
+  HiOutlineFilter,
+  HiOutlineCalendar
 } from "react-icons/hi";
 import { Sidebar } from "../components";
 import { useNavigate } from "react-router-dom";
@@ -14,12 +15,12 @@ import { useYeuCauDichVu } from "../contexts/YeuCauDichVuContext";
 import { useAuth } from "../contexts/AuthContext";
 import { yeucaudichvuApi } from "../api/yeucaudichvu";
 import StatusBadge, { StatusType } from '../components/StatusBadge';
-import UpdateServiceRequestModal from '../components/UpdateServiceRequestModal';
 import { YeuCauDichVuDto } from "../types/yeucaudichvu";
 import PhanCongDichVuModal from '../components/PhanCongDichVuModal';
 import LichBaoTriTable from '../components/LichBaoTriTable';
 import { LichBaoTriDto } from "../types/lichBaoTri";
 import { getAllLichBaoTri, updateLichBaoTri, deleteLichBaoTri } from "../api/lichbaotri";
+import { toast } from 'react-hot-toast';
 
 // Table component tách riêng
 const CustomYeuCauDichVuTable: React.FC<{
@@ -83,13 +84,6 @@ const CustomYeuCauDichVuTable: React.FC<{
 
   return (
     <div className="w-full">
-      <UpdateServiceRequestModal
-        key={selectedItem?.id}
-        open={updateModalOpen}
-        onClose={() => setUpdateModalOpen(false)}
-        item={selectedItem}
-        onRefresh={handleUpdateSuccess}
-      />
       <PhanCongDichVuModal
         open={showPhanCongModal}
         onClose={() => {

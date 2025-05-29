@@ -58,6 +58,8 @@ import YeuCauDichVuDetailPage from "./pages/YeuCauDichVuDetailPage";
 import PhanCongCalendarPage from "./pages/PhanCongCalendarPage";
 import PhanCongDetailPage from "./pages/PhanCongDetailPage";
 import ThongKePage from "./pages/ThongKePage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Import ecommerce routes
 import { ecommerceRoutes } from "./pages/ecommerce/routes";
@@ -386,6 +388,18 @@ function App() {
     <AppProviders>
       <Toaster position="top-right" />
       <RouterProvider router={router} />
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </AppProviders>
   );
 }
