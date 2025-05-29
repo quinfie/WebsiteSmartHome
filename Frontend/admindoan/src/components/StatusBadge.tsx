@@ -4,14 +4,18 @@ import {
     HiOutlineCheckCircle,
     HiOutlineCheck,
     HiOutlineXCircle,
-    HiOutlineExclamationCircle
+    HiOutlineExclamationCircle,
+    HiOutlineBell,
+    HiOutlineBan
 } from "react-icons/hi";
 
 export type StatusType =
     | "Đang chờ xác nhận"
     | "Đã xác nhận"
     | "Hoàn thành"
-    | "Đã hủy";
+    | "Đã hủy"
+    | "Đã thông báo"
+    | "Chưa thông báo";
 
 interface StatusBadgeProps {
     status: StatusType;
@@ -44,6 +48,18 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = "" }) => 
                     bgColor: "bg-red-100 dark:bg-red-900/30",
                     textColor: "text-red-800 dark:text-red-300",
                     icon: <HiOutlineXCircle className="w-4 h-4" />
+                };
+            case "Đã thông báo":
+                return {
+                    bgColor: "bg-green-100 dark:bg-green-900/30",
+                    textColor: "text-green-800 dark:text-green-300",
+                    icon: <HiOutlineBell className="w-4 h-4" />
+                };
+            case "Chưa thông báo":
+                return {
+                    bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
+                    textColor: "text-yellow-800 dark:text-yellow-300",
+                    icon: <HiOutlineBan className="w-4 h-4" />
                 };
             default:
                 return {

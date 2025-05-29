@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { nguoiDungService } from '../../api/nguoiDungApi';
 import { NguoiDungUpdateDto } from '../../types/nguoidung';
+import ChangePasswordForm from '../../components/ChangePasswordForm';
 
 interface NguoiDungData {
     tenNguoiDung: string;
@@ -32,6 +33,7 @@ export default function CustomerProfile() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loadingOrders, setLoadingOrders] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
     const [editForm, setEditForm] = useState<NguoiDungUpdateDto>({
         tenNguoiDung: '',
         gioiTinh: '',
@@ -269,6 +271,13 @@ export default function CustomerProfile() {
                                                 }
                                             </p>
                                         </div>
+                                        <button
+                                            onClick={() => setShowChangePassword(true)}
+                                            className="w-full flex items-center justify-center px-4 py-2 bg-blue-500/10 text-blue-400 rounded-md hover:bg-blue-500/20 transition-colors"
+                                        >
+                                            <i className="fas fa-key mr-2"></i>
+                                            Đổi mật khẩu
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="border-t border-[#243447] p-6">
@@ -285,247 +294,253 @@ export default function CustomerProfile() {
 
                         {/* Main Content */}
                         <div className="lg:col-span-2">
-                            {/* Personal Information */}
-                            <div className="bg-[#182233] rounded-lg shadow-md overflow-hidden border border-[#243447] mb-6">
-                                <div className="p-6 border-b border-[#243447] flex justify-between items-center">
-                                    <h2 className="text-lg font-semibold text-white flex items-center">
-                                        <i className="fas fa-info-circle text-blue-400 mr-2"></i>
-                                        Thông tin chi tiết
-                                    </h2>
-                                    <button
-                                        onClick={() => setIsEditing(!isEditing)}
-                                        className="text-blue-400 hover:text-blue-300 transition-colors flex items-center"
-                                    >
-                                        <i className={`fas ${isEditing ? 'fa-times' : 'fa-edit'} mr-2`}></i>
-                                        {isEditing ? 'Hủy' : 'Chỉnh sửa'}
-                                    </button>
-                                </div>
-                                <div className="p-6">
-                                    {isEditing ? (
-                                        <form onSubmit={handleSubmit} className="space-y-6">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-400 mb-1">
-                                                        Họ và tên
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="tenNguoiDung"
-                                                        value={editForm.tenNguoiDung}
-                                                        onChange={handleInputChange}
-                                                        className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                                                        required
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-400 mb-1">
-                                                        Giới tính
-                                                    </label>
-                                                    <select
-                                                        name="gioiTinh"
-                                                        value={editForm.gioiTinh}
-                                                        onChange={handleInputChange}
-                                                        className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                                                        required
-                                                    >
-                                                        <option value="">Chọn giới tính</option>
-                                                        <option value="Nam">Nam</option>
-                                                        <option value="Nữ">Nữ</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-400 mb-1">
-                                                        Ngày sinh
-                                                    </label>
-                                                    <input
-                                                        type="date"
-                                                        name="ngaySinh"
-                                                        value={editForm.ngaySinh?.toISOString().split('T')[0]}
-                                                        onChange={handleDateChange}
-                                                        className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                                                        required
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-400 mb-1">
-                                                        CCCD/CMND
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="cccd"
-                                                        value={editForm.cccd}
-                                                        onChange={handleInputChange}
-                                                        className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                                                        required
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-400 mb-1">
-                                                        Số điện thoại
-                                                    </label>
-                                                    <input
-                                                        type="tel"
-                                                        name="Số điện thoại"
-                                                        value={editForm.sdt}
-                                                        onChange={handleInputChange}
-                                                        className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-sm font-medium text-gray-400 mb-1">
-                                                        Địa chỉ
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="diaChi"
-                                                        value={editForm.diaChi}
-                                                        onChange={handleInputChange}
-                                                        className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="flex justify-end space-x-4">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setIsEditing(false)}
-                                                    className="px-4 py-2 bg-gray-500/10 text-gray-400 rounded-md hover:bg-gray-500/20 transition-colors"
-                                                >
-                                                    Hủy
-                                                </button>
-                                                <button
-                                                    type="submit"
-                                                    className="px-4 py-2 bg-blue-500/10 text-blue-400 rounded-md hover:bg-blue-500/20 transition-colors"
-                                                >
-                                                    Lưu thay đổi
-                                                </button>
-                                            </div>
-                                        </form>
-                                    ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-400 mb-1">Họ và tên</h4>
-                                                <p className="text-white">{userInfo?.tenNguoiDung || 'Chưa cập nhật'}</p>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-400 mb-1">Giới tính</h4>
-                                                <p className="text-white">{userInfo?.gioiTinh || 'Chưa cập nhật'}</p>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-400 mb-1">Ngày sinh</h4>
-                                                <p className="text-white">
-                                                    {userInfo?.ngaySinh
-                                                        ? new Date(userInfo.ngaySinh).toLocaleDateString('vi-VN')
-                                                        : 'Chưa cập nhật'
-                                                    }
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-400 mb-1">CCCD/CMND</h4>
-                                                <p className="text-white">{userInfo?.cccd || 'Chưa cập nhật'}</p>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-400 mb-1">Số điện thoại</h4>
-                                                <p className="text-white">{userInfo?.soDienThoai || 'Chưa cập nhật'}</p>
-                                            </div>
-                                            <div className="md:col-span-2">
-                                                <h4 className="text-sm font-medium text-gray-400 mb-1">Địa chỉ</h4>
-                                                <p className="text-white">{userInfo?.diaChi || 'Chưa cập nhật'}</p>
-                                            </div>
+                            {showChangePassword ? (
+                                <ChangePasswordForm onClose={() => setShowChangePassword(false)} />
+                            ) : (
+                                <>
+                                    {/* Personal Information */}
+                                    <div className="bg-[#182233] rounded-lg shadow-md overflow-hidden border border-[#243447] mb-6">
+                                        <div className="p-6 border-b border-[#243447] flex justify-between items-center">
+                                            <h2 className="text-lg font-semibold text-white flex items-center">
+                                                <i className="fas fa-info-circle text-blue-400 mr-2"></i>
+                                                Thông tin chi tiết
+                                            </h2>
+                                            <button
+                                                onClick={() => setIsEditing(!isEditing)}
+                                                className="text-blue-400 hover:text-blue-300 transition-colors flex items-center"
+                                            >
+                                                <i className={`fas ${isEditing ? 'fa-times' : 'fa-edit'} mr-2`}></i>
+                                                {isEditing ? 'Hủy' : 'Chỉnh sửa'}
+                                            </button>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
+                                        <div className="p-6">
+                                            {isEditing ? (
+                                                <form onSubmit={handleSubmit} className="space-y-6">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                                Họ và tên
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                name="tenNguoiDung"
+                                                                value={editForm.tenNguoiDung}
+                                                                onChange={handleInputChange}
+                                                                className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                                Giới tính
+                                                            </label>
+                                                            <select
+                                                                name="gioiTinh"
+                                                                value={editForm.gioiTinh}
+                                                                onChange={handleInputChange}
+                                                                className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                                                                required
+                                                            >
+                                                                <option value="">Chọn giới tính</option>
+                                                                <option value="Nam">Nam</option>
+                                                                <option value="Nữ">Nữ</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                                Ngày sinh
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                name="ngaySinh"
+                                                                value={editForm.ngaySinh?.toISOString().split('T')[0]}
+                                                                onChange={handleDateChange}
+                                                                className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                                CCCD/CMND
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                name="cccd"
+                                                                value={editForm.cccd}
+                                                                onChange={handleInputChange}
+                                                                className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                                Số điện thoại
+                                                            </label>
+                                                            <input
+                                                                type="tel"
+                                                                name="Số điện thoại"
+                                                                value={editForm.sdt}
+                                                                onChange={handleInputChange}
+                                                                className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div className="md:col-span-2">
+                                                            <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                                Địa chỉ
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                name="diaChi"
+                                                                value={editForm.diaChi}
+                                                                onChange={handleInputChange}
+                                                                className="w-full bg-[#1b2a3b] border border-[#243447] rounded-md px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex justify-end space-x-4">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setIsEditing(false)}
+                                                            className="px-4 py-2 bg-gray-500/10 text-gray-400 rounded-md hover:bg-gray-500/20 transition-colors"
+                                                        >
+                                                            Hủy
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            className="px-4 py-2 bg-blue-500/10 text-blue-400 rounded-md hover:bg-blue-500/20 transition-colors"
+                                                        >
+                                                            Lưu thay đổi
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            ) : (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-gray-400 mb-1">Họ và tên</h4>
+                                                        <p className="text-white">{userInfo?.tenNguoiDung || 'Chưa cập nhật'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-gray-400 mb-1">Giới tính</h4>
+                                                        <p className="text-white">{userInfo?.gioiTinh || 'Chưa cập nhật'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-gray-400 mb-1">Ngày sinh</h4>
+                                                        <p className="text-white">
+                                                            {userInfo?.ngaySinh
+                                                                ? new Date(userInfo.ngaySinh).toLocaleDateString('vi-VN')
+                                                                : 'Chưa cập nhật'
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-gray-400 mb-1">CCCD/CMND</h4>
+                                                        <p className="text-white">{userInfo?.cccd || 'Chưa cập nhật'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-gray-400 mb-1">Số điện thoại</h4>
+                                                        <p className="text-white">{userInfo?.soDienThoai || 'Chưa cập nhật'}</p>
+                                                    </div>
+                                                    <div className="md:col-span-2">
+                                                        <h4 className="text-sm font-medium text-gray-400 mb-1">Địa chỉ</h4>
+                                                        <p className="text-white">{userInfo?.diaChi || 'Chưa cập nhật'}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
 
-                            {/* Recent Orders */}
-                            <div className="bg-[#182233] rounded-lg shadow-md overflow-hidden border border-[#243447]">
-                                <div className="p-6 border-b border-[#243447] flex justify-between items-center">
-                                    <h2 className="text-lg font-semibold text-white flex items-center">
-                                        <i className="fas fa-shopping-bag text-blue-400 mr-2"></i>
-                                        Đơn hàng hôm nay
-                                    </h2>
-                                    <button
-                                        onClick={() => navigate('/ecommerce/orders')}
-                                        className="text-sm text-blue-400 hover:text-blue-300 flex items-center"
-                                    >
-                                        Xem tất cả
-                                        <i className="fas fa-arrow-right ml-2"></i>
-                                    </button>
-                                </div>
+                                    {/* Recent Orders */}
+                                    <div className="bg-[#182233] rounded-lg shadow-md overflow-hidden border border-[#243447]">
+                                        <div className="p-6 border-b border-[#243447] flex justify-between items-center">
+                                            <h2 className="text-lg font-semibold text-white flex items-center">
+                                                <i className="fas fa-shopping-bag text-blue-400 mr-2"></i>
+                                                Đơn hàng hôm nay
+                                            </h2>
+                                            <button
+                                                onClick={() => navigate('/ecommerce/orders')}
+                                                className="text-sm text-blue-400 hover:text-blue-300 flex items-center"
+                                            >
+                                                Xem tất cả
+                                                <i className="fas fa-arrow-right ml-2"></i>
+                                            </button>
+                                        </div>
 
-                                <div className="p-6">
-                                    {loadingOrders ? (
-                                        <div className="text-center py-8">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                                            <p className="text-gray-300 mt-2">Đang tải đơn hàng...</p>
+                                        <div className="p-6">
+                                            {loadingOrders ? (
+                                                <div className="text-center py-8">
+                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                                    <p className="text-gray-300 mt-2">Đang tải đơn hàng...</p>
+                                                </div>
+                                            ) : orders.filter(order => {
+                                                const orderDate = new Date(order.ngayDat);
+                                                const today = new Date();
+                                                return orderDate.toDateString() === today.toDateString();
+                                            }).length === 0 ? (
+                                                <div className="text-center py-8">
+                                                    <i className="fas fa-box-open text-gray-400 text-4xl mb-3"></i>
+                                                    <p className="text-gray-300">Chưa có đơn hàng nào trong ngày hôm nay</p>
+                                                </div>
+                                            ) : (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full divide-y divide-[#243447]">
+                                                        <thead className="bg-[#1b2a3b]">
+                                                            <tr>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                                    Thời gian đặt
+                                                                </th>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                                    Tổng tiền
+                                                                </th>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                                    Trạng thái
+                                                                </th>
+                                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-[#243447]">
+                                                            {orders.filter(order => {
+                                                                const orderDate = new Date(order.ngayDat);
+                                                                const today = new Date();
+                                                                return orderDate.toDateString() === today.toDateString();
+                                                            }).map((order) => (
+                                                                <tr key={order.id} className="hover:bg-[#1b2a3b] transition-colors">
+                                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                                        {new Date(order.ngayDat).toLocaleTimeString('vi-VN')}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400">
+                                                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.tongTien)}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order.trangThaiDonHang === 'Đã giao hàng'
+                                                                            ? 'bg-green-900/30 text-green-400'
+                                                                            : order.trangThaiDonHang === 'Đang xử lý'
+                                                                                ? 'bg-yellow-900/30 text-yellow-400'
+                                                                                : 'bg-blue-900/30 text-blue-400'
+                                                                            }`}>
+                                                                            {order.trangThaiDonHang}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                        <button
+                                                                            onClick={() => navigate(`/ecommerce/orders/${order.id}`)}
+                                                                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                                                                        >
+                                                                            Chi tiết
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
                                         </div>
-                                    ) : orders.filter(order => {
-                                        const orderDate = new Date(order.ngayDat);
-                                        const today = new Date();
-                                        return orderDate.toDateString() === today.toDateString();
-                                    }).length === 0 ? (
-                                        <div className="text-center py-8">
-                                            <i className="fas fa-box-open text-gray-400 text-4xl mb-3"></i>
-                                            <p className="text-gray-300">Chưa có đơn hàng nào trong ngày hôm nay</p>
-                                        </div>
-                                    ) : (
-                                        <div className="overflow-x-auto">
-                                            <table className="min-w-full divide-y divide-[#243447]">
-                                                <thead className="bg-[#1b2a3b]">
-                                                    <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                            Thời gian đặt
-                                                        </th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                            Tổng tiền
-                                                        </th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                            Trạng thái
-                                                        </th>
-                                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-[#243447]">
-                                                    {orders.filter(order => {
-                                                        const orderDate = new Date(order.ngayDat);
-                                                        const today = new Date();
-                                                        return orderDate.toDateString() === today.toDateString();
-                                                    }).map((order) => (
-                                                        <tr key={order.id} className="hover:bg-[#1b2a3b] transition-colors">
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                                {new Date(order.ngayDat).toLocaleTimeString('vi-VN')}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400">
-                                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.tongTien)}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order.trangThaiDonHang === 'Đã giao hàng'
-                                                                    ? 'bg-green-900/30 text-green-400'
-                                                                    : order.trangThaiDonHang === 'Đang xử lý'
-                                                                        ? 'bg-yellow-900/30 text-yellow-400'
-                                                                        : 'bg-blue-900/30 text-blue-400'
-                                                                    }`}>
-                                                                    {order.trangThaiDonHang}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                <button
-                                                                    onClick={() => navigate(`/ecommerce/orders/${order.id}`)}
-                                                                    className="text-blue-400 hover:text-blue-300 transition-colors"
-                                                                >
-                                                                    Chi tiết
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

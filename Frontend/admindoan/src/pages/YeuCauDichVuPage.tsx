@@ -8,18 +8,18 @@ import {
   HiOutlineEye,
   HiOutlineFilter
 } from "react-icons/hi";
-import { AiOutlineExport } from "react-icons/ai";
 import { Sidebar } from "../components";
 import { useNavigate } from "react-router-dom";
 import { useYeuCauDichVu } from "../contexts/YeuCauDichVuContext";
 import { useAuth } from "../contexts/AuthContext";
 import { yeucaudichvuApi } from "../api/yeucaudichvu";
-import { phanCongDichVuApi } from "../api/phancongdichvu";
 import StatusBadge, { StatusType } from '../components/StatusBadge';
 import UpdateServiceRequestModal from '../components/UpdateServiceRequestModal';
 import { YeuCauDichVuDto } from "../types/yeucaudichvu";
-import { PhanCongDichVuDto } from "../types/phancongdichvu";
 import PhanCongDichVuModal from '../components/PhanCongDichVuModal';
+import LichBaoTriTable from '../components/LichBaoTriTable';
+import { LichBaoTriDto } from "../types/lichBaoTri";
+import { getAllLichBaoTri, updateLichBaoTri, deleteLichBaoTri } from "../api/lichbaotri";
 
 // Table component tách riêng
 const CustomYeuCauDichVuTable: React.FC<{
@@ -197,24 +197,24 @@ const YeuCauDichVu = () => {
   const { user } = useAuth();
   const { getYeuCauCuaToi, getAllYeuCau } = useYeuCauDichVu();
   const navigate = useNavigate();
+  const [maintenanceSchedules, setMaintenanceSchedules] = useState<LichBaoTriDto[]>([]);
+  const [loadingSchedules, setLoadingSchedules] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
+    setLoadingSchedules(true);
     try {
+      // Fetch service requests
       let data: YeuCauDichVuDto[] = [];
 
       if (user?.vaiTro === "Nhân Viên") {
-        // Lấy yêu cầu dịch vụ của nhân viên
         data = await yeucaudichvuApi.getYeuCauCuaNhanVien(user.maNguoiDung);
       } else if (user?.vaiTro === "Khách Hàng") {
-        // Lấy yêu cầu dịch vụ của khách hàng
         data = await getYeuCauCuaToi();
       } else {
-        // Lấy tất cả yêu cầu dịch vụ cho quản lý và admin
         data = await getAllYeuCau(statusFilter || undefined, serviceTypeFilter || undefined);
       }
 
-      // Lọc theo từ khóa tìm kiếm
       if (searchKeyword) {
         data = data.filter(item =>
           item.tenSanPham?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
@@ -223,10 +223,16 @@ const YeuCauDichVu = () => {
       }
 
       setServiceRequests(data);
+
+      // Fetch all maintenance schedules
+      const schedules = await getAllLichBaoTri();
+      setMaintenanceSchedules(schedules);
+
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
+      setLoadingSchedules(false);
     }
   };
 
@@ -243,6 +249,35 @@ const YeuCauDichVu = () => {
 
   const handleCreateRequest = () => {
     navigate("/yeu-cau-dich-vu/create");
+  };
+
+  const handleViewSchedule = (id: string) => {
+    // TODO: Implement view schedule detail page
+    navigate(`/lich-bao-tri/${id}`);
+  };
+
+  const handleEditSchedule = async (item: LichBaoTriDto) => {
+    try {
+      await updateLichBaoTri(item.id, item);
+      fetchData(); // Refresh data after update
+      alert("Cập nhật lịch bảo trì thành công!");
+    } catch (error) {
+      console.error("Error updating maintenance schedule:", error);
+      alert("Có lỗi xảy ra khi cập nhật lịch bảo trì!");
+    }
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+    if (window.confirm("Bạn có chắc muốn xóa lịch bảo trì này không?")) {
+      try {
+        await deleteLichBaoTri(id);
+        fetchData(); // Refresh data after deletion
+        alert("Xóa lịch bảo trì thành công!");
+      } catch (error) {
+        console.error("Error deleting maintenance schedule:", error);
+        alert("Có lỗi xảy ra khi xóa lịch bảo trì!");
+      }
+    }
   };
 
   return (
@@ -319,14 +354,26 @@ const YeuCauDichVu = () => {
           </div>
         </div>
 
-        {/* Table Card */}
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4">
-          <CustomYeuCauDichVuTable
-            services={serviceRequests}
-            isLoading={loading}
-            onRefresh={fetchData}
-            userRole={user?.vaiTro || ""}
-          />
+        {/* Table Cards */}
+        <div className="space-y-6">
+          {/* Yêu Cầu Dịch Vụ Table */}
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4">
+            <CustomYeuCauDichVuTable
+              services={serviceRequests}
+              isLoading={loading}
+              onRefresh={fetchData}
+              userRole={user?.vaiTro || ""}
+            />
+          </div>
+
+          {/* Lịch Bảo Trì Table */}
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4">
+            <LichBaoTriTable
+              schedules={maintenanceSchedules}
+              isLoading={loadingSchedules}
+              onEdit={handleEditSchedule}
+            />
+          </div>
         </div>
       </div>
     </div>
