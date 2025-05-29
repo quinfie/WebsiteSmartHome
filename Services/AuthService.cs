@@ -10,6 +10,7 @@ using WebsiteSmartHome.Core.Data;
 using WebsiteSmartHome.IServices;
 using WebsiteSmartHome.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace WebsiteSmartHome.Services
 {
@@ -21,6 +22,8 @@ namespace WebsiteSmartHome.Services
         private readonly INguoiDungService _nguoiDungService;
         private readonly ITaiKhoanService _taiKhoanService;
         private readonly IAccountVerificationService _verificationService;
+        private readonly IEmailService _emailService;
+        private readonly string _jwtSecret;
 
         public AuthService(
             IUnitOfWork unitOfWork,
@@ -28,7 +31,8 @@ namespace WebsiteSmartHome.Services
             ITaiKhoanService taiKhoanService,
             INguoiDungService nguoiDungService,
             IVaiTroService vaiTroService,
-            IAccountVerificationService verificationService)
+            IAccountVerificationService verificationService,
+            IEmailService emailService)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -36,6 +40,8 @@ namespace WebsiteSmartHome.Services
             _nguoiDungService = nguoiDungService ?? throw new ArgumentNullException(nameof(nguoiDungService));
             _taiKhoanService = taiKhoanService ?? throw new ArgumentNullException(nameof(taiKhoanService));
             _verificationService = verificationService ?? throw new ArgumentNullException(nameof(verificationService));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _jwtSecret = _configuration["JwtSettings:Secret"];
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
@@ -355,12 +361,26 @@ namespace WebsiteSmartHome.Services
                 throw new BaseException.NotFoundException("account_not_found", "Không tìm thấy tài khoản với email này");
             }
 
-            // Update password
-            taiKhoan.MatKhau = PasswordHelper.HashPassword(forgotPassword.NewPassword);
+            // Tạo mật khẩu mới ngẫu nhiên
+            string newPassword = GenerateRandomPassword();
+            
+            // Cập nhật mật khẩu mới
+            taiKhoan.MatKhau = PasswordHelper.HashPassword(newPassword);
             await _unitOfWork.GetRepository<TaiKhoan>().UpdateAsync(taiKhoan);
             await _unitOfWork.SaveAsync();
 
+            // Gửi mật khẩu mới qua email
+            await _emailService.SendPasswordResetEmailAsync(taiKhoan.Email, newPassword);
+
             return true;
+        }
+
+        private string GenerateRandomPassword()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 10)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
         public async Task<bool> VerifyEmailAsync(string token)
@@ -409,8 +429,7 @@ namespace WebsiteSmartHome.Services
                 return false;
 
             // Gửi lại email xác thực
-            var emailService = new EmailService(_configuration);
-            await emailService.SendVerificationEmailAsync(email);
+            await _emailService.SendVerificationEmailAsync(email, null);
             return true;
         }
     }

@@ -22,6 +22,7 @@ import { Outlet } from 'react-router-dom';
 import PaymentCallback from './PaymentCallback';
 import PaymentSuccess from './PaymentSuccess';
 import PaymentFailed from './PaymentFailed';
+import ForgotPassword from './ForgotPassword';
 
 // The ecommerce routes configuration
 export const ecommerceRoutes: RouteObject[] = [
@@ -156,6 +157,10 @@ export const ecommerceRoutes: RouteObject[] = [
             {
                 path: 'payment-failed',
                 element: <PaymentFailed />
+            },
+            {
+                path: 'forgot-password',
+                element: <ForgotPassword />
             }
         ]
     },
