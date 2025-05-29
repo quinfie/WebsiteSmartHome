@@ -1,5 +1,6 @@
 import HeroSection from '../../components/HeroSection';
 import ProductGrid from '../../components/ProductGrid';
+import smartHomeImg from '@/assets/public/home/image.png'; 
 
 
 export default function Home() {
@@ -28,7 +29,7 @@ export default function Home() {
                             </div>
                             <div className="hidden md:block">
                                 <img
-                                    src="../assets/public/home/image.png"
+                                    src={smartHomeImg}
                                     alt="Smart Home Solutions"
                                     className="rounded-lg w-full h-auto"
                                 />

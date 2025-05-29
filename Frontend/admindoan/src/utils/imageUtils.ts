@@ -19,6 +19,8 @@ export const getImagePath = (imagePath?: string, fallbackImage: string = '/place
             return `/src/assets/${imagePath}`;
         }
 
+        
+
         // Nếu đường dẫn bắt đầu bằng '/'
         if (imagePath.startsWith('/')) {
             return imagePath;
