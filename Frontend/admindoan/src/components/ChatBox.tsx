@@ -7,9 +7,10 @@ import axios from 'axios';
 function normalizeText(str: string): string {
   return str
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s]/gi, "")
+    .normalize("NFD")//tách dấu
+    .replace(/[\u0300-\u036f]/g, "")//xóa dấu
+    .replace(/[^\w\s]/gi, "")//xóa ký tự đặc biệt
+    .replace(/\s+/g, " ")//xóa khoảng trắng thừa    
     .trim();
 }
 
@@ -24,7 +25,7 @@ export default function ChatBox() {
 
 
   const predefinedResponses: { [key: string]: string } = {
-    'Sản phẩm có giảm giá không': 'Hiện tại chúng tôi đang có khuyến mãi 20% cho các sản phẩm SmartHome.',
+    'Sản phẩm có giảm giá không': 'Hiện tại chúng tôi đang có khuyến mãi 10% cho các khách hàng mới, và các chương trình khác bạn có thể xem trong website.',
     'Thời gian bảo hành là bao lâu': 'Tất cả sản phẩm đều được bảo hành theo chính sách của nhà sản xuất (thường từ 6 đến 24 tháng).',
     'Tôi muốn đặt lịch bảo trì': 'Bạn vui lòng cung cấp mã đơn hàng để đặt lịch bảo trì nhé.',
     'Có hỗ trợ giao hàng không': 'Chúng tôi hiện tại chỉ có thể hỗ trợ giao hàng tận nhà với cước phí 30.000đ.',
@@ -46,6 +47,7 @@ export default function ChatBox() {
     'Website có hỗ trợ thanh toán khi nhận hàng không': 'Có, hỗ trợ toàn quốc.',
     'Tôi có cần đăng ký tài khoản để mua hàng không': 'Có, giúp bạn theo dõi đơn hàng dễ dàng hơn.',
   };
+  //cuộn đến cuối khi có tin nhắn mới
   useEffect(() => {
   bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
 }, [messages]);
